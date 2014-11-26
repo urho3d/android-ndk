@@ -1,0 +1,21 @@
+toolchain/build.git                    75542e77b565c2af968e48c1b12b32f343d913ae Fix binutils-2.24 detection
+toolchain/gmp.git                      e6b9669dafc6a5f83c80b4b4176359b78bccdc90 Add gmp-5.0.5.tar.bz2
+toolchain/mpfr.git                     bfcf1bfa38469208aaad8873cd4c68781061d90f add mpfr-3.1.1.tar.bz2
+toolchain/mpc.git                      835d16e92eed875638a8b5d552034c3b1aae045b add mpc-1.0.1.tar.gz
+toolchain/cloog.git                    98972d5434ffcb4d11d2c81a46600e9a1cda9110 MinGW-w64 build fix (lacks ffs declaration)
+toolchain/isl.git                      b05d4572958c5d497da793f3317084bab90c3033 add isl-0.11.1.tar.bz2 needed by GCC 4.8 with graphite
+toolchain/ppl.git                      8ba1875b4c5341d902321761022a6d2a0b5b19a4 add ppl-1.0.tar.bz2
+toolchain/expat.git                    40172a0ae9d40a068f1e1a48ffcf6a1ccf765ed5 expat package for building gdb-7.3
+toolchain/binutils.git                 8390634fd5fb311f01b82ba35a8db4b40b983cc8 Update Binutils 2.24 to include mips32r6, mips64r6 and MSA changes.
+toolchain/gcc.git                      38a8aecfb882072900434499696b5c32a2274515 [4.9] Switch gcc-4.9 to use google/gcc-4_9 branch. This source drop uses svn version r212828 of google/gcc-4.9 branch. We also cherry-picked r213062, r213063 and r213064 to fix windows build issues. All gcc-4.9 patches before July 3rd are ported to google/gcc-4.9. The following prior commits has not been merged to google branch yet. (They are included in this commit). e7af147f979e657fe2df00808e5b4319b0e088c6, baf87df3cb2683649ba7e9872362a7e721117c23, and c231900e5dcc14d8296bd9f62b45997a49d4d5e7.
+toolchain/gdb.git                      24237bc8bc3001a82d6cd9685719c4679f721792 fix some build errors
+toolchain/python.git                   0d4194853e08d3244931523470331c00dfb94863 Fix python build inc_dirs[] and lib_dirs[] for linux/darwin
+toolchain/perl.git                     1121daca35c6c692602621eab28d4de19f0b347d Add -Dcc_as_ld to configure
+toolchain/mclinker.git                 5fca8b9c9c671d6c01f428c00ca131e65042a9fd Merge upstream mclinker 2.7
+toolchain/yasm.git                     87c09baff80ca5bbe938392d8f320e621707f317 test commit
+toolchain/clang.git (release_34)       93fb9b3846bf0de34125b9b556d73dbe88c0175a Backport of clang svn@r211688
+toolchain/llvm.git (release_34)        4e3e3137a7d3c271f5190ac9ef8af7848e5f67e2 Fix missing change for expandVAArg.
+toolchain/compiler-rt.git (release_34) 4f9b4718e8d836317c224955a1e87b7bb5252ae1 Update clear_cache to trunk@208591
+toolchain/clang.git (release_33)       605eefd99fed56bcb7dec02f2776908b1df91646 Align with new GCC options for x86 Android These changes are based on revision 211688 from clang 3.5
+toolchain/llvm.git (release_33)        8609a3469a8126eb6fb99ff65906bcc20c272d95 [ndk] Fix createBranchWeights() assertions.
+toolchain/compiler-rt.git (release_33) c880feaaa8829681a025d29a33704c18e21e87e1 Misc fixes for compiler_rt
