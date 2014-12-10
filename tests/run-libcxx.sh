@@ -111,32 +111,4 @@ echo ================  llvm-libc++
         ./testit_android --abi=mips $MODE
     fi
 
-continue
-
-    if [ -z "$DEVICE_arm" ]; then
-      echo "### 4.6 $MODE armeabi-v7a: no device"
-    else
-      echo "### 4.6 $MODE armeabi-v7a"
-      ADB="adb -s $DEVICE_arm" \
-      PATH=${MYOPT}/android-ndk-api14-arm-libc++/bin:${MYOPT}/android-ndk-api14-mips-libc++/bin:${MYOPT}/android-ndk-api14-x86-libc++/bin:$PATH \
-        ./testit_android --abi=armeabi-v7a $MODE
-    fi
-
-    if [ -z "$DEVICE_x86" ]; then
-      echo "### 4.6 $MODE x86: no device"
-    else
-      echo "### 4.6 $MODE x86"
-      ADB="adb -s $DEVICE_x86" \
-      PATH=${MYOPT}/android-ndk-api14-arm-libc++/bin:${MYOPT}/android-ndk-api14-mips-libc++/bin:${MYOPT}/android-ndk-api14-x86-libc++/bin:$PATH \
-        ./testit_android --abi=x86 $MODE
-    fi
-    
-    if [ -z "$DEVICE_mips" ]; then
-      echo "### 4.6 $MODE mips: no device"
-    else
-      echo "### 4.6 $MODE mips"
-      ADB="adb -s $DEVICE_mips" \
-      PATH=${MYOPT}/android-ndk-api14-arm-libc++/bin:${MYOPT}/android-ndk-api14-mips-libc++/bin:${MYOPT}/android-ndk-api14-x86-libc++/bin:$PATH \
-        ./testit_android --abi=mips $MODE
-    fi
   done

@@ -432,6 +432,11 @@ for SYSTEM in $SYSTEMS; do
     mkdir -p "$DSTDIR" "$DSTDIR64" &&
     copy_directory "$REFERENCE" "$DSTDIR"
     fail_panic "Could not copy reference. Aborting."
+    
+    if [ "$DSTDIR" != "$DSTDIR64" ]; then
+        copy_directory "$DSTDIR" "$DSTDIR64"
+        echo "$RELEASE (64-bit)" > $DSTDIR64/RELEASE.TXT
+    fi
 
     if [ "$PREBUILT_NDK" ]; then
         cd $UNZIP_DIR/android-ndk-* && cp -rP toolchains/* $DSTDIR/toolchains/
@@ -509,10 +514,13 @@ for SYSTEM in $SYSTEMS; do
         echo "Remove ld.mcld deployed/packaged earlier by accident "
         find $DSTDIR/toolchains $DSTDIR64/toolchains  -name "*ld.mcld*" -exec rm -f {} \;
 
-        # Unpack llvm and clang
+        # Unpack clang/llvm
         for LLVM_VERSION in $LLVM_VERSION_LIST; do
             unpack_prebuilt llvm-$LLVM_VERSION-$SYSTEM "$DSTDIR" "$DSTDIR64"
         done
+
+        # Unpack sanitizer headers/libraries
+        unpack_prebuilt libsanitizer-$SYSTEM "$DSTDIR" "$DSTDIR64"
 
         # Unpack mclinker
         if [ -n "$LLVM_VERSION_LIST" ]; then
@@ -558,18 +566,13 @@ for SYSTEM in $SYSTEMS; do
     # Remove duplicated files in case-insensitive file system
     if [ "$SYSTEM" = "windows" -o "$SYSTEM" = "darwin-x86" ]; then
         rm -rf $DSTDIR/tests/build/c++-stl-source-extensions
+        rm -rf $DSTDIR64/tests/build/c++-stl-source-extensions
         find "$DSTDIR/platforms" | sort -f | uniq -di | xargs rm
         find "$DSTDIR64/platforms" | sort -f | uniq -di | xargs rm
     fi
 
     # Remove include-fixed/linux/a.out.h.   See b.android.com/73728
     find "$DSTDIR/toolchains" "$DSTDIR64/toolchains" -name a.out.h | grep include-fixed/ | xargs rm
-    
-    # Remove llvm-3.3
-    rm -rf $DSTDIR/toolchains/*clang3.3
-    rm -rf $DSTDIR/toolchains/llvm-3.3
-    rm -rf $DSTDIR64/toolchains/*clang3.3
-    rm -rf $DSTDIR64/toolchains/llvm-3.3
 
     # Remove redundant pretty-printers/libstdcxx
     rm -rf $DSTDIR/prebuilt/*/share/pretty-printers/libstdcxx/gcc-l*
@@ -587,14 +590,21 @@ for SYSTEM in $SYSTEMS; do
     fi
     case "$SYSTEM" in
         windows)
-            ARCHIVE64="$ARCHIVE-64bit-tools.zip"
-            ARCHIVE="$ARCHIVE.zip"
+            #ARCHIVE64="$ARCHIVE-64bit-tools.zip"
+            #ARCHIVE="$ARCHIVE.zip"
+            ARCHIVE64="${ARCHIVE}_64.tar.bz2"
+
+            ARCHIVE="$ARCHIVE.tar.bz2"
+            dereference_symlink "$TMPDIR/$RELEASE_PREFIX" "$TMPDIR/64/$RELEASE_PREFIX" 
             ;;
         *)
-            ARCHIVE64="$ARCHIVE-64bit-tools.tar.bz2"
+            ARCHIVE64="${ARCHIVE}_64.tar.bz2"
             ARCHIVE="$ARCHIVE.tar.bz2"
             ;;
     esac
+    if [ "$TRY64" = "yes" ]; then
+        ARCHIVE=$ARCHIVE64
+    fi
     echo "Creating $ARCHIVE"
     # make all file universally readable, and all executable (including directory)
     # universally executable, punt intended

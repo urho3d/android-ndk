@@ -105,7 +105,9 @@ if [ -z "$ARCH" ]; then
             ARCH=mips64
             ;;
         *)
-            ARCH=arm
+            ARCH=null
+            echo "Unable to auto-config arch from toolchain $TOOLCHAIN_NAME"
+            exit 1
             ;;
     esac
     ARCH_INC=$ARCH
@@ -132,7 +134,10 @@ else
             ARCH=mips64
             ;;
         *)
-            ARCH=arm
+            echo "Invalid --arch $ARCH"
+            echo "Please use one of arm, x86, mips, arm64, x86_64 or mips64"
+            ARCH=null
+            exit 1
             ;;
     esac
 
@@ -521,7 +526,7 @@ case "$ARCH" in
         run copy_directory_nolinks "$SRC_SYSROOT_LIB/../lib64r2" "$TMPDIR/sysroot/usr/lib64r2"
         ;;
     mips)
-        if [ "$GCC_VERSION" == "4.9" ]; then
+        if [ "$GCC_VERSION" = "4.9" ]; then
             run copy_directory_nolinks "$SRC_SYSROOT_LIB/../libr2" "$TMPDIR/sysroot/usr/libr2"
             run copy_directory_nolinks "$SRC_SYSROOT_LIB/../libr6" "$TMPDIR/sysroot/usr/libr6"
 	fi
@@ -710,7 +715,7 @@ copy_stl_libs_for_abi () {
             fi
             ;;
         mips)
-            if [ "$STL" = "gnustl" -a "$GCC_VERSION" == "4.9" ]; then
+            if [ "$STL" = "gnustl" -a "$GCC_VERSION" = "4.9" ]; then
                 copy_stl_libs mips         "bits"                "bits"             "../lib"       "lib"
                 copy_stl_libs mips         "mips-r2/bits"        "mips-r2/bits"     "../libr2"     "libr2"
                 copy_stl_libs mips         "mips-r6/bits"        "mips-r6/bits"     "../libr6"     "libr6"
@@ -727,7 +732,7 @@ copy_stl_libs_for_abi () {
 mkdir -p "$ABI_STL_INCLUDE_TARGET"
 fail_panic "Can't create directory: $ABI_STL_INCLUDE_TARGET"
 copy_stl_common_headers
-for ABI in $(tr ',' ' ' <<< $ABIS); do
+for ABI in $(echo "$ABIS" | tr ',' ' '); do
   copy_stl_libs_for_abi "$ABI"
 done
 

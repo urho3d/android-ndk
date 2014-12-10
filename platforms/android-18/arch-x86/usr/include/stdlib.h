@@ -65,6 +65,9 @@ extern long strtol(const char *, char **, int);
 extern long long strtoll(const char *, char **, int);
 extern unsigned long strtoul(const char *, char **, int);
 extern unsigned long long strtoull(const char *, char **, int);
+
+extern int posix_memalign(void **memptr, size_t alignment, size_t size);
+
 extern double strtod(const char *nptr, char **endptr) __NDK_FPABI__;
 
 __NDK_FPABI__

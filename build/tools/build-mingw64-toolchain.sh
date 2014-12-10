@@ -687,7 +687,7 @@ var_append GCC_CONFIGURE_OPTIONS "--target=$TARGET_TAG"
 if [ "$TARGET_MULTILIBS" ]; then
     var_append GCC_CONFIGURE_OPTIONS "--enable-targets=all"
 fi
-var_append GCC_CONFIGURE_OPTIONS "--enable-languages=c,c++"
+var_append GCC_CONFIGURE_OPTIONS "--enable-languages=c,c++,fortran"
 var_append GCC_CONFIGURE_OPTIONS "--with-sysroot=$INSTALL_DIR"
 
 # A bug in MinGW-w64 forces us to build and use widl.

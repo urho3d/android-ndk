@@ -72,6 +72,7 @@ WITH_DEBUG_INFO=
 register_var_option "--with-debug-info" WITH_DEBUG_INFO "Build with -g.  STL is still built with optimization but with debug info"
 
 register_jobs_option
+register_try64_option
 
 extract_parameters "$@"
 
@@ -167,6 +168,13 @@ build_gnustl_for_abi ()
         exit 1
     fi
 
+    EXTRA_CFLAGS="-ffunction-sections -fdata-sections"
+    EXTRA_LDFLAGS=
+    if [ -n "$THUMB" ] ; then
+        EXTRA_CFLAGS="$EXTRA_CFLAGS -mthumb"
+        EXTRA_LDFLAGS="$EXTRA_LDFLAGS -mthumb"
+    fi
+
     case $ARCH in
         arm)
             BUILD_HOST=arm-linux-androideabi
@@ -176,9 +184,15 @@ build_gnustl_for_abi ()
             ;;
         x86)
             BUILD_HOST=i686-linux-android
+            # ToDo: remove the following once the root cause of crash inside STL
+            #       due to x86 toolchain no longer set -mstackrealign by default
+            EXTRA_CFLAGS="$EXTRA_CFLAGS -mstackrealign"
             ;;
         x86_64)
             BUILD_HOST=x86_64-linux-android
+            # ToDo: remove the following once the root cause of crash inside STL
+            #       due to x86 toolchain no longer set -mstackrealign by default
+            EXTRA_CFLAGS="$EXTRA_CFLAGS -mstackrealign"
             ;;
         mips)
             BUILD_HOST=mipsel-linux-android
@@ -188,12 +202,8 @@ build_gnustl_for_abi ()
             ;;
     esac
 
-    EXTRA_FLAGS="-ffunction-sections -fdata-sections"
-    if [ -n "$THUMB" ] ; then
-        EXTRA_FLAGS="-mthumb"
-    fi
-    CFLAGS="-fPIC $CFLAGS --sysroot=$SYSROOT -fexceptions -funwind-tables -D__BIONIC__ -O2 $EXTRA_FLAGS"
-    CXXFLAGS="-fPIC $CXXFLAGS --sysroot=$SYSROOT -fexceptions -frtti -funwind-tables -D__BIONIC__ -O2 $EXTRA_FLAGS"
+    CFLAGS="-fPIC $CFLAGS --sysroot=$SYSROOT -fexceptions -funwind-tables -D__BIONIC__ -O2 $EXTRA_CFLAGS"
+    CXXFLAGS="-fPIC $CXXFLAGS --sysroot=$SYSROOT -fexceptions -frtti -funwind-tables -D__BIONIC__ -O2 $EXTRA_CFLAGS"
     CPPFLAGS="$CPPFLAGS --sysroot=$SYSROOT"
     if [ "$WITH_DEBUG_INFO" ]; then
         CFLAGS="$CFLAGS -g"
@@ -211,7 +221,7 @@ build_gnustl_for_abi ()
 
     setup_ccache
 
-    export LDFLAGS="-lc $EXTRA_FLAGS"
+    export LDFLAGS="-lc $EXTRA_LDFLAGS"
 
     case $ABI in
         armeabi-v7a|armeabi-v7a-hard)
@@ -389,10 +399,10 @@ copy_gnustl_libs ()
 GCC_VERSION_LIST=$(commas_to_spaces $GCC_VERSION_LIST)
 for ABI in $ABIS; do
     ARCH=$(convert_abi_to_arch $ABI)
-    DEFAULT_GCC_VERSION=$(get_default_gcc_version_for_arch $ARCH)
+    FIRST_GCC_VERSION=$(get_first_gcc_version_for_arch $ARCH)
     for VERSION in $GCC_VERSION_LIST; do
-        # Only build for this GCC version if it on or after DEFAULT_GCC_VERSION
-        if [ -z "$EXPLICIT_COMPILER_VERSION" ] && version_is_greater_than "$DEFAULT_GCC_VERSION" "${VERSION%%l}"; then
+        # Only build for this GCC version if it on or after FIRST_GCC_VERSION
+        if [ -z "$EXPLICIT_COMPILER_VERSION" ] && version_is_at_least "${VERSION%%l}" "$FIRST_GCC_VERSION"; then
             continue
         fi
 

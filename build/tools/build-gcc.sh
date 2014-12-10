@@ -81,6 +81,9 @@ register_var_option "--with-python=<path/to/python-config.sh>" WITH_PYTHON "Spec
 PACKAGE_DIR=
 register_var_option "--package-dir=<path>" PACKAGE_DIR "Create archive tarball in specific directory"
 
+ENABLE_LANGUAGES="c,c++" # "fortran"
+register_var_option "--enable-languages=<name>" ENABLE_LANGUAGES "Experimental: specify which languages to build"
+
 register_jobs_option
 register_canadian_option
 register_try64_option
@@ -289,7 +292,7 @@ EXTRA_CONFIG_FLAGS="--disable-bootstrap"
 
 # This is to disable GCC 4.6 specific features that don't compile well
 # the flags are ignored for older GCC versions.
-EXTRA_CONFIG_FLAGS=$EXTRA_CONFIG_FLAGS" --disable-libquadmath"
+#EXTRA_CONFIG_FLAGS=$EXTRA_CONFIG_FLAGS" --disable-libquadmath"
 if [ "$DARWIN" = "yes" ]; then
     # Disable plugin because in canadian cross build, plugin gengtype
     # will be incorrectly linked with build's library and fails.
@@ -387,6 +390,7 @@ $BUILD_SRCDIR/configure --target=$ABI_CONFIGURE_TARGET \
                         $WITH_PYTHON \
                         --with-gxx-include-dir=$TOOLCHAIN_BUILD_PREFIX/include/c++/$GCC_VERSION \
                         --with-bugurl=$DEFAULT_ISSUE_TRACKER_URL \
+                        --enable-languages=$ENABLE_LANGUAGES \
                         $EXTRA_CONFIG_FLAGS \
                         $ABI_CONFIGURE_EXTRA_FLAGS
 if [ $? != 0 ] ; then

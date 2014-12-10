@@ -1,10 +1,9 @@
 dlmalloc
-XXXdlmalloc_usable_size
 free_malloc_leak_info
 get_malloc_leak_info
 __srget
 __swbuf
-XXX__srefill
+__srefill
 __swsetup
 __sflags
 __sfp
