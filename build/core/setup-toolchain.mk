@@ -20,8 +20,8 @@
 $(call assert-defined,TARGET_PLATFORM TARGET_ARCH TARGET_ARCH_ABI)
 $(call assert-defined,NDK_APPS NDK_APP_STL)
 
-LLVM_VERSION_LIST := 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5
-NDK_64BIT_TOOLCHAIN_LIST := clang3.5 clang3.4 4.9
+LLVM_VERSION_LIST := 2.6 2.7 2.8 2.9 3.0 3.1 3.2 3.3 3.4 3.5 3.6
+NDK_64BIT_TOOLCHAIN_LIST := clang3.6 clang3.5 clang3.4 4.9
 
 # Check that we have a toolchain that supports the current ABI.
 # NOTE: If NDK_TOOLCHAIN is defined, we're going to use it.
@@ -53,7 +53,7 @@ ifndef NDK_TOOLCHAIN
         $(call __ndk_error,Aborting)
     endif
     # Select the last toolchain from the sorted list.
-    # For now, this is enough to select by default gcc4.6 for 32-bit, and 4.9 for 64-bit, the the
+    # For now, this is enough to select by default gcc4.8 for 32-bit, and 4.9 for 64-bit, the the
     # latest llvm if no gcc
     ifneq (,$(filter-out llvm-%,$(TARGET_TOOLCHAIN_LIST)))
         TARGET_TOOLCHAIN := $(firstword $(TARGET_TOOLCHAIN_LIST))

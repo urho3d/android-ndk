@@ -951,10 +951,9 @@ rotate_log ()
 dereference_symlink ()
 {
     local DIRECTORY SYMLINKS DIR FILE LINK
-    for DIRECTORY in $@; do
+    for DIRECTORY in "$@"; do
         if [ -d "$DIRECTORY" ]; then
-            while [ 1 ]
-            do
+            while true; do
                 # Find all symlinks in this directory.
                 SYMLINKS=`find $DIRECTORY -type l`
                 if [ -z "$SYMLINKS" ]; then
@@ -975,7 +974,7 @@ dereference_symlink ()
                          cp -a "$LINK" "$FILE")
                     fi
                 done
-        done
+            done
         fi
     done
 }

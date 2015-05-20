@@ -29,8 +29,10 @@ TOOLCHAIN_PREFIX := $(TOOLCHAIN_PREBUILT_ROOT)/bin/x86_64-linux-android-
 TARGET_CFLAGS := \
     -ffunction-sections \
     -funwind-tables \
-    -fstack-protector \
+    -fstack-protector-strong \
     -no-canonical-prefixes
+
+#TARGET_CFLAGS += -fstack-check
 
 TARGET_C_INCLUDES := \
     $(SYSROOT_INC)/usr/include

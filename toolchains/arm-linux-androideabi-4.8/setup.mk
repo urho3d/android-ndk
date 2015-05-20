@@ -30,6 +30,8 @@ TARGET_CFLAGS := \
     -fstack-protector \
     -no-canonical-prefixes
 
+#TARGET_CFLAGS += -fstack-check
+
 TARGET_LDFLAGS := -no-canonical-prefixes
 
 TARGET_C_INCLUDES := \

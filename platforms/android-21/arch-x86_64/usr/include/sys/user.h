@@ -166,7 +166,7 @@ struct user {
 };
 
 #elif defined(__mips__)
-struct user_regs_struct 
+struct user_regs_struct
 {
   unsigned long regs[180 / sizeof(unsigned long) + 64];
 };

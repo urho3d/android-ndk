@@ -148,7 +148,7 @@ UNKNOWN_ABIS=$(convert_archs_to_abis $UNKNOWN_ARCH)
 # Convert comma-separated list to space-separated list
 LLVM_VERSION_LIST=$(commas_to_spaces $LLVM_VERSION_LIST)
 
-# If --arch is used to list x86 as a target architecture, Add x86-4.6 to
+# If --arch is used to list x86 as a target architecture, Add x86-4.8 to
 # the list of default toolchains to package. That is, unless you also
 # explicitely use --toolchains=<list>
 #
@@ -432,7 +432,7 @@ for SYSTEM in $SYSTEMS; do
     mkdir -p "$DSTDIR" "$DSTDIR64" &&
     copy_directory "$REFERENCE" "$DSTDIR"
     fail_panic "Could not copy reference. Aborting."
-    
+
     if [ "$DSTDIR" != "$DSTDIR64" ]; then
         copy_directory "$DSTDIR" "$DSTDIR64"
         echo "$RELEASE (64-bit)" > $DSTDIR64/RELEASE.TXT
@@ -520,7 +520,8 @@ for SYSTEM in $SYSTEMS; do
         done
 
         # Unpack sanitizer headers/libraries
-        unpack_prebuilt libsanitizer-$SYSTEM "$DSTDIR" "$DSTDIR64"
+        unpack_prebuilt libsanitizer-3.5-$SYSTEM "$DSTDIR" "$DSTDIR64"
+        unpack_prebuilt libsanitizer-3.6-$SYSTEM "$DSTDIR" "$DSTDIR64"
 
         # Unpack mclinker
         if [ -n "$LLVM_VERSION_LIST" ]; then
@@ -573,12 +574,30 @@ for SYSTEM in $SYSTEMS; do
 
     # Remove include-fixed/linux/a.out.h.   See b.android.com/73728
     find "$DSTDIR/toolchains" "$DSTDIR64/toolchains" -name a.out.h | grep include-fixed/ | xargs rm
-
+    
     # Remove redundant pretty-printers/libstdcxx
     rm -rf $DSTDIR/prebuilt/*/share/pretty-printers/libstdcxx/gcc-l*
     rm -rf $DSTDIR/prebuilt/*/share/pretty-printers/libstdcxx/gcc-4.9-*
     rm -rf $DSTDIR64/prebuilt/*/share/pretty-printers/libstdcxx/gcc-l*
     rm -rf $DSTDIR64/prebuilt/*/share/pretty-printers/libstdcxx/gcc-4.9-*
+
+    # Remove python tests
+    find $DSTDIR/prebuilt/*/lib/python* -name test -exec rm -rf {} \;
+    find $DSTDIR64/prebuilt/*/lib/python* -name test -exec rm -rf {} \;
+
+    # Remove python *.pyc and *.pyo files
+    find $DSTDIR/prebuilt/*/lib/python* -name "*.pyc" -exec rm -rf {} \;
+    find $DSTDIR/prebuilt/*/lib/python* -name "*.pyo" -exec rm -rf {} \;
+    find $DSTDIR64/prebuilt/*/lib/python* -name "*.pyc"  -exec rm -rf {} \;
+    find $DSTDIR64/prebuilt/*/lib/python* -name "*.pyo"  -exec rm -rf {} \;
+
+    # Remove obsolete toolchains
+    rm -rf $DSTDIR/toolchains/*3.4
+    rm -rf $DSTDIR64/toolchains/*3.4
+    
+    # Remove .git*
+    find $DSTDIR -name ".git*" -exec rm -rf {} \;
+    find $DSTDIR64 -name ".git*" -exec rm -rf {} \;
 
     # Create an archive for the final package. Extension depends on the
     # host system.
@@ -590,8 +609,6 @@ for SYSTEM in $SYSTEMS; do
     fi
     case "$SYSTEM" in
         windows)
-            #ARCHIVE64="$ARCHIVE-64bit-tools.zip"
-            #ARCHIVE="$ARCHIVE.zip"
             ARCHIVE64="${ARCHIVE}_64.tar.bz2"
 
             ARCHIVE="$ARCHIVE.tar.bz2"

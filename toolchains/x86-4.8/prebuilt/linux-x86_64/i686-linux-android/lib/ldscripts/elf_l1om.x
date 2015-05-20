@@ -1,5 +1,9 @@
 /* Default linker script, for normal executables */
 /* Modified for Android.  */
+/* Copyright (C) 2014 Free Software Foundation, Inc.
+   Copying and distribution of this script, with or without modification,
+   are permitted in any medium without royalty provided the copyright
+   notice and this notice are preserved.  */
 OUTPUT_FORMAT("elf64-l1om", "elf64-l1om",
 	      "elf64-l1om")
 OUTPUT_ARCH(l1om)
@@ -32,22 +36,19 @@ SECTIONS
   .rela.ldata     : { *(.rela.ldata .rela.ldata.* .rela.gnu.linkonce.l.*) }
   .rela.lbss      : { *(.rela.lbss .rela.lbss.* .rela.gnu.linkonce.lb.*) }
   .rela.lrodata   : { *(.rela.lrodata .rela.lrodata.* .rela.gnu.linkonce.lr.*) }
-  .rela.iplt      :
-    {
-      PROVIDE_HIDDEN (__rela_iplt_start = .);
-      *(.rela.iplt)
-      PROVIDE_HIDDEN (__rela_iplt_end = .);
-    }
+  .rela.ifunc     : { *(.rela.ifunc) }
   .rela.plt       :
     {
       *(.rela.plt)
+      PROVIDE_HIDDEN (__rela_iplt_start = .);
+      *(.rela.iplt)
+      PROVIDE_HIDDEN (__rela_iplt_end = .);
     }
   .init           :
   {
     KEEP (*(SORT_NONE(.init)))
   }
-  .plt            : { *(.plt) }
-  .iplt           : { *(.iplt) }
+  .plt            : { *(.plt) *(.iplt) }
   .text           :
   {
     *(.text.unlikely .text.*_unlikely .text.unlikely.*)

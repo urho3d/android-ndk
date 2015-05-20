@@ -1,4 +1,8 @@
 /* Script for -z combreloc: combine and sort reloc sections */
+/* Copyright (C) 2014 Free Software Foundation, Inc.
+   Copying and distribution of this script, with or without modification,
+   are permitted in any medium without royalty provided the copyright
+   notice and this notice are preserved.  */
 OUTPUT_FORMAT("elf64-tradbigmips", "elf64-tradbigmips",
 	      "elf64-tradlittlemips")
 OUTPUT_ARCH(mips)
@@ -40,8 +44,6 @@ SECTIONS
       PROVIDE_HIDDEN (__rel_iplt_start = .);
       *(.rel.iplt)
       PROVIDE_HIDDEN (__rel_iplt_end = .);
-      PROVIDE_HIDDEN (__rela_iplt_start = .);
-      PROVIDE_HIDDEN (__rela_iplt_end = .);
     }
   .rela.dyn       :
     {
@@ -60,8 +62,6 @@ SECTIONS
       *(.rela.sdata2 .rela.sdata2.* .rela.gnu.linkonce.s2.*)
       *(.rela.sbss2 .rela.sbss2.* .rela.gnu.linkonce.sb2.*)
       *(.rela.bss .rela.bss.* .rela.gnu.linkonce.b.*)
-      PROVIDE_HIDDEN (__rel_iplt_start = .);
-      PROVIDE_HIDDEN (__rel_iplt_end = .);
       PROVIDE_HIDDEN (__rela_iplt_start = .);
       *(.rela.iplt)
       PROVIDE_HIDDEN (__rela_iplt_end = .);

@@ -31,6 +31,8 @@ TARGET_CFLAGS := \
     -funwind-tables \
     -no-canonical-prefixes
 
+#TARGET_CFLAGS += -fstack-check
+
 TARGET_C_INCLUDES := \
     $(SYSROOT_INC)/usr/include
 

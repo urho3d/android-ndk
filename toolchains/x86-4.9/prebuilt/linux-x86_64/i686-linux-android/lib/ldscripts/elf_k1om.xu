@@ -1,4 +1,8 @@
 /* Script for ld -Ur: link w/out relocation, do create constructors */
+/* Copyright (C) 2014 Free Software Foundation, Inc.
+   Copying and distribution of this script, with or without modification,
+   are permitted in any medium without royalty provided the copyright
+   notice and this notice are preserved.  */
 OUTPUT_FORMAT("elf64-k1om", "elf64-k1om",
 	      "elf64-k1om")
 OUTPUT_ARCH(k1om)
@@ -33,10 +37,7 @@ SECTIONS
   .rela.ldata   0 : { *(.rela.ldata) }
   .rela.lbss    0 : { *(.rela.lbss) }
   .rela.lrodata 0 : { *(.rela.lrodata) }
-  .rela.iplt    0 :
-    {
-      *(.rela.iplt)
-    }
+  .rela.ifunc   0 : { *(.rela.ifunc) }
   .rela.plt     0 :
     {
       *(.rela.plt)
@@ -45,8 +46,7 @@ SECTIONS
   {
     KEEP (*(SORT_NONE(.init)))
   }
-  .plt          0 : { *(.plt) }
-  .iplt         0 : { *(.iplt) }
+  .plt          0 : { *(.plt) *(.iplt) }
   .text         0 :
   {
     *(.text .stub)

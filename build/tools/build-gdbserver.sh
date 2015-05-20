@@ -28,7 +28,7 @@ PROGRAM_DESCRIPTION=\
 
 Where <src-dir> is the location of the gdbserver sources,
 <ndk-dir> is the top-level NDK installation path and <toolchain>
-is the name of the toolchain to use (e.g. arm-linux-androideabi-4.6).
+is the name of the toolchain to use (e.g. arm-linux-androideabi-4.8).
 
 The final binary is placed under:
 
@@ -133,7 +133,7 @@ parse_toolchain_name $TOOLCHAIN
 check_toolchain_install $NDK_DIR $TOOLCHAIN
 
 if [ -z "$PLATFORM" ]; then
-   PLATFORM="android-"$(get_default_api_level_for_arch $ARCH)
+    PLATFORM="android-"$(get_default_api_level_for_arch $ARCH)
 fi
 
 # Check build directory
@@ -168,8 +168,7 @@ if [ "$NOTHREADS" != "yes" ] ; then
         dump "ERROR: Missing directory: $LIBTHREAD_DB_DIR"
         exit 1
     fi
-    # Small trick, to avoid calling ar, we store the single object file
-    # with an .a suffix. The linker will handle that seamlessly.
+
     run cp $LIBTHREAD_DB_DIR/thread_db.h $BUILD_SYSROOT/usr/include/
     run $TOOLCHAIN_PREFIX-gcc --sysroot=$BUILD_SYSROOT -o $BUILD_SYSROOT/usr/$LIBDIR/libthread_db.o -c $LIBTHREAD_DB_DIR/libthread_db.c
     run $TOOLCHAIN_PREFIX-ar -rD $BUILD_SYSROOT/usr/$LIBDIR/libthread_db.a $BUILD_SYSROOT/usr/$LIBDIR/libthread_db.o
@@ -182,13 +181,13 @@ fi
 log "Using build sysroot: $BUILD_SYSROOT"
 
 # configure the gdbserver build now
-dump "Configure: $TOOLCHAIN gdbserver-$GDBVER build."
+dump "Configure: $TOOLCHAIN gdbserver-$GDBVER build with $PLATFORM"
 
 case "$GDBVER" in
     6.6)
         CONFIGURE_FLAGS="--with-sysroot=$BUILD_SYSROOT"
         ;;
-    7.3.x)
+    7.3.x|7.6|7.7)
         # This flag is required to link libthread_db statically to our
         # gdbserver binary. Otherwise, the program will try to dlopen()
         # the threads binary, which is not possible since we build a
@@ -196,10 +195,6 @@ case "$GDBVER" in
         CONFIGURE_FLAGS="--with-libthread-db=$BUILD_SYSROOT/usr/$LIBDIR/libthread_db.a"
         # Disable libinproctrace.so which needs crtbegin_so.o and crtbend_so.o instead of
         # CRTBEGIN/END above.  Clean it up and re-enable it in the future.
-        CONFIGURE_FLAGS=$CONFIGURE_FLAGS" --disable-inprocess-agent"
-        ;;
-    7.6)
-        CONFIGURE_FLAGS="--with-libthread-db=$BUILD_SYSROOT/usr/$LIBDIR/libthread_db.a"
         CONFIGURE_FLAGS=$CONFIGURE_FLAGS" --disable-inprocess-agent"
         ;;
     *)

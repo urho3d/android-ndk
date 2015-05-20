@@ -27,8 +27,10 @@ TARGET_CFLAGS := \
     -fpic \
     -ffunction-sections \
     -funwind-tables \
-    -fstack-protector \
+    -fstack-protector-strong \
     -no-canonical-prefixes
+
+#TARGET_CFLAGS += -fstack-check
 
 TARGET_LDFLAGS := -no-canonical-prefixes
 

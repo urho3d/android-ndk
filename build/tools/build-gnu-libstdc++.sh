@@ -71,6 +71,9 @@ register_var_option "--visible-libgnustl-static" VISIBLE_LIBGNUSTL_STATIC "Do no
 WITH_DEBUG_INFO=
 register_var_option "--with-debug-info" WITH_DEBUG_INFO "Build with -g.  STL is still built with optimization but with debug info"
 
+WITH_LIBSUPPORT=
+register_var_option "--with-libsupport" WITH_LIBSUPPORT "Build with -landroid_support."
+
 register_jobs_option
 register_try64_option
 
@@ -184,14 +187,14 @@ build_gnustl_for_abi ()
             ;;
         x86)
             BUILD_HOST=i686-linux-android
-            # ToDo: remove the following once the root cause of crash inside STL
-            #       due to x86 toolchain no longer set -mstackrealign by default
+            # ToDo: remove the following once all x86-based device call JNI function with
+            #       stack aligned to 16-byte
             EXTRA_CFLAGS="$EXTRA_CFLAGS -mstackrealign"
             ;;
         x86_64)
             BUILD_HOST=x86_64-linux-android
-            # ToDo: remove the following once the root cause of crash inside STL
-            #       due to x86 toolchain no longer set -mstackrealign by default
+            # ToDo: remove the following once all x86-based device call JNI function with
+            #       stack aligned to 16-byte
             EXTRA_CFLAGS="$EXTRA_CFLAGS -mstackrealign"
             ;;
         mips)
@@ -209,6 +212,11 @@ build_gnustl_for_abi ()
         CFLAGS="$CFLAGS -g"
         CXXFLAGS="$CXXFLAGS -g"
     fi
+    if [ "$WITH_LIBSUPPORT" ]; then
+        CFLAGS="$CFLAGS -I$NDK_DIR/$SUPPORT_SUBDIR/include"
+        CXXFLAGS="$CXXFLAGS -I$NDK_DIR/$SUPPORT_SUBDIR/include"
+        EXTRA_LDFLAGS="$EXTRA_LDFLAGS -L$NDK_DIR/$SUPPORT_SUBDIR/libs/$ABI -landroid_support"
+    fi
     export CFLAGS CXXFLAGS CPPFLAGS
 
     export CC=${BINPREFIX}gcc
@@ -221,7 +229,7 @@ build_gnustl_for_abi ()
 
     setup_ccache
 
-    export LDFLAGS="-lc $EXTRA_LDFLAGS"
+    export LDFLAGS="$EXTRA_LDFLAGS -lc"
 
     case $ABI in
         armeabi-v7a|armeabi-v7a-hard)
@@ -239,6 +247,11 @@ build_gnustl_for_abi ()
             CXXFLAGS=$CXXFLAGS" -mfix-cortex-a53-835769"
             ;;
     esac
+
+    if [ "$ABI" = "armeabi" -o "$ABI" = "armeabi-v7a" -o "$ABI" = "armeabi-v7a-hard" ]; then
+        CFLAGS=$CFLAGS" -minline-thumb1-jumptable"
+        CXXFLAGS=$CXXFLAGS" -minline-thumb1-jumptable"
+    fi
 
     LIBTYPE_FLAGS=
     if [ $LIBTYPE = "static" ]; then
@@ -258,9 +271,9 @@ build_gnustl_for_abi ()
         #LDFLAGS=$LDFLAGS" -lsupc++"
     fi
 
-    if [ "$ARCH" == "x86_64" -o "$ARCH" == "mips64" -o "$ARCH" == "mips" ] ; then
+    if [ "$ARCH" = "x86_64" -o "$ARCH" = "mips64" -o "$ARCH" = "mips" ] ; then
         MULTILIB_FLAGS=
-    elif [ "$ARCH" == "mips" -a $GCC_VERSION == "4.9" ] ; then
+    elif [ "$ARCH" = "mips" -a $GCC_VERSION = "4.9" ] ; then
         MULTILIB_FLAGS=
     else
         MULTILIB_FLAGS=--disable-multilib
@@ -345,8 +358,10 @@ copy_gnustl_libs ()
     esac
 
     LDIR=lib
-    if [ "$ARCH" != "${ARCH%%64*}" ]; then
-        #Can't call $(get_default_libdir_for_arch $ARCH) which contain hack for arm64 and mips64
+    if [ "$ABI" = "mips32r6" ]; then
+        LDIR=libr6
+    elif [ "$ARCH" != "${ARCH%%64*}" ]; then
+        #Can't call $(get_default_libdir_for_arch $ARCH) which contain hack for arm64
         LDIR=lib64
     fi
 
@@ -446,8 +461,8 @@ if [ -n "$PACKAGE_DIR" ] ; then
                               lib64/libsupc++.a lib64/libgnustl_static.a lib64/libgnustl_shared.so
                               lib64r2/libsupc++.a lib64r2/libgnustl_static.a lib64r2/libgnustl_shared.so"
                     ;;
-                mips)
-                    if [ "$VERSION" == "4.9" ]; then
+                mips|mips32r6)
+                    if [ "$VERSION" = "4.9" ]; then
                         MULTILIB="include/mips-r2/bits include/mips-r6/bits include/bits
                                   lib/libsupc++.a lib/libgnustl_static.a lib/libgnustl_shared.so
                                   libr2/libsupc++.a libr2/libgnustl_static.a libr2/libgnustl_shared.so

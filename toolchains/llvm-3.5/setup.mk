@@ -23,7 +23,7 @@
 # revisions of the NDK.
 #
 
-TOOLCHAIN_VERSION := 4.8
+TOOLCHAIN_VERSION := 4.9
 
 ifneq ($(filter %bcarmeabi-v7a,$(TARGET_ARCH_ABI)),)
 SYSROOT_LINK     := $(NDK_PLATFORMS_ROOT)/$(TARGET_PLATFORM)/arch-arm
@@ -223,6 +223,12 @@ TARGET_LDFLAGS   += -Wl,@$(NDK_ROOT)/sources/android/libportable/libs/mips64/lib
 include $(NDK_ROOT)/toolchains/mips64el-linux-android-clang3.5/setup.mk
 
 else
+
+# if unknown ABI ends with 64 suffix then use le64
+ifneq ($(filter %64,$(APP_ABI)),)
+UNKNOWN_ABI_64 := true
+NDK_APP_DST_DIR := $(NDK_APP_LIBS_OUT)/$(TARGET_ARCH_ABI)64
+endif
 
 TARGET_OBJ_EXTENSION := .bc
 TARGET_LIB_EXTENSION := .a

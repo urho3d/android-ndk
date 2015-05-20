@@ -36,6 +36,8 @@ TARGET_CFLAGS := \
         -frename-registers \
         -no-canonical-prefixes
 
+#TARGET_CFLAGS += -fstack-check
+
 TARGET_LDFLAGS := -no-canonical-prefixes
 
 TARGET_C_INCLUDES := \

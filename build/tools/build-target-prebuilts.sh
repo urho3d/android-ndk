@@ -69,7 +69,7 @@ fi
 
 if [ ! -z "$LLVM_VERSION" ]; then
    BUILD_TOOLCHAIN="--llvm-version=$LLVM_VERSION"
-else
+elif [ ! -z "$GCC_VERSION" ]; then
    BUILD_TOOLCHAIN="--gcc-version=$GCC_VERSION"
 fi
 
@@ -90,7 +90,7 @@ fi
 if [ -z "$NO_GEN_PLATFORMS" ]; then
     echo "Preparing the build..."
     PLATFORMS_BUILD_TOOLCHAIN=
-    if [ "$GCC_VERSION" != "default" ]; then
+    if [ ! -z "$GCC_VERSION" ]; then
 	PLATFORMS_BUILD_TOOLCHAIN="--gcc-version=$GCC_VERSION"
     fi
     run $BUILDTOOLS/gen-platforms.sh --samples --fast-copy --dst-dir=$NDK_DIR --ndk-dir=$NDK_DIR --arch=$(spaces_to_commas $ARCHS) $PACKAGE_FLAGS $PLATFORMS_BUILD_TOOLCHAIN
@@ -133,9 +133,9 @@ fi
 
 # First, gdbserver
 for ARCH in $ARCHS; do
-    if [ "$GCC_VERSION" == "default" ]; then
+    if [ -z "$GCC_VERSION" ]; then
        GDB_TOOLCHAIN=$(get_default_toolchain_name_for_arch $ARCH)
-    elif [ ! -z "$GCC_VERSION" ]; then
+    else
        GDB_TOOLCHAIN=$(get_toolchain_name_for_arch $ARCH $GCC_VERSION)
     fi
     GDB_VERSION="--gdb-version="$(get_default_gdb_version_for_gcc $GDB_TOOLCHAIN)
@@ -162,14 +162,14 @@ dump "Building $ABIS $UNKNOWN_ABIS stlport binaries..."
 run $BUILDTOOLS/build-cxx-stl.sh --stl=stlport --abis="$ABIS,$UNKNOWN_ABIS" $FLAGS --with-debug-info $BUILD_TOOLCHAIN
 fail_panic "Could not build stlport with debug info!"
 
-dump "Building $ABIS $UNKNOWN_ABIS libc++ binaries... with libc++abi"
-run $BUILDTOOLS/build-cxx-stl.sh --stl=libc++-libc++abi --abis="$ABIS,$UNKNOWN_ABIS" $FLAGS --with-debug-info $BUILD_TOOLCHAIN
+dump "Building $ABIS libc++ binaries... with libc++abi"
+run $BUILDTOOLS/build-cxx-stl.sh --stl=libc++-libc++abi --abis="$ABIS" $FLAGS --with-debug-info $BUILD_TOOLCHAIN
 fail_panic "Could not build libc++ with libc++abi and debug info!"
 
 # workaround issues in libc++/libc++abi for x86 and mips
 for abi in $ABIS; do
   case $abi in
-     x86|x86_64|mips|mips64)
+     x86|x86_64|mips|mips32r6|mips64)
   dump "Rebuilding $abi libc++ binaries... with gabi++"
   run $BUILDTOOLS/build-cxx-stl.sh --stl=libc++-gabi++ --abis=$abi $FLAGS --with-debug-info $BUILD_TOOLCHAIN
   esac
@@ -185,8 +185,6 @@ if [ ! -z "$GCC_VERSION_LIST" ]; then
      STDCXX_GCC_VERSIONS="--gcc-version-list=$GCC_VERSION_LIST"
   fi
   dump "Building $ABIS gnustl binaries..."
-  run $BUILDTOOLS/build-gnu-libstdc++.sh --abis="$ABIS" $FLAGS $GNUSTL_STATIC_VIS_FLAG "$SRC_DIR" $STDCXX_GCC_VERSIONS
-  fail_panic "Could not build gnustl!"
   run $BUILDTOOLS/build-gnu-libstdc++.sh --abis="$ABIS" $FLAGS $GNUSTL_STATIC_VIS_FLAG "$SRC_DIR" --with-debug-info $STDCXX_GCC_VERSIONS
   fail_panic "Could not build gnustl with debug info!"
 fi

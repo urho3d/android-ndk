@@ -28,7 +28,7 @@ PROGRAM_DESCRIPTION=\
 
 Where <src-dir> is the location of toolchain sources, <ndk-dir> is
 the top-level NDK installation path and <toolchain> is the name of
-the toolchain to use (e.g. llvm-3.5)."
+the toolchain to use (e.g. llvm-3.6)."
 
 RELEASE=`date +%Y%m%d`
 BUILD_OUT=/tmp/ndk-$USER/build/toolchain
@@ -148,7 +148,7 @@ if [ "$MINGW" != "yes" -a "$DARWIN" != "yes" ] ; then
 fi
 
 if [ "$MINGW" = "yes" -a "$TRY64" != "yes" ]; then
-    # Clang3.5 and later needs gcc4.7+ to build, and some of
+    # Clang3.5+ needs gcc4.7+ to build, and some of
     # cross toolchain "i586-*" we search for in find_mingw_toolchain()
     # can no longer build.  One solution is to provide DEBIAN_NAME=mingw32
     # BINPREFIX=i686-pc-mingw32msvc- MINGW_GCC=/path/to/i686-w64-mingw32,
@@ -187,6 +187,17 @@ if [ "$MINGW" = "yes" -o "$HOST_TAG" = "linux-x86" -o "$LLVM_VERSION" \> "3.4" ]
     if [ "$CC" = "${CC%%clang*}" ]; then
         LDFLAGS_FOR_BUILD=$LDFLAGS_FOR_BUILD" -static-libgcc"
     fi
+fi
+
+# Static link to avoid dependencies on libwinpthread-1.dll in mingw
+if [ "$MINGW" = "yes" ]; then
+    LDFLAGS_FOR_BUILD=$LDFLAGS_FOR_BUILD" -static"
+fi
+
+# Starting from llvm-3.7 lib/Support/Signals.cpp needs set_abort_behavior() doesn't exist in
+# Windows until -lmsvcr90
+if [ "$MINGW" = "yes" -a "$LLVM_VERSION" \> "3.5" ]; then
+    XXX_MAKE_FLAGS="$MAKE_FLAGS LIBS=-lmsvcr90"
 fi
 
 CFLAGS="$CFLAGS $CFLAGS_FOR_BUILD $HOST_CFLAGS"
@@ -262,17 +273,6 @@ if [ "$POLLY" = "yes" ]; then
     fi
 fi # POLLY = yes
 
-# Export these to NDK standalone toolchain, and llvm/projects/compiler-rt
-# can build android versions of ASAN libraries in additional to the host
-# i386 and x86_64 ones.  This is only experimental because target prebuilt
-# should not be built in host script like this
-if [ -d "${HOME}/opt/android-ndk-api14-arm" ] ; then
-    export LLVM_ANDROID_ARM_TOOLCHAIN_DIR=${HOME}/opt/android-ndk-api14-arm
-fi
-#if [ -d "${HOME}/opt/android-ndk-api14-x86" ] ; then
-#    export LLVM_ANDROID_X86_TOOLCHAIN_DIR=${HOME}/opt/android-ndk-api14-x86
-#fi
-
 # configure the toolchain
 dump "Configure: $TOOLCHAIN toolchain build"
 LLVM_BUILD_OUT=$BUILD_OUT/llvm
@@ -294,9 +294,10 @@ if [ "$USE_PYTHON" != "yes" ]; then
     rm -f $SRC_DIR/$TOOLCHAIN/llvm/tools/ndk-bc2native/*.c
     rm -f $SRC_DIR/$TOOLCHAIN/llvm/tools/ndk-bc2native/*.h
     run cp -a $NDK_DIR/tests/abcc/jni/*.cpp $SRC_DIR/$TOOLCHAIN/llvm/tools/ndk-bc2native
-    run cp -a $NDK_DIR/tests/abcc/jni/*.h $SRC_DIR/$TOOLCHAIN/llvm/tools/ndk-bc2native
+    run cp -a $NDK_DIR/tests/abcc/jni/Abcc.h $SRC_DIR/$TOOLCHAIN/llvm/tools/ndk-bc2native
     run cp -a $NDK_DIR/tests/abcc/jni/host/*.cpp $SRC_DIR/$TOOLCHAIN/llvm/tools/ndk-bc2native
     run cp -a $NDK_DIR/tests/abcc/jni/host/*.h $SRC_DIR/$TOOLCHAIN/llvm/tools/ndk-bc2native
+    run cp -a $NDK_DIR/tests/abcc/jni/llvm_${LLVM_VERSION_MAJOR}${LLVM_VERSION_MINOR}.h $SRC_DIR/$TOOLCHAIN/llvm/tools/ndk-bc2native/llvm_version.h
     run cp -a $NDK_DIR/tests/abcc/jni/mman-win32/mman.[ch] $SRC_DIR/$TOOLCHAIN/llvm/tools/ndk-bc2native
     export LLVM_TOOLS_FILTER="PARALLEL_DIRS:=\$\$(PARALLEL_DIRS:%=% ndk-bc2native)"
 fi
@@ -358,6 +359,7 @@ fi
 
 # build mclinker only against default the LLVM version, once
 if [ "$MCLINKER" = "yes" -o "$TOOLCHAIN" = "llvm-$DEFAULT_LLVM_VERSION" ] ; then
+if [ "$TOOLCHAIN" != "llvm-3.6" ] ; then
     dump "Copy     : mclinker source"
     MCLINKER_SRC_DIR=$BUILD_OUT/mclinker
     mkdir -p $MCLINKER_SRC_DIR
@@ -371,9 +373,9 @@ if [ "$MCLINKER" = "yes" -o "$TOOLCHAIN" = "llvm-$DEFAULT_LLVM_VERSION" ] ; then
       # Windows dll targets is already build with position independent code, so adding
       # -fPIC is considered insult to mingw-64 compilers which complains and dies
       # if -Werror is also on
-      # 
+      #
       #  addng .../mclinker/lib/ADT/StringEntry.cpp:1:0: error: -fPIC ignored for target (all code is position independent) [-Werror]
-      # 
+      #
         CXXFLAGS="$CXXFLAGS -Wno-error"
     fi
     export CXXFLAGS
@@ -413,6 +415,7 @@ if [ "$MCLINKER" = "yes" -o "$TOOLCHAIN" = "llvm-$DEFAULT_LLVM_VERSION" ] ; then
         fail_warning "Couldn't pass all mclinker regression test"  # change to fail_panic later
     fi
 fi
+fi
 
 # remove redundant bits
 rm -rf $TOOLCHAIN_BUILD_PREFIX/docs
@@ -437,10 +440,10 @@ rm -rf $TOOLCHAIN_BUILD_PREFIX/share
 
 UNUSED_LLVM_EXECUTABLES="
 bugpoint c-index-test clang-check clang-format clang-tblgen lli llvm-bcanalyzer
-llvm-config llvm-config-host llvm-cov llvm-diff llvm-dwarfdump llvm-extract llvm-ld
+llvm-config llvm-config-host llvm-cov llvm-diff llvm-dsymutil llvm-dwarfdump llvm-extract llvm-ld
 llvm-mc llvm-nm llvm-mcmarkup llvm-objdump llvm-prof llvm-ranlib llvm-readobj llvm-rtdyld
 llvm-size llvm-stress llvm-stub llvm-symbolizer llvm-tblgen llvm-vtabledump macho-dump cloog
-llvm-vtabledump lli-child-target not count FileCheck llvm-profdata"
+llvm-vtabledump lli-child-target not count FileCheck llvm-profdata obj2yaml yaml2obj verify-uselistorder"
 
 for i in $UNUSED_LLVM_EXECUTABLES; do
     rm -f $TOOLCHAIN_BUILD_PREFIX/bin/$i
@@ -507,7 +510,7 @@ for ABI in $ABIS; do
       x86_64)
           LLVM_TARGET=x86_64-none-linux-android
           ;;
-      mips)
+      mips|mips32r6)
           LLVM_TARGET=mipsel-none-linux-android
           ;;
       mips64)
@@ -575,7 +578,7 @@ if [ "$HOST_OS" = "linux" ]; then
     SUBDIR=$(get_toolchain_install_subdir $TOOLCHAIN $HOST_TAG)
     $ANDROID_NDK_ROOT/build/tools/check-glibc.sh $NDK_DIR/$SUBDIR
 fi
-	
+
 if [ "$PACKAGE_DIR" ]; then
     ARCHIVE="$TOOLCHAIN-$HOST_TAG.tar.bz2"
     SUBDIR=$(get_toolchain_install_subdir $TOOLCHAIN $HOST_TAG)

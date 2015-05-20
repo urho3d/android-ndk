@@ -1,5 +1,9 @@
 /* Default linker script, for normal executables */
 /* Modified for Android.  */
+/* Copyright (C) 2014 Free Software Foundation, Inc.
+   Copying and distribution of this script, with or without modification,
+   are permitted in any medium without royalty provided the copyright
+   notice and this notice are preserved.  */
 OUTPUT_FORMAT("elf32-x86-64", "elf32-x86-64",
 	      "elf32-x86-64")
 OUTPUT_ARCH(i386:x64-32)

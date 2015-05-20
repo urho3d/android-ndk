@@ -100,51 +100,62 @@ COMPILER_RT_CFLAGS=$COMPILER_RT_CFLAGS" -I$SRC_DIR/include -I$SRC_DIR/lib"
 COMPILER_RT_LDFLAGS="-nostdlib"
 
 # List of sources to compile
-COMPILER_RT_GENERIC_SOURCES=$(cd $SRC_DIR && ls lib/*.c)
+COMPILER_RT_GENERIC_SOURCES=$(cd $SRC_DIR && ls lib/builtins/*.c)
 
 # filter out the sources we don't need
-UNUSED_SOURCES="lib/apple_versioning.c lib/gcc_personality_v0.c"
+UNUSED_SOURCES="lib/builtins/apple_versioning.c lib/builtins/gcc_personality_v0.c"
 COMPILER_RT_GENERIC_SOURCES=$(filter_out "$UNUSED_SOURCES" "$COMPILER_RT_GENERIC_SOURCES")
 
 # ARM specific
 COMPILER_RT_ARM_SOURCES="
-lib/arm/aeabi_dcmp.S \
-lib/arm/aeabi_fcmp.S \
-lib/arm/aeabi_idivmod.S \
-lib/arm/aeabi_ldivmod.S \
-lib/arm/aeabi_memcmp.S \
-lib/arm/aeabi_memcpy.S \
-lib/arm/aeabi_memmove.S \
-lib/arm/aeabi_memset.S \
-lib/arm/aeabi_uidivmod.S \
-lib/arm/aeabi_uldivmod.S \
-lib/arm/comparesf2.S
-lib/arm/divmodsi4.S
-lib/arm/divsi3.S
-lib/arm/modsi3.S
-lib/arm/udivmodsi4.S
-lib/arm/udivsi3.S
-lib/arm/umodsi3.S"
+lib/builtins/arm/aeabi_dcmp.S \
+lib/builtins/arm/aeabi_fcmp.S \
+lib/builtins/arm/aeabi_idivmod.S \
+lib/builtins/arm/aeabi_ldivmod.S \
+lib/builtins/arm/aeabi_memcmp.S \
+lib/builtins/arm/aeabi_memcpy.S \
+lib/builtins/arm/aeabi_memmove.S \
+lib/builtins/arm/aeabi_memset.S \
+lib/builtins/arm/aeabi_uidivmod.S \
+lib/builtins/arm/aeabi_uldivmod.S \
+lib/builtins/arm/comparesf2.S
+lib/builtins/arm/divmodsi4.S
+lib/builtins/arm/divsi3.S
+lib/builtins/arm/modsi3.S
+lib/builtins/arm/udivmodsi4.S
+lib/builtins/arm/udivsi3.S
+lib/builtins/arm/umodsi3.S
+lib/builtins/arm/idiv0.c"
 
 # X86 specific
 COMPILER_RT_X86_SOURCES="
-lib/i386/ashldi3.S \
-lib/i386/ashrdi3.S \
-lib/i386/divdi3.S \
-lib/i386/floatdidf.S \
-lib/i386/floatdisf.S \
-lib/i386/floatdixf.S \
-lib/i386/floatundidf.S \
-lib/i386/floatundisf.S \
-lib/i386/floatundixf.S \
-lib/i386/lshrdi3.S \
-lib/i386/moddi3.S \
-lib/i386/muldi3.S \
-lib/i386/udivdi3.S \
-lib/i386/umoddi3.S"
+lib/builtins/i386/ashldi3.S \
+lib/builtins/i386/ashrdi3.S \
+lib/builtins/i386/divdi3.S \
+lib/builtins/i386/floatdidf.S \
+lib/builtins/i386/floatdisf.S \
+lib/builtins/i386/floatdixf.S \
+lib/builtins/i386/floatundidf.S \
+lib/builtins/i386/floatundisf.S \
+lib/builtins/i386/floatundixf.S \
+lib/builtins/i386/lshrdi3.S \
+lib/builtins/i386/moddi3.S \
+lib/builtins/i386/muldi3.S \
+lib/builtins/i386/udivdi3.S \
+lib/builtins/i386/umoddi3.S"
 
 # Mips specific
 COMPILER_RT_MIPS_SOURCES=
+
+# X86_64 specific
+COMPILER_RT_X86_64_SOURCES="
+lib/builtins/x86_64/floatdidf.c \
+lib/builtins/x86_64/floatdisf.c \
+lib/builtins/x86_64/floatdixf.c \
+lib/builtins/x86_64/floatundidf.S \
+lib/builtins/x86_64/floatundisf.S \
+lib/builtins/x86_64/floatundixf.S
+"
 
 # If the --no-makefile flag is not used, we're going to put all build
 # commands in a temporary Makefile that we will be able to invoke with
@@ -163,12 +174,14 @@ prepare_compiler_rt_source_for_abi ()
     local ABI=$1
     local ARCH_SOURCES GENERIC_SOURCES FOUND
 
-    if [ $ABI == "armeabi" -o $ABI == "armeabi-v7a" -o $ABI == "armeabi-v7a-hard" ]; then
+    if [ $ABI = "armeabi" -o $ABI = "armeabi-v7a" -o $ABI = "armeabi-v7a-hard" ]; then
         ARCH_SOURCES="$COMPILER_RT_ARM_SOURCES"
-    elif [ $ABI == "x86" ]; then
+    elif [ $ABI = "x86" ]; then
         ARCH_SOURCES="$COMPILER_RT_X86_SOURCES"
-    elif [ $ABI == "mips" ]; then
+    elif [ $ABI = "mips" -o $ABI = "mips32r6" ]; then
         ARCH_SOURCES="$COMPILER_RT_MIPS_SOURCES"
+    elif [ $ABI = "x86_64" ]; then
+        ARCH_SOURCES="$COMPILER_RT_X86_64_SOURCES"
     fi
 
     for SOURCE in $COMPILER_RT_GENERIC_SOURCES; do
@@ -212,23 +225,32 @@ build_compiler_rt_libs_for_abi ()
     else
         ARCH=$(convert_abi_to_arch $ABI)
         GCCVER=$(get_default_gcc_version_for_arch $ARCH)
+        if [ "$LLVM_VERSION" \> "3.4" ]; then
+            # Turn on integrated-as for clang >= 3.5 otherwise file like
+            # can't be compiled
+            COMPILER_RT_CFLAGS="$COMPILER_RT_CFLAGS -fintegrated-as"
+        fi
     fi
 
-    builder_begin_android $ABI "$BUILDDIR" "$GCCVER" "$LLVM_VERSION" "$MAKEFILE"
+    if [ -z "$PLATFORM" ]; then
+        PLATFORM="android-$FIRST_API64_LEVEL"
+    fi
+
+    builder_begin_android $ABI "$BUILDDIR" "$GCCVER" "$LLVM_VERSION" "$MAKEFILE" "$PLATFORM"
     builder_set_srcdir "$SRC_DIR"
     builder_set_dstdir "$DSTDIR"
 
     builder_cflags "$COMPILER_RT_CFLAGS"
 
-    if [ $ABI == "armeabi" -o $ABI == "armeabi-v7a" -o $ABI == "armeabi-v7a-hard" ]; then
+    if [ $ABI = "armeabi" -o $ABI = "armeabi-v7a" -o $ABI = "armeabi-v7a-hard" ]; then
         builder_cflags "-D__ARM_EABI__"
-        if [ $ABI == "armeabi-v7a-hard" ]; then
+        if [ $ABI = "armeabi-v7a-hard" ]; then
             builder_cflags "-mhard-float -D_NDK_MATH_NO_SOFTFP=1"
         fi
     fi
 
     builder_ldflags "$COMPILER_RT_LDFLAGS"
-    if [ $ABI == "armeabi-v7a-hard" ]; then
+    if [ $ABI = "armeabi-v7a-hard" ]; then
         builder_cflags "-Wl,--no-warn-mismatch -lm_hard"
     fi
 
