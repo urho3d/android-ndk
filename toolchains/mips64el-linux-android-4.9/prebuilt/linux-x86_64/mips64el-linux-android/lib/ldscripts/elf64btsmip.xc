@@ -191,7 +191,6 @@ SECTIONS
   .data1          : { *(.data1) }
   .got.plt        : { *(.got.plt) }
   . = .;
-  . = .;
   HIDDEN (_gp = ALIGN (16) + 0x7ff0);
   .got            : { *(.got) }
   /* We want the small data sections together, so single-instruction offsets
@@ -205,7 +204,6 @@ SECTIONS
   .lit4           : { *(.lit4) }
   .srdata         : { *(.srdata) }
   _edata = .; PROVIDE (edata = .);
-  . = .;
   __bss_start = .;
   _fbss = .;
   .sbss           :

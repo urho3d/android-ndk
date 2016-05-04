@@ -189,7 +189,7 @@ _STLP_MOVE_TO_PRIV_NAMESPACE
 template <class _Dummy>
 class _Stl_prime {
   // Returns begining of primes list and size by reference.
-  static const size_t* _STLP_CALL _S_primes(size_t&);
+  static const size_t* _S_primes(size_t&);
 public:
   //Returns the maximum number of buckets handled by the hashtable implementation
   static size_t _STLP_CALL _S_max_nb_buckets();

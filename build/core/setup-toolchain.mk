@@ -131,11 +131,8 @@ TARGET_PREBUILT_SHARED_LIBRARIES :=
 TOOLCHAIN_NAME   := $(TARGET_TOOLCHAIN)
 TOOLCHAIN_VERSION := $(call last,$(subst -,$(space),$(TARGET_TOOLCHAIN)))
 
-# Define the root path of the toolchain in the NDK tree.
-TOOLCHAIN_ROOT   := $(NDK_ROOT)/toolchains/$(TOOLCHAIN_NAME)
-
 # Define the root path where toolchain prebuilts are stored
-TOOLCHAIN_PREBUILT_ROOT := $(call host-prebuilt-tag,$(TOOLCHAIN_ROOT))
+TOOLCHAIN_PREBUILT_ROOT := $(call get-toolchain-root,$(NDK_ROOT),$(TOOLCHAIN_NAME))
 
 # Do the same for TOOLCHAIN_PREFIX. Note that we must chop the version
 # number from the toolchain name, e.g. arm-eabi-4.4.0 -> path/bin/arm-eabi-
@@ -201,7 +198,6 @@ $(NDK_APP_GDBSETUP): PRIVATE_SRC_DIRS := $(SYSROOT_INC)/usr/include
 $(NDK_APP_GDBSETUP):
 	$(call host-echo-build-step,$(PRIVATE_ABI),Gdbsetup) "$(call pretty-dir,$(PRIVATE_DST))"
 	$(hide) $(HOST_ECHO) "set solib-search-path $(call host-path,$(PRIVATE_SOLIB_PATH))" > $(PRIVATE_DST)
-	$(hide) $(HOST_ECHO) "source $(call host-path,$(NDK_ROOT)/prebuilt/common/gdb/common.setup)" >> $(PRIVATE_DST)
 	$(hide) $(HOST_ECHO) "directory $(call host-path,$(call remove-duplicates,$(PRIVATE_SRC_DIRS)))" >> $(PRIVATE_DST)
 
 $(call generate-file-dir,$(NDK_APP_GDBSETUP))

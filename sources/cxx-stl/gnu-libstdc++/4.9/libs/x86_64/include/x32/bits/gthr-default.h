@@ -32,19 +32,6 @@ see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
 #define __GTHREADS 1
 #define __GTHREADS_CXX0X 1
 
-/* The following should normally be in a different header file,
- * but I couldn't find the right location. The point of the macro
- * definition below is to prevent libsupc++ and libstdc++ to reference
- * weak symbols in their static C++ constructors. Such code crashes
- * when a shared object linked statically to these libraries is
- * loaded on Android 2.1 (Eclair) and older platform releases, due
- * to a dynamic linker bug.
- */
-#ifdef __ANDROID__
-#undef _GLIBCXX_GTHREAD_USE_WEAK
-#define _GLIBCXX_GTHREAD_USE_WEAK 0
-#endif
-
 #include <pthread.h>
 
 #if ((defined(_LIBOBJC) || defined(_LIBOBJC_WEAK)) \

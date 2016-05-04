@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright (C) 2011 The Android Open Source Project
 #
@@ -52,16 +52,14 @@ extract_platforms_from ()
 }
 
 # Override tmp file to be predictable
-TMPC=/tmp/ndk-$USER/tmp/tests/tmp-platform.c
-TMPO=/tmp/ndk-$USER/tmp/tests/tmp-platform.o
-TMPE=/tmp/ndk-$USER/tmp/tests/tmp-platform$EXE
-TMPL=/tmp/ndk-$USER/tmp/tests/tmp-platform.log
+TMPC=$TMPDIR/tmp/tests/tmp-platform.c
+TMPO=$TMPDIR/tmp/tests/tmp-platform.o
+TMPE=$TMPDIR/tmp/tests/tmp-platform$EXE
 
 SRCDIR="../development/ndk"
-DSTDIR="$ANDROID_NDK_ROOT"
+DSTDIR="$TMPDIR"
 
-ARCHS=$(find_ndk_unknown_archs)
-ARCHS="$DEFAULT_ARCHS $ARCHS"
+ARCHS="$DEFAULT_ARCHS"
 PLATFORMS=`extract_platforms_from "$SRCDIR"`
 NDK_DIR=$ANDROID_NDK_ROOT
 
@@ -69,7 +67,6 @@ OPTION_HELP=no
 OPTION_PLATFORMS=
 OPTION_SRCDIR=
 OPTION_DSTDIR=
-OPTION_SAMPLES=
 OPTION_FAST_COPY=
 OPTION_MINIMAL=
 OPTION_ARCH=
@@ -78,10 +75,10 @@ OPTION_DEBUG_LIBS=
 OPTION_OVERLAY=
 OPTION_GCC_VERSION="default"
 OPTION_LLVM_VERSION=$DEFAULT_LLVM_VERSION
+OPTION_CASE_INSENSITIVE=no
 PACKAGE_DIR=
 
 VERBOSE=no
-VERBOSE2=no
 
 for opt do
   optarg=`expr "x$opt" : 'x[^=]*=\(.*\)'`
@@ -89,11 +86,7 @@ for opt do
   --help|-h|-\?) OPTION_HELP=yes
   ;;
   --verbose)
-    if [ "$VERBOSE" = "yes" ] ; then
-        VERBOSE2=yes
-    else
-        VERBOSE=yes
-    fi
+    VERBOSE=yes
     ;;
   --src-dir=*)
     OPTION_SRCDIR="$optarg"
@@ -112,9 +105,6 @@ for opt do
     ;;
   --abi=*)  # We still support this for backwards-compatibility
     OPTION_ABI=$optarg
-    ;;
-  --samples)
-    OPTION_SAMPLES=yes
     ;;
   --fast-copy)
     OPTION_FAST_COPY=yes
@@ -137,6 +127,9 @@ for opt do
   --llvm-version=*)
     OPTION_LLVM_VERSION=$optarg
     ;;
+  --case-insensitive)
+    OPTION_CASE_INSENSITIVE=yes
+    ;;
   *)
     echo "unknown option '$opt', use --help"
     exit 1
@@ -156,9 +149,8 @@ if [ $OPTION_HELP = "yes" ] ; then
     echo "  --ndk-dir=<path>      Use toolchains from this NDK directory [$NDK_DIR]"
     echo "  --platform=<list>     List of API levels [$PLATFORMS]"
     echo "  --arch=<list>         List of CPU architectures [$ARCHS]"
-    echo "  --minimal             Ignore samples, symlinks and generated shared libs."
+    echo "  --minimal             Ignore symlinks and generated shared libs."
     echo "  --fast-copy           Don't create symlinks, copy files instead"
-    echo "  --samples             Also generate samples directories."
     echo "  --package-dir=<path>  Package platforms archive in specific path."
     echo "  --debug-libs          Also generate C source file for generated libraries."
     echo ""
@@ -254,7 +246,6 @@ for PLATFORM in $PLATFORMS; do
 done
 
 if [ "$OPTION_MINIMAL" ]; then
-    OPTION_SAMPLES=
     OPTION_FAST_COPY=yes
 fi
 
@@ -278,7 +269,7 @@ fi
 
 # $1: source directory (relative to $SRCDIR)
 # $2: destination directory (relative to $DSTDIR)
-# $3: description of directory contents (e.g. "sysroot" or "samples")
+# $3: description of directory contents (e.g. "sysroot")
 copy_src_directory ()
 {
     local SDIR="$SRCDIR/$1"
@@ -305,7 +296,7 @@ symlink_src_directory_inner ()
     files=$(cd $DSTDIR/$1 && ls -1p)
     for file in $files; do
         if [ "$file" = "${file%%/}" ]; then
-            log2 "Link \$DST/$2/$file --> $rev/$1/$file"
+            log "Link \$DST/$2/$file --> $rev/$1/$file"
             ln -s $rev/$1/$file $DSTDIR/$2/$file
         else
             file=${file%%/}
@@ -370,36 +361,22 @@ remove_unwanted_variable_symbols ()
 get_default_compiler_for_arch()
 {
     local ARCH=$1
-    local TOOLCHAIN_PREFIX EXTRA_CFLAGS CC GCC_VERSION
+    local TOOLCHAIN_PREFIX CC GCC_VERSION
 
-    if [ "$ARCH" = "${ARCH%%64*}" -a "$(arch_in_unknown_archs $ARCH)" = "yes" ]; then
-        for TAG in $HOST_TAG $HOST_TAG32; do
-            TOOLCHAIN_PREFIX="$NDK_DIR/$(get_llvm_toolchain_binprefix $OPTION_LLVM_VERSION $TAG)"
-            CC="$TOOLCHAIN_PREFIX/clang"
-            if [ -f "$CC" ]; then
-                break;
-            fi
-        done
-        EXTRA_CFLAGS=
+    if [ -n "$OPTION_GCC_VERSION" -a "$OPTION_GCC_VERSION" != "default" ]; then
+        GCC_VERSION=$OPTION_GCC_VERSION
     else
-        if [ "$ARCH" = "mips" ]; then
-            # Support for mips32r6 in the new multilib mipsel-* toolchain is only available from 4.9
-            GCC_VERSION=4.9
-        elif [ -n "$OPTION_GCC_VERSION" -a "$OPTION_GCC_VERSION" != "default" ]; then
-            GCC_VERSION=$OPTION_GCC_VERSION
-        else
-            GCC_VERSION=$(get_default_gcc_version_for_arch $ARCH)
-        fi
-        for TAG in $HOST_TAG $HOST_TAG32; do
-            TOOLCHAIN_PREFIX="$NDK_DIR/$(get_toolchain_binprefix_for_arch $ARCH $GCC_VERSION $TAG)"
-            TOOLCHAIN_PREFIX=${TOOLCHAIN_PREFIX%-}
-            CC="$TOOLCHAIN_PREFIX-gcc"
-            if [ -f "$CC" ]; then
-                break;
-            fi
-        done
-        EXTRA_CFLAGS=
+        GCC_VERSION=$(get_default_gcc_version_for_arch $ARCH)
     fi
+
+    for TAG in $HOST_TAG $HOST_TAG32; do
+        TOOLCHAIN_PREFIX="$ANDROID_BUILD_TOP/prebuilts/ndk/current/$(get_toolchain_binprefix_for_arch $ARCH $GCC_VERSION $TAG)"
+        TOOLCHAIN_PREFIX=${TOOLCHAIN_PREFIX%-}
+        CC="$TOOLCHAIN_PREFIX-gcc"
+        if [ -f "$CC" ]; then
+            break;
+        fi
+    done
 
     if [ ! -f "$CC" ]; then
         dump "ERROR: $ARCH toolchain not installed: $CC"
@@ -407,7 +384,7 @@ get_default_compiler_for_arch()
         dump "This is generally useful when you want to generate the host cross-toolchain programs."
         exit 1
     fi
-    echo "$CC $EXTRA_CFLAGS"
+    echo "$CC"
 }
 
 # $1: library name
@@ -415,6 +392,7 @@ get_default_compiler_for_arch()
 # $3: variables list
 # $4: destination file
 # $5: compiler command
+# $6: version script (optional)
 gen_shared_lib ()
 {
     local LIBRARY=$1
@@ -422,6 +400,7 @@ gen_shared_lib ()
     local VARS="$3"
     local DSTFILE="$4"
     local CC="$5"
+    local VERSION_SCRIPT="$6"
 
     # Now generate a small C source file that contains similarly-named stubs
     echo "/* Auto-generated file, do not edit */" > $TMPC
@@ -435,13 +414,15 @@ gen_shared_lib ()
 
     # Build it with our cross-compiler. It will complain about conflicting
     # types for built-in functions, so just shut it up.
-    COMMAND="$CC -Wl,-shared,-Bsymbolic -Wl,-soname,$LIBRARY -nostdlib -o $TMPO $TMPC -Wl,--exclude-libs,libgcc.a"
-    echo "## COMMAND: $COMMAND" > $TMPL
-    $COMMAND 1>>$TMPL 2>&1
+    COMMAND="$CC -Wl,-shared,-Bsymbolic -Wl,-soname,$LIBRARY -nostdlib -o $TMPO $TMPC -Wl,--exclude-libs,libgcc.a -w"
+    if [ -n "$VERSION_SCRIPT" ]; then
+      COMMAND="$COMMAND -Wl,--version-script=$VERSION_SCRIPT -Wl,--no-undefined-version"
+    fi
+    echo "## COMMAND: $COMMAND"
+    $COMMAND
     if [ $? != 0 ] ; then
-        dump "ERROR: Can't generate shared library for: $LIBNAME"
-        dump "See the content of $TMPC and $TMPL for details."
-        cat $TMPL | tail -10
+        dump "ERROR: Can't generate shared library for: $LIBRARY"
+        dump "See the content of $TMPC for details."
         exit 1
     fi
 
@@ -449,7 +430,7 @@ gen_shared_lib ()
     local libdir=$(dirname "$DSTFILE")
     mkdir -p "$libdir" && rm -f "$DSTFILE" && cp -f $TMPO "$DSTFILE"
     if [ $? != 0 ] ; then
-        dump "ERROR: Can't copy shared library for: $LIBNAME"
+        dump "ERROR: Can't copy shared library for: $LIBRARY"
         dump "target location is: $DSTFILE"
         exit 1
     fi
@@ -498,9 +479,14 @@ gen_shared_libraries ()
         vars=$(remove_unwanted_variable_symbols $ARCH $LIB $vars)
         numfuncs=$(echo $funcs | wc -w)
         numvars=$(echo $vars | wc -w)
+        version_script=""
+
+        if [ -f "$SYMDIR/$LIB.versions.txt" ]; then
+          version_script="$SYMDIR/$LIB.versions.txt"
+        fi
         log "Generating $ARCH shared library for $LIB ($numfuncs functions + $numvars variables)"
 
-        gen_shared_lib $LIB "$funcs" "$vars" "$DSTDIR/$LIB" "$CC"
+        gen_shared_lib $LIB "$funcs" "$vars" "$DSTDIR/$LIB" "$CC" "$version_script"
     done
 }
 
@@ -535,11 +521,9 @@ gen_crt_objects ()
     CRTBRAND_S=$DST_DIR/crtbrand.s
     log "Generating platform $API crtbrand assembly code: $CRTBRAND_S"
     (cd "$COMMON_SRC_DIR" && mkdir -p `dirname $CRTBRAND_S` && $CC -DPLATFORM_SDK_VERSION=$API -fpic -S -o - crtbrand.c | \
-        sed -e '/\.note\.ABI-tag/s/progbits/note/' > "$CRTBRAND_S") 1>>$TMPL 2>&1
+        sed -e '/\.note\.ABI-tag/s/progbits/note/' > "$CRTBRAND_S")
     if [ $? != 0 ]; then
         dump "ERROR: Could not generate $CRTBRAND_S from $COMMON_SRC_DIR/crtbrand.c"
-        dump "Please see the content of $TMPL for details!"
-        cat $TMPL | tail -10
         exit 1
     fi
 
@@ -574,11 +558,9 @@ gen_crt_objects ()
                  -I$SRCDIR/../../bionic/libc/arch-common/bionic \
                  -I$SRCDIR/../../bionic/libc/arch-$ARCH/include \
                  -DPLATFORM_SDK_VERSION=$API \
-                 -O2 -fpic -Wl,-r -nostdlib -o "$DST_DIR/$DST_FILE" $SRC_FILE) 1>>$TMPL 2>&1
+                 -O2 -fpic -Wl,-r -nostdlib -o "$DST_DIR/$DST_FILE" $SRC_FILE)
         if [ $? != 0 ]; then
             dump "ERROR: Could not generate $DST_FILE from $SRC_DIR/$SRC_FILE"
-            dump "Please see the content of $TMPL for details!"
-            cat $TMPL | tail -10
             exit 1
         fi
         if [ ! -s "$DST_DIR/crtbegin_static.o" ]; then
@@ -635,7 +617,7 @@ generate_api_level ()
 EOF
 }
 
-# Copy platform sysroot and samples into your destination
+# Copy platform sysroot into your destination
 #
 
 # if $SRC/android-$PLATFORM/arch-$ARCH exists
@@ -753,60 +735,53 @@ for ARCH in $ARCHS; do
                 PREV_PLATFORM_SRC_ARCH=$PLATFORM_SRC_ARCH
             fi
 
-            # Genreate crt objects for known archs
-            if [ "$(arch_in_unknown_archs $ARCH)" != "yes" ]; then
-                case "$ARCH" in
-                    x86_64)
-                        gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib "-m32"
-                        gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib64 "-m64"
-                        gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libx32 "-mx32"
-                        ;;
-                    mips64)
-                        gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib "-mabi=32 -mips32"
-                        gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
-                        gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
-                        gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib64r2 "-mabi=64 -mips64r2"
-                        gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib64 "-mabi=64 -mips64r6"
-                        ;;
-                    mips)
-                        gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib "-mabi=32 -mips32"
-                        gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
-                        gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
-                        ;;
-                    *)
-                        gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/$LIBDIR
-                        ;;
-               esac
-            fi
+            # Genreate crt objects
+            case "$ARCH" in
+                x86_64)
+                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib "-m32"
+                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib64 "-m64"
+                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libx32 "-mx32"
+                    ;;
+                mips64)
+                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib "-mabi=32 -mips32"
+                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
+                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
+                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib64r2 "-mabi=64 -mips64r2"
+                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib64 "-mabi=64 -mips64r6"
+                    ;;
+                mips)
+                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib "-mabi=32 -mips32"
+                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
+                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
+                    ;;
+                *)
+                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/$LIBDIR
+                    ;;
+            esac
 
             # Generate shared libraries from symbol files
-            if [ "$(arch_in_unknown_archs $ARCH)" = "yes" ]; then
-                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-target le32-none-ndk -emit-llvm"
-                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64 "-target le64-none-ndk -emit-llvm"
-            else
-                case "$ARCH" in
-                    x86_64)
-                        gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-m32"
-                        gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64 "-m64"
-                        gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libx32 "-mx32"
-                        ;;
-                    mips64)
-                        gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-mabi=32 -mips32"
-                        gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
-                        gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
-                        gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64r2 "-mabi=64 -mips64r2"
-                        gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64 "-mabi=64 -mips64r6"
-                        ;;
-                    mips)
-                        gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-mabi=32 -mips32"
-                        gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
-                        gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
-                        ;;
-                    *)
-                        gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/$LIBDIR
-                        ;;
-                esac
-            fi
+            case "$ARCH" in
+                x86_64)
+                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-m32"
+                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64 "-m64"
+                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libx32 "-mx32"
+                    ;;
+                mips64)
+                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-mabi=32 -mips32"
+                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
+                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
+                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64r2 "-mabi=64 -mips64r2"
+                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64 "-mabi=64 -mips64r6"
+                    ;;
+                mips)
+                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-mabi=32 -mips32"
+                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
+                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
+                    ;;
+                *)
+                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/$LIBDIR
+                    ;;
+            esac
         else
             # Copy the prebuilt binaries to bootstrap GCC
             case "$ARCH" in
@@ -836,45 +811,32 @@ for ARCH in $ARCHS; do
     done
 done
 
-#
-# $SRC/android-$PLATFORM/samples --> $DST/samples
-#
-if [ "$OPTION_SAMPLES" ] ; then
-    # Copy platform samples and generic samples into your destination
-    #
-    # $SRC/samples/ --> $DST/samples/
-    # $SRC/android-$PLATFORM/samples/ --> $DST/samples
-    #
-    dump "Copying generic samples"
-    if [ -z "$OPTION_OVERLAY" ]; then
-        rm -rf $DSTDIR/samples && mkdir -p $DSTDIR/samples
+if [ "$PACKAGE_DIR" ]; then
+    # Remove "duplicate" files for case-insensitive platforms.
+    if [ "$OPTION_CASE_INSENSITIVE" = "yes" ]; then
+        find "$DSTDIR/platforms" | sort -f | uniq -di | xargs rm
     fi
-    copy_src_directory  samples samples samples
 
     for PLATFORM in $PLATFORMS; do
-        dump "Copy android-$PLATFORM samples"
-        # $SRC/platform-$PLATFORM/samples --> $DST/samples
-        copy_src_directory platforms/android-$PLATFORM/samples samples samples
-    done
+        PLATFORM_NAME="android-$PLATFORM"
+        make_repo_prop "$DSTDIR/platforms/$PLATFORM_NAME"
 
-    # Cleanup generated files in samples
-    rm -rf "$DSTDIR/samples/*/obj"
-    rm -rf "$DSTDIR/samples/*/libs"
-fi
+        NOTICE="$DSTDIR/platforms/$PLATFORM_NAME/NOTICE"
+        cp "$ANDROID_BUILD_TOP/bionic/libc/NOTICE" $NOTICE
+        echo >> $NOTICE
+        cp "$ANDROID_BUILD_TOP/bionic/libm/NOTICE" $NOTICE
+        echo >> $NOTICE
+        cp "$ANDROID_BUILD_TOP/bionic/libdl/NOTICE" $NOTICE
+        echo >> $NOTICE
+        cp "$ANDROID_BUILD_TOP/bionic/libstdc++/NOTICE" $NOTICE
 
-if [ "$PACKAGE_DIR" ]; then
-    mkdir -p "$PACKAGE_DIR"
-    fail_panic "Could not create package directory: $PACKAGE_DIR"
-    ARCHIVE=platforms.tar.bz2
-    dump "Packaging $ARCHIVE"
-    pack_archive "$PACKAGE_DIR/$ARCHIVE" "$DSTDIR" "platforms"
-    fail_panic "Could not package platforms"
-    if [ "$OPTION_SAMPLES" ]; then
-        ARCHIVE=samples.tar.bz2
+        mkdir -p "$PACKAGE_DIR"
+        fail_panic "Could not create package directory: $PACKAGE_DIR"
+        ARCHIVE=platform-$PLATFORM.zip
         dump "Packaging $ARCHIVE"
-        pack_archive "$PACKAGE_DIR/$ARCHIVE" "$DSTDIR" "samples"
-        fail_panic "Could not package samples"
-    fi
+        pack_archive "$PACKAGE_DIR/$ARCHIVE" "$DSTDIR/platforms" "$PLATFORM_NAME"
+        fail_panic "Could not package platform-$PLATFORM"
+    done
 fi
 
 log "Done !"

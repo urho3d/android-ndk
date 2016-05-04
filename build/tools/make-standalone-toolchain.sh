@@ -1,3 +1,4 @@
+#!/bin/bash
 # Copyright (C) 2010 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,8 +29,12 @@ make scripts."
 TOOLCHAIN_NAME=
 register_var_option "--toolchain=<name>" TOOLCHAIN_NAME "Specify toolchain name"
 
-LLVM_VERSION=
-register_var_option "--llvm-version=<ver>" LLVM_VERSION "Specify LLVM version"
+USE_LLVM=no
+do_option_use_llvm ()
+{
+    USE_LLVM=yes
+}
+register_option "--use-llvm" do_option_use_llvm "Use LLVM."
 
 STL=gnustl
 register_var_option "--stl=<name>" STL "Specify C++ STL"
@@ -46,14 +51,7 @@ NDK_DIR=`dirname $NDK_DIR`
 NDK_DIR=`dirname $NDK_DIR`
 register_var_option "--ndk-dir=<path>" NDK_DIR "Take source files from NDK at <path>"
 
-if [ -d "$NDK_DIR/prebuilt/$HOST_TAG" ]; then
-  SYSTEM=$HOST_TAG
-else
-  SYSTEM=$HOST_TAG32
-fi
-register_var_option "--system=<name>" SYSTEM "Specify host system"
-
-PACKAGE_DIR=/tmp/ndk-$USER
+PACKAGE_DIR=$TMPDIR
 register_var_option "--package-dir=<path>" PACKAGE_DIR "Place package file in <path>"
 
 INSTALL_DIR=
@@ -78,69 +76,46 @@ if [ ! -d "$NDK_DIR/build/core" ] ; then
     exit 1
 fi
 
-# Check ARCH
-if [ -z "$ARCH" ]; then
+# Check TOOLCHAIN_NAME
+ARCH_BY_TOOLCHAIN_NAME=
+if [ -n "$TOOLCHAIN_NAME" ]; then
     case $TOOLCHAIN_NAME in
         arm-*)
-            ARCH=arm
+            ARCH_BY_TOOLCHAIN_NAME=arm
             ;;
         x86-*)
-            ARCH=x86
+            ARCH_BY_TOOLCHAIN_NAME=x86
             ;;
         mipsel-*)
-            ARCH=mips
+            ARCH_BY_TOOLCHAIN_NAME=mips
             ;;
         aarch64-*)
-            ARCH=arm64
+            ARCH_BY_TOOLCHAIN_NAME=arm64
             ;;
         x86_64-linux-android-*)
-            ARCH=x86_64
+            ARCH_BY_TOOLCHAIN_NAME=x86_64
             TOOLCHAIN_NAME=$(echo "$TOOLCHAIN_NAME" | sed -e 's/-linux-android//')
             echo "Auto-truncate: --toolchain=$TOOLCHAIN_NAME"
             ;;
         x86_64-*)
-            ARCH=x86_64
+            ARCH_BY_TOOLCHAIN_NAME=x86_64
             ;;
         mips64el-*)
-            ARCH=mips64
+            ARCH_BY_TOOLCHAIN_NAME=mips64
             ;;
         *)
-            ARCH=null
-            echo "Unable to auto-config arch from toolchain $TOOLCHAIN_NAME"
+            echo "Invalid toolchain $TOOLCHAIN_NAME"
             exit 1
             ;;
     esac
-    ARCH_INC=$ARCH
-    log "Auto-config: --arch=$ARCH"
-else
-    ARCH_INC=$ARCH
-    case $ARCH in
-        *arm)
-            ARCH=arm
-            ;;
-        *x86)
-            ARCH=x86
-            ;;
-        *mips)
-            ARCH=mips
-            ;;
-        *arm64)
-            ARCH=arm64
-            ;;
-        *x86_64)
-            ARCH=x86_64
-            ;;
-        *mips64)
-            ARCH=mips64
-            ;;
-        *)
-            echo "Invalid --arch $ARCH"
-            echo "Please use one of arm, x86, mips, arm64, x86_64 or mips64"
-            ARCH=null
-            exit 1
-            ;;
-    esac
-
+fi
+# Check ARCH
+if [ -z "$ARCH" ]; then
+    ARCH=$ARCH_BY_TOOLCHAIN_NAME
+    if [ -z "$ARCH" ]; then
+        ARCH=arm
+    fi
+    echo "Auto-config: --arch=$ARCH"
 fi
 
 if [ -z "$ABIS" ]; then
@@ -152,56 +127,23 @@ if [ -z "$ABIS" ]; then
     exit 1
 fi
 
-ARCH_LIB=$ARCH
-ARCH_STL=$ARCH
-if [ "$ARCH_INC" != "$ARCH" ]; then
-    test -n "`echo $ARCH_INC | grep bc$ARCH`" && NEED_BC2NATIVE=yes
-    test -z "`echo $ARCH_INC | grep $ARCH`" && NEED_BC_LIB=yes
-    ARCH_INC=$(find_ndk_unknown_archs)
-    test -z "$ARCH_INC" && ARCH_INC="$ARCH"
-    test "$NEED_BC_LIB" = "yes" && ARCH_LIB=$ARCH_INC
-    test "$NEED_BC_LIB" = "yes" -o "$NEED_BC2NATIVE" = "yes" && ARCH_STL=$ARCH_INC
-fi
-
 # Check toolchain name
 if [ -z "$TOOLCHAIN_NAME" ]; then
     TOOLCHAIN_NAME=$(get_default_toolchain_name_for_arch $ARCH)
     echo "Auto-config: --toolchain=$TOOLCHAIN_NAME"
 fi
 
-if [ "$ARCH_STL" != "$ARCH" ]; then
-    if [ "$STL" != stlport ]; then
-        echo "Force-config: --stl=stlport"
-        STL=stlport
-    fi
-fi
-
-if [ "$ARCH_INC" != "$ARCH" ]; then
-    TARGET_ABI=$(convert_arch_to_abi $ARCH | tr ',' '\n' | tail -n 1)
-    if [ -z "$LLVM_VERSION" ]; then
-        LLVM_VERSION=$DEFAULT_LLVM_VERSION
-    fi
-fi
-
 # Detect LLVM version from toolchain name with *clang*
-LLVM_VERSION_EXTRACT=$(echo "$TOOLCHAIN_NAME" | grep 'clang[0-9]\.[0-9]$' | sed -e 's/.*-clang//')
-if [ -n "$LLVM_VERSION_EXTRACT" ]; then
+TOOLCHAIN_LLVM=$(echo "$TOOLCHAIN_NAME" | grep clang)
+if [ -n "$TOOLCHAIN_LLVM" ]; then
+    USE_LLVM=yes
     DEFAULT_GCC_VERSION=$(get_default_gcc_version_for_arch $ARCH)
-    NEW_TOOLCHAIN_NAME=${TOOLCHAIN_NAME%-clang${LLVM_VERSION_EXTRACT}}-${DEFAULT_GCC_VERSION}
-    if [ -z "$LLVM_VERSION" ]; then
-        LLVM_VERSION=$LLVM_VERSION_EXTRACT
-        echo "Auto-config: --toolchain=$NEW_TOOLCHAIN_NAME, --llvm-version=$LLVM_VERSION"
-    else
-        if [ "$LLVM_VERSION" != "$LLVM_VERSION_EXTRACT" ]; then
-            echo "Conflict llvm-version: --llvm-version=$LLVM_VERSION and as implied by --toolchain=$TOOLCHAIN_NAME"
-            exit 1
-	fi
-    fi
+    NEW_TOOLCHAIN_NAME=${TOOLCHAIN_NAME%-clang}-${DEFAULT_GCC_VERSION}
     TOOLCHAIN_NAME=$NEW_TOOLCHAIN_NAME
 fi
 
 # Check PLATFORM
-if [ -z "$PLATFORM" -a "$ARCH_INC" = "$ARCH" ] ; then
+if [ -z "$PLATFORM" ] ; then
     case $ARCH in
         arm) PLATFORM=android-3
             ;;
@@ -214,10 +156,7 @@ if [ -z "$PLATFORM" -a "$ARCH_INC" = "$ARCH" ] ; then
         *)
             dump "ERROR: Unsupported NDK architecture $ARCH!"
     esac
-    log "Auto-config: --platform=$PLATFORM"
-elif [ -z "$PLATFORM" ] ; then
-    PLATFORM=android-9
-    log "Auto-config: --platform=$PLATFORM"
+    echo "Auto-config: --platform=$PLATFORM"
 fi
 
 if [ ! -d "$NDK_DIR/platforms/$PLATFORM" ] ; then
@@ -226,12 +165,24 @@ if [ ! -d "$NDK_DIR/platforms/$PLATFORM" ] ; then
     exit 1
 fi
 
+if [ -d "$NDK_DIR/prebuilt/$HOST_TAG" ]; then
+    SYSTEM=$HOST_TAG
+else
+    SYSTEM=$HOST_TAG32
+fi
+
 # Check toolchain name
-TOOLCHAIN_PATH="$NDK_DIR/toolchains/$TOOLCHAIN_NAME"
+TOOLCHAIN_PATH="$NDK_DIR/toolchains/$TOOLCHAIN_NAME/prebuilt/$SYSTEM"
 if [ ! -d "$TOOLCHAIN_PATH" ] ; then
-    echo "Invalid toolchain name: $TOOLCHAIN_NAME"
+    echo "Could not find toolchain: $TOOLCHAIN_PATH"
     echo "Please use --toolchain=<name> with the name of a toolchain supported by the source NDK."
-    echo "Try one of: " `(cd "$NDK_DIR/toolchains" && ls)`
+    echo "Try one of: "
+    for tc in $(cd "$NDK_DIR/toolchains" && ls); do
+        if [ "$tc" != "llvm" ]; then
+            echo $tc
+            echo $tc | sed 's/-4.9$/-clang/'
+        fi
+    done
     exit 1
 fi
 
@@ -248,36 +199,30 @@ case "$TOOLCHAIN_NAME" in
 esac
 
 # Check that there are any platform files for it!
-(cd $NDK_DIR/platforms && ls -d */arch-$ARCH_INC >/dev/null 2>&1 )
+(cd $NDK_DIR/platforms && ls -d */arch-$ARCH >/dev/null 2>&1 )
 if [ $? != 0 ] ; then
-    echo "Platform $PLATFORM doesn't have any files for this architecture: $ARCH_INC"
+    echo "Platform $PLATFORM doesn't have any files for this architecture: $ARCH"
     echo "Either use --platform=<name> or --toolchain=<name> to select a different"
     echo "platform or arch-dependent toolchain name (respectively)!"
     exit 1
 fi
 
 # Compute source sysroot
-SRC_SYSROOT_INC="$NDK_DIR/platforms/$PLATFORM/arch-$ARCH_INC/usr/include"
-SRC_SYSROOT_LIB="$NDK_DIR/platforms/$PLATFORM/arch-$ARCH_LIB/usr/lib"
+SRC_SYSROOT_INC="$NDK_DIR/platforms/$PLATFORM/arch-$ARCH/usr/include"
+SRC_SYSROOT_LIB="$NDK_DIR/platforms/$PLATFORM/arch-$ARCH/usr/lib"
 if [ ! -d "$SRC_SYSROOT_INC" -o ! -d "$SRC_SYSROOT_LIB" ] ; then
     echo "No platform files ($PLATFORM) for this architecture: $ARCH"
     exit 1
 fi
 
 # Check that we have any prebuilts GCC toolchain here
-if [ ! -d "$TOOLCHAIN_PATH/prebuilt" ]; then
+if [ ! -d "$TOOLCHAIN_PATH" ]; then
     echo "Toolchain is missing prebuilt files: $TOOLCHAIN_NAME"
     echo "You must point to a valid NDK release package!"
     exit 1
 fi
 
-if [ ! -d "$TOOLCHAIN_PATH/prebuilt/$SYSTEM" ] ; then
-    echo "Host system '$SYSTEM' is not supported by the source NDK!"
-    echo "Try --system=<name> with one of: " `(cd $TOOLCHAIN_PATH/prebuilt && ls) | grep -v gdbserver`
-    exit 1
-fi
-
-TOOLCHAIN_PATH="$TOOLCHAIN_PATH/prebuilt/$SYSTEM"
+TOOLCHAIN_PATH="$TOOLCHAIN_PATH"
 TOOLCHAIN_GCC=$TOOLCHAIN_PATH/bin/$ABI_CONFIGURE_TARGET-gcc
 
 if [ ! -f "$TOOLCHAIN_GCC" ] ; then
@@ -285,21 +230,15 @@ if [ ! -f "$TOOLCHAIN_GCC" ] ; then
     exit 1
 fi
 
-if [ -n "$LLVM_VERSION" ]; then
-    LLVM_TOOLCHAIN_PATH="$NDK_DIR/toolchains/llvm-$LLVM_VERSION"
+if [ "$USE_LLVM" = "yes" ]; then
+    LLVM_TOOLCHAIN_PATH="$NDK_DIR/toolchains/llvm/prebuilt/$SYSTEM"
     # Check that we have any prebuilts LLVM toolchain here
-    if [ ! -d "$LLVM_TOOLCHAIN_PATH/prebuilt" ] ; then
+    if [ ! -d "$LLVM_TOOLCHAIN_PATH" ] ; then
         echo "LLVM Toolchain is missing prebuilt files"
         echo "You must point to a valid NDK release package!"
         exit 1
     fi
-
-    if [ ! -d "$LLVM_TOOLCHAIN_PATH/prebuilt/$SYSTEM" ] ; then
-        echo "Host system '$SYSTEM' is not supported by the source NDK!"
-        echo "Try --system=<name> with one of: " `(cd $LLVM_TOOLCHAIN_PATH/prebuilt && ls)`
-        exit 1
-    fi
-    LLVM_TOOLCHAIN_PATH="$LLVM_TOOLCHAIN_PATH/prebuilt/$SYSTEM"
+    LLVM_TOOLCHAIN_PATH="$LLVM_TOOLCHAIN_PATH"
 fi
 
 # Get GCC_BASE_VERSION.  Note that GCC_BASE_VERSION may be slightly different from GCC_VERSION.
@@ -309,18 +248,11 @@ LIBGCC_BASE_PATH=${LIBGCC_PATH%/*}         # base path of libgcc.a
 GCC_BASE_VERSION=${LIBGCC_BASE_PATH##*/}   # stuff after the last /
 
 # Create temporary directory
-TMPDIR=$NDK_TMPDIR/standalone/$TOOLCHAIN_NAME
+TMPDIR=`mktemp -d $NDK_TMPDIR/ndk.XXXXXXX`
 
 dump "Copying prebuilt binaries..."
 # Now copy the GCC toolchain prebuilt binaries
 copy_directory "$TOOLCHAIN_PATH" "$TMPDIR"
-
-# Replace soft-link mcld by real file
-ALL_LDS=`find $TMPDIR -name "*mcld"`
-for LD in $ALL_LDS; do
-  rm -f "$LD"
-  cp -a "$NDK_DIR/toolchains/llvm-$DEFAULT_LLVM_VERSION/prebuilt/$SYSTEM/bin/ld.mcld" "$LD"
-done
 
 # Copy python-related to for gdb.exe
 PYTHON=python
@@ -340,60 +272,7 @@ fi
 
 # Clang stuff
 
-dump_extra_compile_commands () {
-  if [ "$NEED_BC2NATIVE" != "yes" ]; then
-    return
-  fi
-
-  if [ -z "$HOST_EXE" ]; then
-    echo '# Call bc2native if needed'
-    echo ''
-    echo 'if [ -n "`echo $@ | grep '\'\\ \\-c\''`" ] || [ "$1" = "-c" ]; then'
-    echo '  exit'
-    echo 'fi'
-
-    echo 'while [ -n "$1" ]; do'
-    echo '  if [ "$1" = "-o" ]; then'
-    echo '    output="$2"'
-    echo '    break'
-    echo '  fi'
-    echo '  shift'
-    echo 'done'
-    echo 'test -z "$output" && output=a.out'
-    echo 'if [ -f "`dirname $0`/ndk-bc2native" ]; then'
-    echo '  `dirname $0`/ndk-bc2native --sysroot=`dirname $0`/../sysroot --abi='$TARGET_ABI' --platform='$PLATFORM' --file $output $output'
-    echo 'else'
-    echo '  export PYTHONPATH=`dirname $0`/../lib/python2.7/'
-    echo '  `dirname $0`/python `dirname $0`/ndk-bc2native.py --sysroot=`dirname $0`/../sysroot --abi='$TARGET_ABI' --platform='$PLATFORM' --file $output $output'
-    echo 'fi'
-  else
-    echo 'rem Call bc2native if needed'
-    echo ''
-    echo '  if not "%1" == "-c" goto :keep_going'
-    echo '  echo %* | grep "\\ \\-c"'
-    echo '  if ERRORLEVEL 1 goto :keep_going'
-    echo '  exit'
-    echo ':keep_going'
-
-    echo ':keep_find_output'
-    echo '  if not "%1" == "-o" goto :check_next'
-    echo '  set output=%2'
-    echo ':check_next'
-    echo '  shift'
-    echo '  if "%1" == "" goto :keep_find_output'
-    echo '  if not "%output%" == "" goto :check_done'
-    echo '  set output=a.out'
-    echo ':check_done'
-    echo 'if exist %~dp0\\ndk-bc2native'$HOST_EXE' ('
-    echo '  %~dp0\\ndk-bc2native'$HOST_EXE' --sysroot=%~dp0\\.\\sysroot --abi='$TARGET_ABI' --platform='$PLATFORM' --file %output% %output'
-    echo 'else ('
-    echo '  set PYTHONPATH=%~dp0\\..\\lib\\python2.7\\'
-    echo '  %~dp0\\python'$HOST_EXE' %~dp0\\ndk-bc2native.py --sysroot=%~dp0\\..\\sysroot --abi='$TARGET_ABI' --platform='$PLATFORM' --file %output% %output%'
-    echo ')'
-  fi
-}
-
-if [ -n "$LLVM_VERSION" ]; then
+if [ "$USE_LLVM" = "yes" ]; then
   # Copy the clang/llvm toolchain prebuilt binaries
   copy_directory "$LLVM_TOOLCHAIN_PATH" "$TMPDIR"
 
@@ -404,9 +283,10 @@ if [ -n "$LLVM_VERSION" ]; then
   # "++" tells clang to compile in C++ mode
   LLVM_TARGET=
   case "$ARCH" in
-      arm) # NOte: -target may change by clang based on the
-           #        presence of subsequent -march=armv7-a and/or -mthumb
-          LLVM_TARGET=armv5te-none-linux-androideabi
+      arm)
+          # Note: -target may change by clang based on the presence of
+          # subsequent -march=armv5te and/or -mthumb.
+          LLVM_TARGET=armv7a-none-linux-androideabi
           TOOLCHAIN_PREFIX=$DEFAULT_ARCH_TOOLCHAIN_PREFIX_arm
           ;;
       x86)
@@ -432,6 +312,14 @@ if [ -n "$LLVM_VERSION" ]; then
       *)
         dump "ERROR: Unsupported NDK architecture $ARCH!"
   esac
+
+  # We need to copy clang and clang++ to some other named binary because clang
+  # and clang++ are going to be the shell scripts with the prefilled target. We
+  # have the version info available, and that's a typical alternate name (and is
+  # what we historically used).
+  LLVM_VERSION=$(cat $LLVM_TOOLCHAIN_PATH/AndroidVersion.txt | \
+      egrep -o '[[:digit:]]+\.[[:digit:]]')
+
   # Need to remove '.' from LLVM_VERSION when constructing new clang name,
   # otherwise clang3.3++ may still compile *.c code as C, not C++, which
   # is not consistent with g++
@@ -445,30 +333,25 @@ if [ -n "$LLVM_VERSION" ]; then
     mv "$TMPDIR/bin/clang++${HOST_EXE}" "$TMPDIR/bin/clang$LLVM_VERSION_WITHOUT_DOT++${HOST_EXE}"
   fi
 
-  EXTRA_CLANG_FLAGS=
-  EXTRA_CLANGXX_FLAGS=
-  if [ "$ARCH_STL" != "$ARCH" ]; then
-    LLVM_TARGET=le32-none-ndk
-    EXTRA_CLANG_FLAGS="-emit-llvm"
-    EXTRA_CLANGXX_FLAGS="$EXTRA_CLANG_FLAGS -I\`dirname \$0\`/../include/c++/$GCC_BASE_VERSION"
-  fi
+  TARGET_FLAG="-target $LLVM_TARGET"
+  CLANG_FLAGS="$TARGET_FLAG --sysroot \`dirname \$0\`/../sysroot"
 
   cat > "$TMPDIR/bin/clang" <<EOF
+#!/bin/bash
 if [ "\$1" != "-cc1" ]; then
-    \`dirname \$0\`/clang$LLVM_VERSION_WITHOUT_DOT -target $LLVM_TARGET "\$@" $EXTRA_CLANG_FLAGS
-    $(dump_extra_compile_commands)
+    \`dirname \$0\`/clang$LLVM_VERSION_WITHOUT_DOT $CLANG_FLAGS "\$@"
 else
     # target/triple already spelled out.
-    \`dirname \$0\`/clang$LLVM_VERSION_WITHOUT_DOT "\$@" $EXTRA_CLANG_FLAGS
+    \`dirname \$0\`/clang$LLVM_VERSION_WITHOUT_DOT "\$@"
 fi
 EOF
   cat > "$TMPDIR/bin/clang++" <<EOF
+#!/bin/bash
 if [ "\$1" != "-cc1" ]; then
-    \`dirname \$0\`/clang$LLVM_VERSION_WITHOUT_DOT++ -target $LLVM_TARGET "\$@" $EXTRA_CLANGXX_FLAGS
-    $(dump_extra_compile_commands)
+    \`dirname \$0\`/clang$LLVM_VERSION_WITHOUT_DOT++ $CLANG_FLAGS "\$@"
 else
     # target/triple already spelled out.
-    \`dirname \$0\`/clang$LLVM_VERSION_WITHOUT_DOT++ "\$@" $EXTRA_CLANGXX_FLAGS
+    \`dirname \$0\`/clang$LLVM_VERSION_WITHOUT_DOT++ "\$@"
 fi
 EOF
   chmod 0755 "$TMPDIR/bin/clang" "$TMPDIR/bin/clang++"
@@ -476,29 +359,28 @@ EOF
   cp -a "$TMPDIR/bin/clang++" "$TMPDIR/bin/$TOOLCHAIN_PREFIX-clang++"
 
   if [ -n "$HOST_EXE" ] ; then
+    CLANG_FLAGS="$TARGET_FLAG --sysroot %~dp0\\..\\sysroot"
     cat > "$TMPDIR/bin/clang.cmd" <<EOF
 @echo off
 if "%1" == "-cc1" goto :L
-%~dp0\\clang${LLVM_VERSION_WITHOUT_DOT}${HOST_EXE} -target $LLVM_TARGET %* $EXTRA_CLANG_FLAGS
-$(dump_extra_compile_commands)
+%~dp0\\clang${LLVM_VERSION_WITHOUT_DOT}${HOST_EXE} $CLANG_FLAGS %*
 if ERRORLEVEL 1 exit /b 1
 goto :done
 :L
 rem target/triple already spelled out.
-%~dp0\\clang${LLVM_VERSION_WITHOUT_DOT}${HOST_EXE} %* $EXTRA_CLANG_FLAGS
+%~dp0\\clang${LLVM_VERSION_WITHOUT_DOT}${HOST_EXE} %*
 if ERRORLEVEL 1 exit /b 1
 :done
 EOF
     cat > "$TMPDIR/bin/clang++.cmd" <<EOF
 @echo off
 if "%1" == "-cc1" goto :L
-%~dp0\\clang${LLVM_VERSION_WITHOUT_DOT}++${HOST_EXE} -target $LLVM_TARGET %* $EXTRA_CLANGXX_FLAGS
-$(dump_extra_compile_commands)
+%~dp0\\clang${LLVM_VERSION_WITHOUT_DOT}++${HOST_EXE} $CLANG_FLAGS %*
 if ERRORLEVEL 1 exit /b 1
 goto :done
 :L
 rem target/triple already spelled out.
-%~dp0\\clang${LLVM_VERSION_WITHOUT_DOT}++${HOST_EXE} %* $EXTRA_CLANGXX_FLAGS
+%~dp0\\clang${LLVM_VERSION_WITHOUT_DOT}++${HOST_EXE} %*
 if ERRORLEVEL 1 exit /b 1
 :done
 EOF
@@ -526,27 +408,12 @@ case "$ARCH" in
         copy_directory_nolinks "$SRC_SYSROOT_LIB/../lib64r2" "$TMPDIR/sysroot/usr/lib64r2"
         ;;
     mips)
-        if [ "$GCC_VERSION" = "4.9" ]; then
-            copy_directory_nolinks "$SRC_SYSROOT_LIB/../libr2" "$TMPDIR/sysroot/usr/libr2"
-            copy_directory_nolinks "$SRC_SYSROOT_LIB/../libr6" "$TMPDIR/sysroot/usr/libr6"
-	fi
+        copy_directory_nolinks "$SRC_SYSROOT_LIB/../libr2" "$TMPDIR/sysroot/usr/libr2"
+        copy_directory_nolinks "$SRC_SYSROOT_LIB/../libr6" "$TMPDIR/sysroot/usr/libr6"
         ;;
 esac
 
-if [ "$ARCH_INC" != "$ARCH" ]; then
-    cp -a $NDK_DIR/$GABIXX_SUBDIR/libs/$ABI/* $TMPDIR/sysroot/usr/lib
-    cp -a $NDK_DIR/$LIBPORTABLE_SUBDIR/libs/$ABI/* $TMPDIR/sysroot/usr/lib
-    cp -a $NDK_DIR/$GCCUNWIND_SUBDIR/libs/$ABI/* $TMPDIR/sysroot/usr/lib
-    if [ "$ARCH" = "${ARCH%%64*}" ]; then
-        cp -a $NDK_DIR/$COMPILER_RT_SUBDIR/libs/$ABI/* $TMPDIR/sysroot/usr/lib
-    fi
-fi
-
-if [ "$ARCH_LIB" != "$ARCH" ]; then
-    cp -a $NDK_DIR/platforms/$PLATFORM/arch-$ARCH/usr/lib/crt* $TMPDIR/sysroot/usr/lib
-fi
-
-GNUSTL_DIR=$NDK_DIR/$GNUSTL_SUBDIR/$GCC_VERSION
+GNUSTL_DIR=$NDK_DIR/$GNUSTL_SUBDIR/4.9
 GNUSTL_LIBS=$GNUSTL_DIR/libs
 
 STLPORT_DIR=$NDK_DIR/$STLPORT_SUBDIR
@@ -554,14 +421,7 @@ STLPORT_LIBS=$STLPORT_DIR/libs
 
 LIBCXX_DIR=$NDK_DIR/$LIBCXX_SUBDIR
 LIBCXX_LIBS=$LIBCXX_DIR/libs
-case $ARCH in
-    x86|x86_64|mips|mips64)
-        LIBCXX_SUPPORT_LIB=gabi++
-        ;;
-    *)
-        LIBCXX_SUPPORT_LIB=libc++abi
-        ;;
-esac
+LIBCXX_SUPPORT_LIB=libc++abi
 
 SUPPORT_DIR=$NDK_DIR/$SUPPORT_SUBDIR
 
@@ -602,7 +462,7 @@ copy_stl_common_headers () {
                 copy_abi_headers gabi++ cxxabi.h unwind.h unwind-arm.h unwind-itanium.h gabixx_config.h
             elif [ "$LIBCXX_SUPPORT_LIB" = "libc++abi" ]; then
                 copy_directory "$LIBCXX_DIR/../llvm-libc++abi/libcxxabi/include" "$ABI_STL_INCLUDE/../../llvm-libc++abi/include"
-                copy_abi_headers llvm-libc++abi cxxabi.h libunwind.h unwind.h
+                copy_abi_headers llvm-libc++abi cxxabi.h __cxxabi_config.h libunwind.h unwind.h
             else
                 dump "ERROR: Unknown libc++ support lib: $LIBCXX_SUPPORT_LIB"
                 exit 1
@@ -647,23 +507,12 @@ copy_stl_libs () {
             cp -p "$GNUSTL_LIBS/$ABI_SRC_DIR/libgnustl_static.a" "$ABI_STL/lib/$DEST_DIR/libstdc++.a"
             ;;
         libcxx|libc++)
-            if [ "$ARCH" = "${ARCH%%64*}" ]; then
-                copy_file_list "$COMPILER_RT_LIBS/$ABI" "$ABI_STL/lib/$DEST_DIR" "libcompiler_rt_shared.so" "libcompiler_rt_static.a"
-            fi
             copy_file_list "$LIBCXX_LIBS/$ABI_SRC_DIR" "$ABI_STL/lib/$DEST_DIR" "libc++_shared.so"
             cp -p "$LIBCXX_LIBS/$ABI_SRC_DIR/libc++_static.a" "$ABI_STL/lib/$DEST_DIR/libstdc++.a"
             ;;
         stlport)
-            if [ "$ARCH_STL" != "$ARCH" ]; then
-              tmp_lib_dir=$TMPDIR/stl
-              $NDK_DIR/build/tools/build-cxx-stl.sh --stl=stlport --out-dir=$tmp_lib_dir --abis=unknown
-              cp -p "`ls $tmp_lib_dir/sources/cxx-stl/stlport/libs/*/libstlport_static.a`" "$ABI_STL/lib/$DEST_DIR/libstdc++.a"
-              cp -p "`ls $tmp_lib_dir/sources/cxx-stl/stlport/libs/*/libstlport_shared.bc`" "$ABI_STL/lib/$DEST_DIR/libstlport_shared.so"
-              rm -rf $tmp_lib_dir
-            else
-              copy_file_list "$STLPORT_LIBS/$ABI_SRC_DIR" "$ABI_STL/lib/$DEST_DIR" "libstlport_shared.so"
-              cp -p "$STLPORT_LIBS/$ABI_SRC_DIR/libstlport_static.a" "$ABI_STL/lib/$DEST_DIR/libstdc++.a"
-            fi
+            copy_file_list "$STLPORT_LIBS/$ABI_SRC_DIR" "$ABI_STL/lib/$DEST_DIR" "libstlport_shared.so"
+            cp -p "$STLPORT_LIBS/$ABI_SRC_DIR/libstlport_static.a" "$ABI_STL/lib/$DEST_DIR/libstdc++.a"
             ;;
         *)
             dump "ERROR: Unsupported STL: $STL"
@@ -700,7 +549,7 @@ copy_stl_libs_for_abi () {
                 copy_stl_libs x86_64       "bits"                "bits"       "../lib64"           "lib64"
                 copy_stl_libs x86_64       "x32/bits"            "x32/bits"   "../libx32"          "libx32"
             else
-                copy_stl_libs "$ABI"
+                copy_stl_libs x86_64       ""                    ""           "../lib64"           "."
             fi
             ;;
         mips64)
@@ -709,13 +558,12 @@ copy_stl_libs_for_abi () {
                 copy_stl_libs mips64       "32/mips-r2/bits"     "32/mips-r2/bits"  "../libr2"     "libr2"
                 copy_stl_libs mips64       "32/mips-r6/bits"     "32/mips-r6/bits"  "../libr6"     "libr6"
                 copy_stl_libs mips64       "bits"                "bits"             "../lib64"     "lib64"
-                copy_stl_libs mips64       "mips64-r2/bits"      "mips64-r2/bits"   "../lib64r2"   "lib64r2"
             else
-                copy_stl_libs "$ABI"
+                copy_stl_libs mips64       ""                    ""                 "../lib64"     "."
             fi
             ;;
         mips|mips32r6)
-            if [ "$STL" = "gnustl" -a "$GCC_VERSION" = "4.9" ]; then
+            if [ "$STL" = "gnustl" ]; then
                 copy_stl_libs mips         "bits"                "bits"             "../lib"       "lib"
                 copy_stl_libs mips         "mips-r2/bits"        "mips-r2/bits"     "../libr2"     "libr2"
                 copy_stl_libs mips         "mips-r6/bits"        "mips-r6/bits"     "../libr6"     "libr6"

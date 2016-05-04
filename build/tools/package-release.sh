@@ -19,9 +19,6 @@
 # You will need prebuilt toolchain binary tarballs or a previous
 # NDK release package to do that.
 #
-# See make-release.sh if you want to make a new release completely from
-# scratch.
-#
 
 . `dirname $0`/prebuilt-common.sh
 
@@ -50,8 +47,7 @@ SYSTEMS=$DEFAULT_SYSTEMS
 register_var_option "--systems=<list>" SYSTEMS "Specify host systems"
 
 # ARCH to build for
-ARCHS=$(find_ndk_unknown_archs)
-ARCHS="$DEFAULT_ARCHS $ARCHS"
+ARCHS="$DEFAULT_ARCHS"
 register_var_option "--arch=<arch>" ARCHS "Specify target architecture(s)"
 
 # set to 'yes' if we should use 'git ls-files' to list the files to
@@ -71,41 +67,30 @@ PREFIX=android-ndk
 register_var_option "--prefix=<name>" PREFIX "Specify package prefix"
 
 # default location for generated packages
-OUT_DIR=/tmp/ndk-$USER/release
+OUT_DIR=$TMPDIR/release
 OPTION_OUT_DIR=
 register_var_option "--out-dir=<path>" OPTION_OUT_DIR "Specify output package directory" "$OUT_DIR"
 
 # Find the location of the platforms root directory
 DEVELOPMENT_ROOT=`dirname $ANDROID_NDK_ROOT`/development/ndk
-register_var_option "--development-root=<path>" DEVELOPMENT_ROOT "Specify platforms/samples directory"
+register_var_option "--development-root=<path>" DEVELOPMENT_ROOT "Specify platforms directory"
 
 GCC_VERSION_LIST="default" # it's arch defined by default so use default keyword
 register_var_option "--gcc-version-list=<vers>" GCC_VERSION_LIST "List of GCC release versions"
 
-LLVM_VERSION_LIST=$DEFAULT_LLVM_VERSION_LIST
-register_var_option "--llvm-version-list=<versions>" LLVM_VERSION_LIST "List of LLVM release versions"
+GDB_VERSION=$DEFAULT_GDB_VERSION
+register_var_option "--gdb-version=<versions>" GDB_VERSION "GDB release version"
 
 register_try64_option
-
-SEPARATE_64=no
-register_option "--separate-64" do_SEPARATE_64 "Separate 64-bit host toolchain to its own package"
-do_SEPARATE_64 ()
-{
-    if [ "$TRY64" = "yes" ]; then
-        echo "ERROR: You cannot use both --try-64 and --separate-64 at the same time."
-        exit 1
-    fi
-    SEPARATE_64=yes;
-}
 
 PROGRAM_PARAMETERS=
 PROGRAM_DESCRIPTION=\
 "Package a new set of release packages for the Android NDK.
 
 You will need to have generated one or more prebuilt binary tarballs
-with the build/tools/rebuild-all-prebuilts.sh script. These files should
-be named like <toolname>-<system>.tar.bz2, where <toolname> is an arbitrary
-tool name, and <system> is one of: $SYSTEMS
+with the checkbuild.py script. These files should be named like
+<toolname>-<system>.tar.bz2, where <toolname> is an arbitrary tool name, and
+<system> is one of: $SYSTEMS
 
 Use the --prebuilt-dir=<path> option to build release packages from the
 binary tarballs stored in <path>.
@@ -124,13 +109,7 @@ extract_parameters "$@"
 # Ensure that SYSTEMS is space-separated
 SYSTEMS=$(commas_to_spaces $SYSTEMS)
 
-# Detect unknown archs
 ARCHS=$(commas_to_spaces $ARCHS)
-# FIXME after 64-bit arch become DEFAULT_ARCHS
-UNKNOWN_ARCH=$(filter_out "$DEFAULT_ARCHS arm64 x86_64 mips64" "$ARCHS")
-if [ ! -z "$UNKNOWN_ARCH" ]; then
-    ARCHS=$(filter_out "$UNKNOWN_ARCH" "$ARCHS")
-fi
 
 # Compute ABIS from ARCHS
 ABIS=
@@ -142,11 +121,6 @@ for ARCH in $ARCHS; do
         ABIS=$ABIS" $DEFAULT_ABIS"
     fi
 done
-
-UNKNOWN_ABIS=$(convert_archs_to_abis $UNKNOWN_ARCH)
-
-# Convert comma-separated list to space-separated list
-LLVM_VERSION_LIST=$(commas_to_spaces $LLVM_VERSION_LIST)
 
 # If --arch is used to list x86 as a target architecture, Add x86-4.8 to
 # the list of default toolchains to package. That is, unless you also
@@ -228,7 +202,6 @@ fi
 echo "Architectures: $ARCHS"
 echo "CPU ABIs: $ABIS"
 echo "GCC Toolchains: $TOOLCHAINS"
-echo "LLVM Toolchains: $LLVM_VERSION_LIST"
 echo "Host systems: $SYSTEMS"
 
 
@@ -238,10 +211,6 @@ if [ "$NO_GIT" != "yes" ] ; then
     GIT_FILES=`cd $NDK_ROOT_DIR && git ls-files`
 else
     echo "Collecting all sources files under tree."
-    # Cleanup everything that is likely to not be part of the final NDK
-    # i.e. generated files...
-    rm -rf $NDK_ROOT_DIR/samples/*/obj
-    rm -rf $NDK_ROOT_DIR/samples/*/libs
     # Get all files under the NDK root
     GIT_FILES=`cd $NDK_ROOT_DIR && find .`
     GIT_FILES=`echo $GIT_FILES | sed -e "s!\./!!g"`
@@ -274,37 +243,19 @@ name64 ()
 # Unpack a prebuilt into specified destination directory
 # $1: prebuilt name, relative to $PREBUILT_DIR
 # $2: destination directory
-# $3: optional destination directory for 64-bit toolchain
-# $4: optional flag to use 32-bit prebuilt in place of 64-bit
 unpack_prebuilt ()
 {
-    local PREBUILT=
-    local PREBUILT64=null
+    local PREBUILT=$1
     local DDIR="$2"
-    local DDIR64="${3:-$DDIR}"
-    local USE32="${4:-no}"
-
-    if [ "$TRY64" = "yes" -a "$USE32" = "no" ]; then
-        PREBUILT=`name64 $1`
-    else
-        PREBUILT=$1
-        PREBUILT64=`name64 $1`
-    fi
 
     PREBUILT=${PREBUILT}.tar.bz2
-    PREBUILT64=${PREBUILT64}.tar.bz2
 
     echo "Unpacking $PREBUILT"
     if [ -f "$PREBUILT_DIR/$PREBUILT" ] ; then
         unpack_archive "$PREBUILT_DIR/$PREBUILT" "$DDIR"
         fail_panic "Could not unpack prebuilt $PREBUILT. Aborting."
-        if [ -f "$PREBUILT_DIR/$PREBUILT64" ] ; then
-            echo "Unpacking $PREBUILT64"
-            unpack_archive "$PREBUILT_DIR/$PREBUILT64" "$DDIR64"
-            fail_panic "Could not unpack prebuilt $PREBUILT64. Aborting."
-        fi
     else
-        echo "WARNING: Could not find $PREBUILT in $PREBUILT_DIR"
+        fail_panic "Could not find $PREBUILT in $PREBUILT_DIR"
     fi
 }
 
@@ -344,10 +295,8 @@ fail_panic "Could not create reference. Aborting."
 # Copy platform and sample files
 if [ "$PREBUILT_DIR" ]; then
     echo "Unpacking platform files" &&
-    unpack_archive "$PREBUILT_DIR/platforms.tar.bz2" "$REFERENCE" &&
-    echo "Unpacking samples files" &&
-    unpack_archive "$PREBUILT_DIR/samples.tar.bz2" "$REFERENCE"
-    fail_panic "Could not unpack platform and sample files"
+    unpack_archive "$PREBUILT_DIR/platforms.tar.bz2" "$REFERENCE"
+    fail_panic "Could not unpack platform files"
 elif [ "$PREBUILT_NDK" ]; then
     echo "ERROR: NOT IMPLEMENTED!"
     exit 1
@@ -355,21 +304,18 @@ else
     # copy platform and sample files
     echo "Copying platform and sample files"
     FLAGS="--src-dir=$DEVELOPMENT_ROOT --dst-dir=$REFERENCE"
-    if [ "$VERBOSE2" = "yes" ] ; then
-        FLAGS="$FLAGS --verbose"
-    fi
-
     FLAGS="$FLAGS --platform=$(spaces_to_commas $PLATFORMS)"
     FLAGS="$FLAGS --arch=$(spaces_to_commas $ARCHS)"
     $NDK_ROOT_DIR/build/tools/gen-platforms.sh $FLAGS
     fail_panic "Could not copy platform files. Aborting."
 fi
 
+cp -r $NDK_ROOT_DIR/samples $REFERENCE
+
 # Remove the source for host tools to make the final package smaller
 rm -rf $REFERENCE/sources/host-tools
 
 # Remove leftovers, just in case...
-rm -rf $REFERENCE/samples/*/{obj,libs,build.xml,local.properties,Android.mk} &&
 rm -rf $REFERENCE/tests/build/*/{obj,libs} &&
 rm -rf $REFERENCE/tests/device/*/{obj,libs}
 
@@ -384,23 +330,15 @@ fi
 if [ -z "$PREBUILT_NDK" ]; then
     # Unpack gdbserver
     for ARCH in $ARCHS; do
-        unpack_prebuilt $ARCH-gdbserver "$REFERENCE"
+        unpack_prebuilt gdbserver-$ARCH "$REFERENCE"
     done
     # Unpack C++ runtimes
     for VERSION in $DEFAULT_GCC_VERSION_LIST; do
-        unpack_prebuilt gnu-libstdc++-headers-$VERSION "$REFERENCE"
+        unpack_prebuilt gnustl-$VERSION "$REFERENCE"
     done
-    for ABI in $ABIS; do
-        unpack_prebuilt gabixx-libs-$ABI-g "$REFERENCE"
-        unpack_prebuilt stlport-libs-$ABI-g "$REFERENCE"
-        unpack_prebuilt libcxx-libs-$ABI-g "$REFERENCE"
-        for VERSION in $DEFAULT_GCC_VERSION_LIST; do
-            unpack_prebuilt gnu-libstdc++-libs-$VERSION-$ABI-g "$REFERENCE"
-        done
-        unpack_prebuilt libportable-libs-$ABI "$REFERENCE"
-        unpack_prebuilt compiler-rt-libs-$ABI "$REFERENCE"
-        unpack_prebuilt libgccunwind-libs-$ABI "$REFERENCE"
-    done
+
+    unpack_prebuilt stlport "$REFERENCE"
+    unpack_prebuilt libcxx "$REFERENCE"
 fi
 
 # create a release file named 'RELEASE.TXT' containing the release
@@ -420,26 +358,22 @@ rm -f $REFERENCE/CleanSpec.mk
 # now, for each system, create a package
 #
 DSTDIR=$TMPDIR/$RELEASE_PREFIX
-DSTDIR64=${DSTDIR}
-if [ "$SEPARATE_64" = "yes" ] ; then
-    DSTDIR64=$TMPDIR/64/${RELEASE_PREFIX}
-fi
 
 for SYSTEM in $SYSTEMS; do
+    if [ "$TRY64" = "yes" ]; then
+        SYSTEM=`name64 $SYSTEM`
+    fi
+
     echo "Preparing package for system $SYSTEM."
     BIN_RELEASE=$RELEASE_PREFIX-$SYSTEM
-    rm -rf "$DSTDIR" "$DSTDIR64" &&
-    mkdir -p "$DSTDIR" "$DSTDIR64" &&
+    rm -rf "$DSTDIR" &&
+    mkdir -p "$DSTDIR" &&
     copy_directory "$REFERENCE" "$DSTDIR"
     fail_panic "Could not copy reference. Aborting."
 
-    if [ "$DSTDIR" != "$DSTDIR64" ]; then
-        copy_directory "$DSTDIR" "$DSTDIR64"
-        echo "$RELEASE (64-bit)" > $DSTDIR64/RELEASE.TXT
-    fi
-
     if [ "$PREBUILT_NDK" ]; then
-        cd $UNZIP_DIR/android-ndk-* && cp -rP toolchains/* $DSTDIR/toolchains/
+        cd $UNZIP_DIR/android-ndk-* && cp -rP toolchains/$SYSTEM/* \
+            $DSTDIR/toolchains/$SYSTEM
         fail_panic "Could not copy toolchain files from $PREBUILT_NDK"
 
         if [ -d "$DSTDIR/$GABIXX_SUBDIR" ]; then
@@ -452,7 +386,7 @@ for SYSTEM in $SYSTEMS; do
         fi
 
         if [ -d "$DSTDIR/$STLPORT_SUBDIR" ] ; then
-            STLPORT_ABIS=$PREBUILT_ABIS $UNKNOWN_ABIS
+            STLPORT_ABIS=$PREBUILT_ABIS
             for STL_ABI in $STLPORT_ABIS; do
                 copy_prebuilt "$STLPORT_SUBDIR/libs/$STL_ABI" "$STLPORT_SUBDIR/libs"
             done
@@ -461,7 +395,7 @@ for SYSTEM in $SYSTEMS; do
         fi
 
         if [ -d "$DSTDIR/$LIBCXX_SUBDIR" ]; then
-            LIBCXX_ABIS=$PREBUILT_ABIS $UNKNOWN_ABIS
+            LIBCXX_ABIS=$PREBUILT_ABIS
             for STL_ABI in $LIBCXX_ABIS; do
                 copy_prebuilt "$LIBCXX_SUBDIR/libs/$STL_ABI" "$LIBCXX_SUBDIR/libs"
             done
@@ -475,164 +409,80 @@ for SYSTEM in $SYSTEMS; do
                 copy_prebuilt "$GNUSTL_SUBDIR/$VERSION/libs/$STL_ABI" "$GNUSTL_SUBDIR/$VERSION/libs"
             done
         done
-
-        if [ -d "$DSTDIR/$LIBPORTABLE_SUBDIR" ]; then
-            LIBPORTABLE_ABIS=$PREBUILT_ABIS
-            for LIBPORTABLE_ABI in $LIBPORTABLE_ABIS; do
-                copy_prebuilt "$LIBPORTABLE_SUBDIR/libs/$LIBPORTABLE_ABI" "$LIBPORTABLE_SUBDIR/libs"
-            done
-        else
-            echo "WARNING: Could not find libportable source tree!"
-        fi
-
-        if [ -d "$DSTDIR/$COMPILER_RT_SUBDIR" ]; then
-            COMPILER_RT_ABIS=$PREBUILT_ABIS
-            for COMPILER_RT_ABI in $COMPILER_RT_ABIS; do
-                copy_prebuilt "$COMPILER_RT_SUBDIR/libs/$COMPILER_RT_ABI" "$COMPILER_RT_SUBDIR/libs"
-            done
-        else
-            echo "WARNING: Could not find compiler-rt source tree!"
-        fi
-
-        if [ -d "$DSTDIR/$GCCUNWIND_SUBDIR" ]; then
-            GCCUNWIND_ABIS=$PREBUILT_ABIS
-            for GCCUNWIND_ABI in $GCCUNWIND_ABIS; do
-                copy_prebuilt "$GCCUNWIND_SUBDIR/libs/$GCCUNWIND_ABI" "$GCCUNWIND_SUBDIR/libs"
-            done
-        else
-            echo "WARNING: Could not find libgccunwind source tree!"
-        fi
     else
-        # Unpack toolchains
-        for TC in $TOOLCHAINS; do
-            unpack_prebuilt $TC-$SYSTEM "$DSTDIR" "$DSTDIR64"
-            echo "Removing sysroot for $TC"
-            rm -rf $DSTDIR/toolchains/$TC/prebuilt/$SYSTEM/sysroot
-            rm -rf $DSTDIR64/toolchains/$TC/prebuilt/${SYSTEM}_64/sysroot
-            rm -rf $DSTDIR64/toolchains/$TC/prebuilt/${SYSTEM}-x86_64/sysroot
+        for ARCH in $ARCHS; do
+            unpack_prebuilt gcc-$ARCH-$SYSTEM "$DSTDIR"
+            unpack_prebuilt binutils-$ARCH-$SYSTEM "$DSTDIR"
+            unpack_prebuilt gcclibs-$ARCH "$DSTDIR"
         done
-        echo "Remove ld.mcld deployed/packaged earlier by accident "
-        find $DSTDIR/toolchains $DSTDIR64/toolchains  -name "*ld.mcld*" -exec rm -f {} \;
 
         # Unpack clang/llvm
-        for LLVM_VERSION in $LLVM_VERSION_LIST; do
-            unpack_prebuilt llvm-$LLVM_VERSION-$SYSTEM "$DSTDIR" "$DSTDIR64"
-        done
+        unpack_prebuilt llvm-$SYSTEM "$DSTDIR"
 
-        # Unpack sanitizer headers/libraries
-        unpack_prebuilt libsanitizer-3.5-$SYSTEM "$DSTDIR" "$DSTDIR64"
-        unpack_prebuilt libsanitizer-3.6-$SYSTEM "$DSTDIR" "$DSTDIR64"
+        rm -rf $DSTDIR/toolchains/$SYSTEM/*l
 
-        # Unpack mclinker
-        if [ -n "$LLVM_VERSION_LIST" ]; then
-            unpack_prebuilt ld.mcld-$SYSTEM "$DSTDIR" "$DSTDIR64"
-        fi
-        rm -rf $DSTDIR/toolchains/*l
-        rm -rf $DSTDIR64/toolchains/*l
-
-        # Unpack renderscript tools
-        unpack_prebuilt renderscript-$SYSTEM "$DSTDIR" "$DSTDIR64"
+        # Unpack renderscript tools; http://b/22377128.
+        echo "WARNING: no renderscript-$SYSTEM tools! http://b/22377128"
+        #unpack_prebuilt renderscript-$SYSTEM "$DSTDIR"
 
         # Unpack prebuilt ndk-stack and other host tools
-        unpack_prebuilt ndk-stack-$SYSTEM "$DSTDIR" "$DSTDIR64" "yes"
-        unpack_prebuilt ndk-depends-$SYSTEM "$DSTDIR" "$DSTDIR64" "yes"
-        unpack_prebuilt ndk-make-$SYSTEM "$DSTDIR" "$DSTDIR64"
-        unpack_prebuilt ndk-sed-$SYSTEM "$DSTDIR" "$DSTDIR64"
-        unpack_prebuilt ndk-awk-$SYSTEM "$DSTDIR" "$DSTDIR64"
-        unpack_prebuilt ndk-perl-$SYSTEM "$DSTDIR" "$DSTDIR64"
-        unpack_prebuilt ndk-python-$SYSTEM "$DSTDIR" "$DSTDIR64"
-        unpack_prebuilt ndk-yasm-$SYSTEM "$DSTDIR" "$DSTDIR64"
-
-        if [ "$SYSTEM" = "windows" ]; then
-            unpack_prebuilt toolbox-$SYSTEM "$DSTDIR" "$DSTDIR64"
-        fi
+        unpack_prebuilt host-tools-$SYSTEM "$DSTDIR"
     fi
 
-    # Unpack other host tools
-    unpack_prebuilt scan-build-view "$DSTDIR" "$DSTDIR64"
-
-    # Unpack renderscript headers/libs
-    unpack_prebuilt renderscript "$DSTDIR" "$DSTDIR64"
+    # Unpack renderscript headers/libs; http://b/22377128.
+    echo "WARNING: no renderscript headers/libs! http://b/22377128"
+    #unpack_prebuilt renderscript "$DSTDIR"
 
     # Unpack misc stuff
     if [ -f "$PREBUILT_DIR/misc.tar.bz2" ]; then
-        unpack_prebuilt misc "$DSTDIR" "$DSTDIR64"
-    fi
-		    
-    # Unpack misc stuff
-    if [ -f "$PREBUILT_DIR/misc.tar.bz2" ]; then
-        unpack_prebuilt misc "$DSTDIR" "$DSTDIR64"
+        unpack_prebuilt misc "$DSTDIR"
     fi
 
     # Remove duplicated files in case-insensitive file system
-    if [ "$SYSTEM" = "windows" -o "$SYSTEM" = "darwin-x86" ]; then
+    if [ "$SYSTEM" = "windows" -o "$SYSTEM" = "windows-x86_64" -o \
+         "$SYSTEM" = "darwin-x86" ]; then
         rm -rf $DSTDIR/tests/build/c++-stl-source-extensions
-        rm -rf $DSTDIR64/tests/build/c++-stl-source-extensions
         find "$DSTDIR/platforms" | sort -f | uniq -di | xargs rm
-        find "$DSTDIR64/platforms" | sort -f | uniq -di | xargs rm
     fi
 
     # Remove include-fixed/linux/a.out.h.   See b.android.com/73728
-    find "$DSTDIR/toolchains" "$DSTDIR64/toolchains" -name a.out.h | grep include-fixed/ | xargs rm
-    
-    # Remove redundant pretty-printers/libstdcxx
-    rm -rf $DSTDIR/prebuilt/*/share/pretty-printers/libstdcxx/gcc-l*
-    rm -rf $DSTDIR/prebuilt/*/share/pretty-printers/libstdcxx/gcc-4.9-*
-    rm -rf $DSTDIR64/prebuilt/*/share/pretty-printers/libstdcxx/gcc-l*
-    rm -rf $DSTDIR64/prebuilt/*/share/pretty-printers/libstdcxx/gcc-4.9-*
+    find "$DSTDIR/toolchains" -name a.out.h | grep include-fixed/ | xargs rm
 
-    # Remove python tests
-    find $DSTDIR/prebuilt/*/lib/python* -name test -exec rm -rf {} \;
-    find $DSTDIR64/prebuilt/*/lib/python* -name test -exec rm -rf {} \;
+    # Remove redundant pretty-printers/libstdcxx
+    rm -rf $DSTDIR/prebuilt/share/pretty-printers/libstdcxx/gcc-l*
+    rm -rf $DSTDIR/prebuilt/share/pretty-printers/libstdcxx/gcc-4.9-*
 
     # Remove python *.pyc and *.pyo files
-    find $DSTDIR/prebuilt/*/lib/python* -name "*.pyc" -exec rm -rf {} \;
-    find $DSTDIR/prebuilt/*/lib/python* -name "*.pyo" -exec rm -rf {} \;
-    find $DSTDIR64/prebuilt/*/lib/python* -name "*.pyc"  -exec rm -rf {} \;
-    find $DSTDIR64/prebuilt/*/lib/python* -name "*.pyo"  -exec rm -rf {} \;
+    find $DSTDIR/prebuilt/lib/python* -name "*.pyc" -exec rm -rf {} \;
+    find $DSTDIR/prebuilt/lib/python* -name "*.pyo" -exec rm -rf {} \;
 
-    # Remove obsolete toolchains
-    rm -rf $DSTDIR/toolchains/*3.4
-    rm -rf $DSTDIR64/toolchains/*3.4
-    
     # Remove .git*
     find $DSTDIR -name ".git*" -exec rm -rf {} \;
-    find $DSTDIR64 -name ".git*" -exec rm -rf {} \;
 
     # Create an archive for the final package. Extension depends on the
     # host system.
     ARCHIVE=$BIN_RELEASE
-    if [ "$TRY64" = "yes" ]; then
-        ARCHIVE=`name64 $ARCHIVE`
-    elif [ "$SYSTEM" = "windows" ]; then
+    if [ "$SYSTEM" = "windows" ]; then
         ARCHIVE=$ARCHIVE-x86
     fi
     case "$SYSTEM" in
-        windows)
-            ARCHIVE64="${ARCHIVE}_64.tar.bz2"
-
-            ARCHIVE="$ARCHIVE.tar.bz2"
-            dereference_symlink "$TMPDIR/$RELEASE_PREFIX" "$TMPDIR/64/$RELEASE_PREFIX" 
+        windows|windows-x86_64)
+            ARCHIVE="$ARCHIVE.zip"
             ;;
         *)
-            ARCHIVE64="${ARCHIVE}_64.tar.bz2"
             ARCHIVE="$ARCHIVE.tar.bz2"
             ;;
     esac
-    if [ "$TRY64" = "yes" ]; then
-        ARCHIVE=$ARCHIVE64
-    fi
+
+    make_repo_prop $DSTDIR
+
     echo "Creating $ARCHIVE"
     # make all file universally readable, and all executable (including directory)
     # universally executable, punt intended
-    find $DSTDIR $DSTDIR64 -exec chmod a+r {} \;
-    find $DSTDIR $DSTDIR64 -executable -exec chmod a+x {} \;
+    find $DSTDIR -exec chmod a+r {} \;
+    find $DSTDIR -executable -exec chmod a+x {} \;
     pack_archive "$OUT_DIR/$ARCHIVE" "$TMPDIR" "$RELEASE_PREFIX"
     fail_panic "Could not create archive: $OUT_DIR/$ARCHIVE"
-    if [ "$SEPARATE_64" = "yes" ] ; then
-        pack_archive "$OUT_DIR/$ARCHIVE64" "$TMPDIR/64" "${RELEASE_PREFIX}"
-        fail_panic "Could not create archive: $OUT_DIR/$ARCHIVE64"
-    fi
 done
 
 echo "Cleaning up."
@@ -640,4 +490,4 @@ rm -rf $TMPDIR/reference
 rm -rf $TMPDIR/prev-ndk
 
 echo "Done, please see packages in $OUT_DIR:"
-ls -l $OUT_DIR
+ls -lh $OUT_DIR | tee $OUT_DIR/artifacts.txt

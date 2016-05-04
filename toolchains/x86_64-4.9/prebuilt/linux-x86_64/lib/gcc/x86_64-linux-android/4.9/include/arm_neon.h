@@ -159,9 +159,7 @@ typedef __m128i poly16x8_t;
 #endif
 
 typedef   float float32_t;
-#if !defined(__clang__)
 typedef   float __fp16;
-#endif
 
 typedef  uint8_t poly8_t;
 typedef  uint16_t poly16_t;

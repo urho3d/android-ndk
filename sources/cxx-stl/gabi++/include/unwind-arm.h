@@ -51,7 +51,6 @@ typedef uint32_t _Unwind_State;
 static const _Unwind_State _US_VIRTUAL_UNWIND_FRAME   = 0;
 static const _Unwind_State _US_UNWIND_FRAME_STARTING  = 1;
 static const _Unwind_State _US_UNWIND_FRAME_RESUME    = 2;
-static const _Unwind_State _US_ACTION_MASK            = 3;
 
 typedef struct _Unwind_Control_Block _Unwind_Control_Block;
 typedef struct _Unwind_Context _Unwind_Context;

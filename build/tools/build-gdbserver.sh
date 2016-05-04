@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright (C) 2010 The Android Open Source Project
 #
@@ -39,11 +39,9 @@ NOTE: The --platform option is ignored if --sysroot is used."
 VERBOSE=no
 
 OPTION_BUILD_OUT=
-BUILD_OUT=/tmp/ndk-$USER/build/gdbserver
+BUILD_OUT=$TMPDIR/build/gdbserver
 register_option "--build-out=<path>" do_build_out "Set temporary build directory"
 do_build_out () { OPTION_BUILD_OUT="$1"; }
-
-register_var_option "--platform=<name>"  PLATFORM "Target specific platform"
 
 SYSROOT=
 register_var_option "--sysroot=<path>" SYSROOT "Specify sysroot directory directly"
@@ -130,11 +128,9 @@ fi
 prepare_target_build
 
 parse_toolchain_name $TOOLCHAIN
-check_toolchain_install $NDK_DIR $TOOLCHAIN
+check_toolchain_install $ANDROID_BUILD_TOP/prebuilts/ndk/current $TOOLCHAIN
 
-if [ -z "$PLATFORM" ]; then
-    PLATFORM="android-"$(get_default_api_level_for_arch $ARCH)
-fi
+PLATFORM="android-$LATEST_API_LEVEL"
 
 # Check build directory
 #
@@ -163,7 +159,7 @@ if [ "$NOTHREADS" != "yes" ] ; then
     # We're going to rebuild libthread_db.o from its source
     # that is under sources/android/libthread_db and place its header
     # and object file into the build sysroot.
-    LIBTHREAD_DB_DIR=$ANDROID_NDK_ROOT/sources/android/libthread_db/gdb-$GDBVER
+    LIBTHREAD_DB_DIR=$ANDROID_NDK_ROOT/sources/android/libthread_db
     if [ ! -d "$LIBTHREAD_DB_DIR" ] ; then
         dump "ERROR: Missing directory: $LIBTHREAD_DB_DIR"
         exit 1
@@ -183,26 +179,24 @@ log "Using build sysroot: $BUILD_SYSROOT"
 # configure the gdbserver build now
 dump "Configure: $TOOLCHAIN gdbserver-$GDBVER build with $PLATFORM"
 
-case "$GDBVER" in
-    6.6)
-        CONFIGURE_FLAGS="--with-sysroot=$BUILD_SYSROOT"
-        ;;
-    7.3.x|7.6|7.7)
-        # This flag is required to link libthread_db statically to our
-        # gdbserver binary. Otherwise, the program will try to dlopen()
-        # the threads binary, which is not possible since we build a
-        # static executable.
-        CONFIGURE_FLAGS="--with-libthread-db=$BUILD_SYSROOT/usr/$LIBDIR/libthread_db.a"
-        # Disable libinproctrace.so which needs crtbegin_so.o and crtbend_so.o instead of
-        # CRTBEGIN/END above.  Clean it up and re-enable it in the future.
-        CONFIGURE_FLAGS=$CONFIGURE_FLAGS" --disable-inprocess-agent"
-        ;;
-    *)
-        CONFIGURE_FLAGS=""
-esac
+# This flag is required to link libthread_db statically to our
+# gdbserver binary. Otherwise, the program will try to dlopen()
+# the threads binary, which is not possible since we build a
+# static executable.
+CONFIGURE_FLAGS="--with-libthread-db=$BUILD_SYSROOT/usr/$LIBDIR/libthread_db.a"
+# Disable libinproctrace.so which needs crtbegin_so.o and crtbend_so.o instead of
+# CRTBEGIN/END above.  Clean it up and re-enable it in the future.
+CONFIGURE_FLAGS=$CONFIGURE_FLAGS" --disable-inprocess-agent"
+# gdb 7.7 builds with -Werror by default, but they redefine constants such as
+# HWCAP_VFPv3 in a way that's compatible with glibc's headers but not our
+# kernel uapi headers. We should send a patch upstream to add the missing
+# #ifndefs, but for now just build gdbserver without -Werror.
+CONFIGURE_FLAGS=$CONFIGURE_FLAGS" --enable-werror=no"
 
 cd $BUILD_OUT &&
 export CC="$TOOLCHAIN_PREFIX-gcc --sysroot=$BUILD_SYSROOT" &&
+export AR="$TOOLCHAIN_PREFIX-ar" &&
+export RANLIB="$TOOLCHAIN_PREFIX-ranlib" &&
 export CFLAGS="-O2 $GDBSERVER_CFLAGS"  &&
 export LDFLAGS="-static -Wl,-z,nocopyreloc -Wl,--no-undefined" &&
 run $SRC_DIR/configure \
@@ -233,7 +227,9 @@ else
     DSTFILE="gdbserver"
 fi
 dump "Install  : $TOOLCHAIN $DSTFILE."
-DEST=$ANDROID_NDK_ROOT/prebuilt/android-$ARCH/gdbserver
+INSTALL_DIR=`mktemp -d $TMPDIR/gdbserver.XXXXXX`
+GDBSERVER_SUBDIR="gdbserver-$ARCH"
+DEST=$INSTALL_DIR/$GDBSERVER_SUBDIR
 mkdir -p $DEST &&
 run $TOOLCHAIN_PREFIX-objcopy --strip-unneeded $BUILD_OUT/gdbserver $DEST/$DSTFILE
 if [ $? != 0 ] ; then
@@ -242,9 +238,13 @@ if [ $? != 0 ] ; then
 fi
 
 if [ "$PACKAGE_DIR" ]; then
-    ARCHIVE=$ARCH-gdbserver.tar.bz2
+    make_repo_prop "$INSTALL_DIR/$GDBSERVER_SUBDIR"
+    cp "$SRC_DIR/../../COPYING" "$DEST/NOTICE"
+    fail_panic "Could not copy license file!"
+
+    ARCHIVE=gdbserver-$ARCH.zip
     dump "Packaging: $ARCHIVE"
-    pack_archive "$PACKAGE_DIR/$ARCHIVE" "$ANDROID_NDK_ROOT" "prebuilt/android-$ARCH/gdbserver/$DSTFILE"
+    pack_archive "$PACKAGE_DIR/$ARCHIVE" "$INSTALL_DIR" "$GDBSERVER_SUBDIR"
 fi
 
 log "Cleaning up."

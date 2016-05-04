@@ -29,7 +29,6 @@
 . `dirname $0`/prebuilt-common.sh
 
 VERBOSE=no
-VERBOSE2=no
 
 PROGRAM_PARAMETERS="<src-dir> <dst-dir>"
 PROGRAM_DESCRIPTION=\
@@ -93,14 +92,14 @@ get_library_variables ()
 
 # Temp file used to list shared library symbol exclusions
 # See set_symbol_excludes and extract_shared_library_xxxx functions below
-SYMBOL_EXCLUDES=/tmp/ndk-$USER/ndk-symbol-excludes.txt
+SYMBOL_EXCLUDES=$TMPDIR/ndk-symbol-excludes.txt
 
 # Temp file used to list shared library symbol inclusions, these
 # are essentially overrides to the content of SYMBOL_EXCLUDES
-SYMBOL_INCLUDES=/tmp/ndk-$USER/ndk-symbol-includes.txt
+SYMBOL_INCLUDES=$TMPDIR/ndk-symbol-includes.txt
 
 # Temp file used to filter symbols
-SYMBOL_TMPFILE=/tmp/ndk-$USER/ndk-symbols-list.txt
+SYMBOL_TMPFILE=$TMPDIR/ndk-symbols-list.txt
 
 # Reset the symbol exclusion list to its default
 reset_symbol_excludes ()

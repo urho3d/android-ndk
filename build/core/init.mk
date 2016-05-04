@@ -41,15 +41,6 @@ ifeq ($(NDK_LOG),true)
     override NDK_LOG := 1
 endif
 
-# Define NDK_HOST_32BIT=1 in your environment to always use toolchain in 32-bit
-# even if 64-bit is present.  Note that toolchains in 64-bit still produce
-# 32-bit binaries for Android
-#
-NDK_HOST_32BIT := $(strip $(NDK_HOST_32BIT))
-ifeq ($(NDK_HOST_32BIT),true)
-    override NDK_HOST_32BIT := 1
-endif
-
 # Check that we have at least GNU Make 3.81
 # We do this by detecting whether 'lastword' is supported
 #
@@ -87,6 +78,9 @@ __ndk_info     = $(info $(__ndk_name): $1 $2 $3 $4 $5)
 __ndk_warning  = $(warning $(__ndk_name): $1 $2 $3 $4 $5)
 __ndk_error    = $(error $(__ndk_name): $1 $2 $3 $4 $5)
 
+ifdef NDK_NO_INFO
+__ndk_info :=
+endif
 ifdef NDK_NO_WARNINGS
 __ndk_warning :=
 endif
@@ -107,21 +101,36 @@ ndk_log :=
 endif
 
 # -----------------------------------------------------------------------------
-# Function : host-prebuilt-tag
-# Arguments: 1: parent path of "prebuilt"
-# Returns  : path $1/prebuilt/(HOST_TAG64) exists and NDK_HOST_32BIT isn't defined to 1,
-#            or $1/prebuilt/(HOST_TAG)
-# Usage    : $(call host-prebuilt-tag, <path>)
-# Rationale: This function is used to proble available 64-bit toolchain or
-#            return 32-bit one as default.  Note that HOST_TAG64==HOST_TAG for
-#            32-bit system (or 32-bit userland in 64-bit system)
+# Function : host-toolchain-path
+# Arguments: 1: NDK root
+# Returns  : The parent path of all toolchains for this host. Note that
+#            HOST_TAG64 == HOST_TAG for 32-bit systems.
 # -----------------------------------------------------------------------------
-ifeq ($(NDK_HOST_32BIT),1)
-host-prebuilt-tag = $1/prebuilt/$(HOST_TAG)
-else
-host-prebuilt-tag = \
-   $(if $(strip $(wildcard $1/prebuilt/$(HOST_TAG64))),$1/prebuilt/$(HOST_TAG64),$1/prebuilt/$(HOST_TAG))
-endif
+host-toolchain-path = $1/prebuilt/$(HOST_TAG64)
+
+# -----------------------------------------------------------------------------
+# Function : get-toolchain-root
+# Arguments: 1: NDK root
+#            2: Toolchain name
+# Returns  : Path to the given prebuilt toolchain.
+# -----------------------------------------------------------------------------
+get-toolchain-root = $(call host-toolchain-path,$1/toolchains/$2)
+
+# -----------------------------------------------------------------------------
+# Function : get-binutils-root
+# Arguments: 1: NDK root
+#            2: Toolchain name (no version number)
+# Returns  : Path to the given prebuilt binutils.
+# -----------------------------------------------------------------------------
+get-binutils-root = $1/binutils/$2
+
+# -----------------------------------------------------------------------------
+# Function : get-gcclibs-path
+# Arguments: 1: NDK root
+#            2: Toolchain name (no version number)
+# Returns  : Path to the given prebuilt gcclibs.
+# -----------------------------------------------------------------------------
+get-gcclibs-path = $1/gcclibs/$2
 
 # ====================================================================
 #
@@ -271,11 +280,9 @@ ifeq ($(HOST_OS),windows)
   HOST_EXEEXT := .exe
 endif
 
-# If we are on Windows, we need to check that we are not running
-# Cygwin 1.5, which is deprecated and won't run our toolchain
-# binaries properly.
-#
 ifeq ($(HOST_TAG),windows-x86)
+    # If we are on Windows, we need to check that we are not running Cygwin 1.5,
+    # which is deprecated and won't run our toolchain binaries properly.
     ifeq ($(HOST_OS),cygwin)
         # On cygwin, 'uname -r' returns something like 1.5.23(0.225/5/3)
         # We recognize 1.5. as the prefix to look for then.
@@ -286,15 +293,22 @@ ifeq ($(HOST_TAG),windows-x86)
             $(call __ndk_error,Aborting.)
         endif
     endif
+
     # special-case the host-tag
     HOST_TAG := windows
+
+    # For 32-bit systems, HOST_TAG64 should be HOST_TAG, but we just updated
+    # HOST_TAG, so update HOST_TAG64 to match.
+    ifeq ($(HOST_ARCH64),x86)
+        HOST_TAG64 = $(HOST_TAG)
+    endif
 endif
 
 $(call ndk_log,HOST_TAG set to $(HOST_TAG))
 
 # Check for NDK-specific versions of our host tools
-HOST_PREBUILT_ROOT := $(call host-prebuilt-tag, $(NDK_ROOT))
-HOST_PREBUILT := $(strip $(wildcard $(HOST_PREBUILT_ROOT)/bin))
+HOST_TOOLS_ROOT := $(NDK_ROOT)/prebuilt/$(HOST_TAG64)
+HOST_PREBUILT := $(strip $(wildcard $(HOST_TOOLS_ROOT)/bin))
 HOST_AWK := $(strip $(NDK_HOST_AWK))
 HOST_MAKE := $(strip $(NDK_HOST_MAKE))
 HOST_PYTHON := $(strip $(NDK_HOST_PYTHON))
@@ -557,7 +571,7 @@ NDK_ALL_TOOLCHAINS :=
 NDK_ALL_ABIS       :=
 NDK_ALL_ARCHS      :=
 
-TOOLCHAIN_CONFIGS := $(wildcard $(NDK_ROOT)/toolchains/*/config.mk)
+TOOLCHAIN_CONFIGS := $(wildcard $(NDK_ROOT)/build/core/toolchains/*/config.mk)
 $(foreach _config_mk,$(TOOLCHAIN_CONFIGS),\
   $(eval include $(BUILD_SYSTEM)/add-toolchain.mk)\
 )

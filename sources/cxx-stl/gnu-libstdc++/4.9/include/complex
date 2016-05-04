@@ -44,8 +44,14 @@
 #include <cmath>
 #include <sstream>
 
-// Get rid of a macro possibly defined in <complex.h>
-#undef complex
+// The C++ <complex> header is incompatible with the C99 <complex.h> header,
+// they cannot be included into a single translation unit portably. Notably,
+// C++11's <ccomplex> does not include C99's <complex.h> and in C++11's
+// <complex.h> is defined to provide only what C++11's <ccomplex> does in a
+// different namespace.
+#ifdef _GLIBCXX_C99_COMPLEX_H
+#error Cannot include both <complex> and C99's <complex.h>
+#endif
 
 namespace std _GLIBCXX_VISIBILITY(default)
 {
@@ -1928,6 +1934,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
 inline namespace literals {
 inline namespace complex_literals {
+
+#define __cpp_lib_complex_udls 201309
 
   constexpr std::complex<float>
   operator""if(long double __num)

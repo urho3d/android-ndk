@@ -2,7 +2,7 @@
 
     It has been auto-edited by fixincludes from:
 
-	"/tmp/ndk-andrewhsieh/build/toolchain/prefix/sysroot/usr/include/arpa/nameser_compat.h"
+	"/tmp/d041ccba8ac951ca6eab0e402037e59c/sysroot/usr/include/arpa/nameser_compat.h"
 
     This had to be done to correct non-standard usages in the
     original, manufacturer supplied header file.  */

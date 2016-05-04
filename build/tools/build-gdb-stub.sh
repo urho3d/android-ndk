@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 NDK_BUILDTOOLS_PATH="$(dirname $0)"
 . "$NDK_BUILDTOOLS_PATH/prebuilt-common.sh"
@@ -11,7 +11,7 @@ gdb executable with it. Because of the replacing nature of this, I
 check to see if there's a gdb-orig.exe there already and if so, 'undo'
 the process first by putting it back. Sample usage:
 
-$0 --gdb-executable-path=\$NDK/toolchains/arm-linux-androideabi-4.8/prebuilt/windows/bin/arm-linux-androideabi-gdb.exe \\
+$0 --gdb-executable-path=\$NDK/toolchains/arm-linux-androideabi-4.8/prebuilt/bin/arm-linux-androideabi-gdb.exe \\
    --python-prefix-dir=\$NDK/prebuilt/windows \\
    --mingw-w64-gcc-path=\$HOME/i686-w64-mingw32/bin/i686-w64-mingw32-gcc
 "

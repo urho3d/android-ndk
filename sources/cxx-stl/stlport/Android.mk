@@ -80,9 +80,7 @@ LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/lib$(LOCAL_MODULE)$(TARGET_LIB_EXTENS
 # For armeabi*, choose thumb mode unless LOCAL_ARM_MODE := arm
 ifneq (,$(filter armeabi%,$(TARGET_ARCH_ABI)))
 ifneq (arm,$(LOCAL_ARM_MODE))
-ifneq (arm,$(TARGET_ARM_MODE))
 LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/thumb/lib$(LOCAL_MODULE)$(TARGET_LIB_EXTENSION)
-endif
 endif
 endif
 LOCAL_EXPORT_C_INCLUDES := $(libstlport_c_includes)
@@ -95,9 +93,7 @@ LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/lib$(LOCAL_MODULE)$(TARGET_SONAME_EXT
 # For armeabi*, choose thumb mode unless LOCAL_ARM_MODE := arm
 ifneq (,$(filter armeabi%,$(TARGET_ARCH_ABI)))
 ifneq (arm,$(LOCAL_ARM_MODE))
-ifneq (arm,$(TARGET_ARM_MODE))
 LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/thumb/lib$(LOCAL_MODULE)$(TARGET_SONAME_EXTENSION)
-endif
 endif
 endif
 LOCAL_EXPORT_C_INCLUDES := $(libstlport_c_includes)

@@ -20,6 +20,15 @@
 # Get current script name into PROGNAME
 PROGNAME=`basename $0`
 
+if [ -z "$TMPDIR" ]; then
+    export TMPDIR=/tmp/ndk-$USER
+fi
+
+OS=`uname -s`
+if [ "$OS" == "Darwin" -a -z "$MACOSX_DEPLOYMENT_TARGET" ]; then
+    export MACOSX_DEPLOYMENT_TARGET="10.8"
+fi
+
 # Find the Android NDK root, assuming we are invoked from a script
 # within its directory structure.
 #
@@ -63,11 +72,13 @@ fi
 
 if [ ! -d $ANDROID_NDK_ROOT ] ; then
     echo "ERROR: Your ANDROID_NDK_ROOT variable does not point to a directory."
+    echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT"
     exit 1
 fi
 
 if [ ! -f $ANDROID_NDK_ROOT/build/tools/ndk-common.sh ] ; then
-    echo "ERROR: Your ANDROID_NDK_ROOT variable does not point to a valid directory."
+    echo "ERROR: Your ANDROID_NDK_ROOT does not contain a valid NDK build system."
+    echo "ANDROID_NDK_ROOT=$ANDROID_NDK_ROOT"
     exit 1
 fi
 
@@ -77,7 +88,6 @@ DRYRUN=${DRYRUN-no}
 ## Logging support
 ##
 VERBOSE=${VERBOSE-yes}
-VERBOSE2=${VERBOSE2-no}
 
 
 # If NDK_LOGFILE is defined in the environment, use this as the log file
@@ -87,7 +97,7 @@ if [ -n "$NDK_LOGFILE" ] ; then
     TMPLOG="$NDK_LOGFILE"
 fi
 
-# Setup a log file where all log() and log2() output will be sent
+# Setup a log file where all log() output will be sent
 #
 # $1: log file path  (optional)
 #
@@ -99,7 +109,7 @@ setup_default_log_file ()
     if [ -n "$1" ] ; then
         NDK_LOGFILE="$1"
     else
-        NDK_LOGFILE=/tmp/ndk-log-$$.txt
+        NDK_LOGFILE=$TMPDIR/ndk-log-$$.txt
     fi
     export NDK_LOGFILE
     TMPLOG="$NDK_LOGFILE"
@@ -145,17 +155,6 @@ log_n ()
     fi
 }
 
-log2 ()
-{
-    if [ "$VERBOSE2" = "yes" ] ; then
-        echo "$@"
-    else
-        if [ -n "$TMPLOG" ] ; then
-            echo "$@" >> $TMPLOG
-        fi
-    fi
-}
-
 run ()
 {
     if [ "$DRYRUN" = "yes" ] ; then
@@ -166,30 +165,6 @@ run ()
     else
         if [ -n "$TMPLOG" ] ; then
             echo "## COMMAND: $@" >> $TMPLOG
-            "$@" >>$TMPLOG 2>&1
-        else
-            "$@" > /dev/null 2>&1
-        fi
-    fi
-}
-
-run2 ()
-{
-    if [ "$DRYRUN" = "yes" ] ; then
-        echo "## SKIP COMMAND: $@"
-    elif [ "$VERBOSE2" = "yes" ] ; then
-        echo "## COMMAND: $@"
-        "$@" 2>&1
-    elif [ "$VERBOSE" = "yes" ]; then
-        echo "## COMMAND: $@"
-        if [ -n "$TMPLOG" ]; then
-            echo "## COMMAND: $@" >> $TMPLOG
-            "$@" >>$TMPLOG 2>&1
-        else
-            "$@" > /dev/null 2>&1
-        fi
-    else
-        if [ -n "$TMPLOG" ]; then
             "$@" >>$TMPLOG 2>&1
         else
             "$@" > /dev/null 2>&1
@@ -270,8 +245,8 @@ case "$HOST_OS" in
         ;;
 esac
 
-log2 "HOST_OS=$HOST_OS"
-log2 "HOST_EXE=$HOST_EXE"
+log "HOST_OS=$HOST_OS"
+log "HOST_EXE=$HOST_EXE"
 
 ## Now find the host architecture. This must correspond to the bitness of
 ## the binaries we're going to run with this NDK. Certain platforms allow
@@ -317,13 +292,13 @@ case "$HOST_OS-$HOST_ARCH" in
     "$HOST_FILE_PROGRAM" -L "$SHELL" | grep -q "x86[_-]64"
     if [ $? != 0 ]; then
       # $SHELL is not a 64-bit executable, so assume our userland is too.
-      log2 "Detected 32-bit userland on 64-bit kernel system!"
+      log "Detected 32-bit userland on 64-bit kernel system!"
       HOST_ARCH=x86
     fi
     ;;
 esac
 
-log2 "HOST_ARCH=$HOST_ARCH"
+log "HOST_ARCH=$HOST_ARCH"
 
 # at this point, the supported values for HOST_ARCH are:
 #   x86
@@ -364,7 +339,7 @@ compute_host_tag ()
             HOST_TAG="windows"
             ;;
     esac
-    log2 "HOST_TAG=$HOST_TAG"
+    log "HOST_TAG=$HOST_TAG"
 }
 
 compute_host_tag
@@ -385,7 +360,7 @@ case "$HOST_OS" in
         HOST_NUM_CPUS=1
 esac
 
-log2 "HOST_NUM_CPUS=$HOST_NUM_CPUS"
+log "HOST_NUM_CPUS=$HOST_NUM_CPUS"
 
 # If BUILD_NUM_CPUS is not already defined in your environment,
 # define it as the double of HOST_NUM_CPUS. This is used to
@@ -395,7 +370,7 @@ if [ -z "$BUILD_NUM_CPUS" ] ; then
     BUILD_NUM_CPUS=`expr $HOST_NUM_CPUS \* 2`
 fi
 
-log2 "BUILD_NUM_CPUS=$BUILD_NUM_CPUS"
+log "BUILD_NUM_CPUS=$BUILD_NUM_CPUS"
 
 
 ##  HOST TOOLCHAIN SUPPORT
@@ -407,10 +382,10 @@ FORCE_32BIT=no
 force_32bit_binaries ()
 {
     if [ "$HOST_ARCH" = x86_64 ] ; then
-        log2 "Forcing generation of 32-bit host binaries on $HOST_ARCH"
+        log "Forcing generation of 32-bit host binaries on $HOST_ARCH"
         FORCE_32BIT=yes
         HOST_ARCH=x86
-        log2 "HOST_ARCH=$HOST_ARCH"
+        log "HOST_ARCH=$HOST_ARCH"
         compute_host_tag
     fi
 }
@@ -422,7 +397,7 @@ force_32bit_binaries ()
 disable_cygwin ()
 {
     if [ $HOST_OS = cygwin ] ; then
-        log2 "Disabling cygwin binaries generation"
+        log "Disabling cygwin binaries generation"
         CFLAGS="$CFLAGS -mno-cygwin"
         LDFLAGS="$LDFLAGS -mno-cygwin"
         HOST_OS=windows
@@ -431,12 +406,12 @@ disable_cygwin ()
 }
 
 # Various probes are going to need to run a small C program
-mkdir -p /tmp/ndk-$USER/tmp/tests
+mkdir -p $TMPDIR/tmp/tests
 
-TMPC=/tmp/ndk-$USER/tmp/tests/test-$$.c
-TMPO=/tmp/ndk-$USER/tmp/tests/test-$$.o
-TMPE=/tmp/ndk-$USER/tmp/tests/test-$$$EXE
-TMPL=/tmp/ndk-$USER/tmp/tests/test-$$.log
+TMPC=$TMPDIR/tmp/tests/test-$$.c
+TMPO=$TMPDIR/tmp/tests/test-$$.o
+TMPE=$TMPDIR/tmp/tests/test-$$$EXE
+TMPL=$TMPDIR/tmp/tests/test-$$.log
 
 # cleanup temporary files
 clean_temp ()
@@ -470,7 +445,7 @@ setup_toolchain ()
         LD="$CC"
     fi
 
-    log2 "Using '$CC' as the C compiler"
+    log "Using '$CC' as the C compiler"
 
     # check that we can compile a trivial C program with this compiler
     mkdir -p $(dirname "$TMPC")
@@ -514,11 +489,11 @@ EOF
             clean_exit
         fi
     fi
-    log2 "Using '$LD' as the linker"
+    log "Using '$LD' as the linker"
     log "LD         : linker check ok ($LD)"
 
     # check the C++ compiler
-    log2 "Using '$CXX' as the C++ compiler"
+    log "Using '$CXX' as the C++ compiler"
 
     cat > $TMPC <<EOF
 #include <iostream>
@@ -549,13 +524,13 @@ EOF
 #
 compile ()
 {
-    log2 "Object     : $CC -o $TMPO -c $CFLAGS $TMPC"
+    log "Object     : $CC -o $TMPO -c $CFLAGS $TMPC"
     $CC -o $TMPO -c $CFLAGS $TMPC 2> $TMPL
 }
 
 compile_cpp ()
 {
-    log2 "Object     : $CXX -o $TMPO -c $CXXFLAGS $TMPC"
+    log "Object     : $CXX -o $TMPO -c $CXXFLAGS $TMPC"
     $CXX -o $TMPO -c $CXXFLAGS $TMPC 2> $TMPL
 }
 
@@ -563,7 +538,7 @@ compile_cpp ()
 #
 link()
 {
-    log2 "Link      : $LD -o $TMPE $TMPO $LDFLAGS"
+    log "Link      : $LD -o $TMPE $TMPO $LDFLAGS"
     $LD -o $TMPE $TMPO $LDFLAGS 2> $TMPL
 }
 
@@ -571,14 +546,14 @@ link()
 #
 execute()
 {
-    log2 "Running: $*"
+    log "Running: $*"
     $*
 }
 
 # perform a simple compile / link / run of the source file in $TMPC
 compile_exec_run()
 {
-    log2 "RunExec    : $CC -o $TMPE $CFLAGS $TMPC"
+    log "RunExec    : $CC -o $TMPE $CFLAGS $TMPC"
     compile
     if [ $? != 0 ] ; then
         echo "Failure to compile test program"
@@ -727,50 +702,6 @@ relpath ()
     echo "$relative"
 }
 
-# Unpack a given archive
-#
-# $1: archive file path
-# $2: optional target directory (current one if omitted)
-#
-unpack_archive ()
-{
-    local ARCHIVE="$1"
-    local DIR=${2-.}
-    local RESULT TARFLAGS ZIPFLAGS
-    mkdir -p "$DIR"
-    if [ "$VERBOSE2" = "yes" ] ; then
-        TARFLAGS="vxpf"
-        ZIPFLAGS=""
-    else
-        TARFLAGS="xpf"
-        ZIPFLAGS="q"
-    fi
-    case "$ARCHIVE" in
-        *.zip)
-            (cd $DIR && run unzip $ZIPFLAGS "$ARCHIVE")
-            ;;
-        *.tar)
-            run tar $TARFLAGS "$ARCHIVE" -C $DIR
-            ;;
-        *.tar.gz)
-            run tar z$TARFLAGS "$ARCHIVE" -C $DIR
-            ;;
-        *.tar.bz2)
-            find_pbzip2
-            if [ -n "$PBZIP2" ] ; then
-                run tar --use-compress-prog=pbzip2 -$TARFLAGS "$ARCHIVE" -C $DIR
-            else
-                run tar j$TARFLAGS "$ARCHIVE" -C $DIR
-            fi
-            # remove ._* files by MacOSX to preserve resource forks we don't need
-            find $DIR -name "\._*" -exec rm {} \;
-            ;;
-        *)
-            panic "Cannot unpack archive with unknown extension: $ARCHIVE"
-            ;;
-    esac
-}
-
 # Pack a given archive
 #
 # $1: archive file path (including extension)
@@ -792,32 +723,23 @@ pack_archive ()
         ARCHIVE="`pwd`/$ARCHIVE"
     fi
     mkdir -p `dirname $ARCHIVE`
-    if [ "$VERBOSE2" = "yes" ] ; then
-        TARFLAGS="vcf"
-        ZIPFLAGS="-9r"
-    else
-        TARFLAGS="cf"
-        ZIPFLAGS="-9qr"
-    fi
+
+    TARFLAGS="--exclude='*.py[cod]' --exclude='*.swp' --exclude=.git --exclude=.gitignore -cf"
+    ZIPFLAGS="-x *.git* -x *.pyc -x *.pyo -9qr"
     # Ensure symlinks are stored as is in zip files. for toolchains
     # this can save up to 7 MB in the size of the final archive
     #ZIPFLAGS="$ZIPFLAGS --symlinks"
     case "$ARCHIVE" in
         *.zip)
+            rm -f $ARCHIVE
             (cd $SRCDIR && run zip $ZIPFLAGS "$ARCHIVE" $SRCFILES)
-            ;;
-        *.tar)
-            (cd $SRCDIR && run tar $TARFLAGS "$ARCHIVE" $SRCFILES)
-            ;;
-        *.tar.gz)
-            (cd $SRCDIR && run tar z$TARFLAGS "$ARCHIVE" $SRCFILES)
             ;;
         *.tar.bz2)
             find_pbzip2
             if [ -n "$PBZIP2" ] ; then
-                (cd $SRCDIR && run tar --use-compress-prog=pbzip2 -$TARFLAGS "$ARCHIVE" $SRCFILES)
+                (cd $SRCDIR && run tar --use-compress-prog=pbzip2 $TARFLAGS "$ARCHIVE" $SRCFILES)
             else
-                (cd $SRCDIR && run tar j$TARFLAGS "$ARCHIVE" $SRCFILES)
+                (cd $SRCDIR && run tar -j $TARFLAGS "$ARCHIVE" $SRCFILES)
             fi
             ;;
         *)

@@ -2,7 +2,7 @@
 
     It has been auto-edited by fixincludes from:
 
-	"/tmp/ndk-andrewhsieh/build/toolchain/prefix/sysroot/usr/include/asm/posix_types.h"
+	"/tmp/1849ec10cb891cc221b2df215de5d28b/sysroot/usr/include/asm/posix_types.h"
 
     This had to be done to correct non-standard usages in the
     original, manufacturer supplied header file.  */

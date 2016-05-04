@@ -27,12 +27,11 @@ SRCDIR="$(cd $ANDROID_NDK_ROOT/../development/ndk/platforms && pwd)"
 register_var_option "--src-dir=<path>" SRCDIR "Source for compressed platforms"
 
 # The default destination directory is a temporary one
-DSTDIR=/tmp/ndk-$USER/platforms
+DSTDIR=$TMPDIR/platforms
 register_var_option "--dst-dir=<path>" DSTDIR "Destination directory"
 
 # Default architecture, note we can have several ones here
-ARCHS=$(find_ndk_unknown_archs)
-ARCHS="$DEFAULT_ARCHS $ARCHS"
+ARCHS="$DEFAULT_ARCHS"
 register_var_option "--arch=<name>" ARCHS "List of target architectures"
 
 PROGRAM_PARAMETERS=""

@@ -98,7 +98,7 @@ namespace __cxxabiv1 {
       int version = 1; \
       uint64_t exceptionClass = unwind_exception->exception_class; \
       _Unwind_Action actions = 0; \
-      switch (state & _US_ACTION_MASK) { \
+      switch (state) { \
       default: { \
         return _URC_FAILURE; \
       } \

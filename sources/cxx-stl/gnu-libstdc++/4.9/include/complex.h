@@ -26,21 +26,29 @@
  *  This is a Standard C++ Library header.
  */
 
-#include <bits/c++config.h>
+#ifndef _GLIBCXX_COMPLEX_H
+#define _GLIBCXX_COMPLEX_H 1
 
 #if __cplusplus >= 201103L
 # include <ccomplex>
+#else // C++98 and C++03
+
+// The C++ <complex> header is incompatible with the C99 <complex.h> header,
+// they cannot be included into a single translation unit portably. Notably,
+// C++11's <ccomplex> does not include C99's <complex.h> and in C++11's
+// <complex.h> is defined to provide only what C++11's <ccomplex> does in a
+// different namespace.
+#ifdef _GLIBCXX_COMPLEX
+# error Cannot include both <complex> and C99's <complex.h>
 #endif
 
-#if _GLIBCXX_HAVE_COMPLEX_H
-# include_next <complex.h>
-# ifdef _GLIBCXX_COMPLEX
-// See PR56111, keep the macro in C++03 if possible.
-#  undef complex
-# endif
-#endif
+// Delegate to a system complex.h if we don't provide it as part of the C++
+// implementation.
+#include_next <complex.h>
 
-#ifndef _GLIBCXX_COMPLEX_H
-#define _GLIBCXX_COMPLEX_H 1
+// Provide a define indicating that a C99-style <complex.h> has been included.
+#define _GLIBCXX_C99_COMPLEX_H
+
+#endif // C++98 and C++03
 
 #endif

@@ -30,7 +30,7 @@ TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 TARGET-get-linker-objects-and-libraries = \
     $(call host-path, $1) \
     $(call link-whole-archives,$3) \
-    $(call host-path, $2 $(PRIVATE_LIBGCC) $4) \
+    $(call host-path, $2) $(PRIVATE_LIBGCC) $(call host-path, $4) \
 
 
 # These flags are used to enforce the NX (no execute) security feature in the
@@ -81,9 +81,9 @@ $(PRIVATE_CXX) \
 endef
 
 # The following -rpath-link= are needed for ld.bfd (default for MIPS) when
-# linking executable to supress warning about missing symbol by *so not directly needed.
-# ld.gold (default for ARM and X86) and ld.mcld don't emulate this buggy behavior,
-# and ignore -rpath-link completely.
+# linking executables to supress warning about missing symbol from libraries not
+# directly needed. ld.gold (default for ARM and X86) doesn't emulate this buggy
+# behavior, and ignores -rpath-link completely.
 define cmd-build-executable
 $(PRIVATE_CXX) \
     -Wl,--gc-sections \
@@ -150,7 +150,7 @@ TARGET_LDFLAGS :=
 
 # Use *-gcc-ar instead of *-ar for better LTO support, except for
 # gcc4.6 which doesn't have gcc-ar
-ifneq (4.6,$(NDK_TOOLCHAIN_VERSION))
+ifneq (clang3.6,$(NDK_TOOLCHAIN_VERSION))
 TARGET_AR       = $(TOOLCHAIN_PREFIX)gcc-ar
 else
 TARGET_AR       = $(TOOLCHAIN_PREFIX)ar

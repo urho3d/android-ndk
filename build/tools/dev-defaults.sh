@@ -10,6 +10,8 @@ API_LEVELS="3 4 5 8 9 12 13 14 15 16 17 18 19 21"
 
 FIRST_API64_LEVEL=21
 
+LATEST_API_LEVEL=21
+
 # Default ABIs for the target prebuilt binaries.
 PREBUILT_ABIS="armeabi armeabi-v7a x86 mips armeabi-v7a-hard arm64-v8a x86_64 mips64"
 
@@ -30,14 +32,8 @@ LIBCXX_SUBDIR=sources/cxx-stl/llvm-libc++
 # Location of the LLVM libc++abi headers, relative to the NDK # root directory.
 LIBCXXABI_SUBDIR=sources/cxx-stl/llvm-libc++abi/libcxxabi
 
-# Location of the libportable sources, relative to the NDK root directory
-LIBPORTABLE_SUBDIR=sources/android/libportable
-
 # Location of the gccunwind sources, relative to the NDK root directory
 GCCUNWIND_SUBDIR=sources/android/gccunwind
-
-# Location of the compiler-rt sources, relative to the NDK root directory
-COMPILER_RT_SUBDIR=sources/android/compiler-rt
 
 # Location of the support sources for libc++, relative to the NDK root directory
 SUPPORT_SUBDIR=sources/android/support
@@ -47,17 +43,17 @@ SUPPORT_SUBDIR=sources/android/support
 TOOLCHAIN_GIT_DATE=now
 
 # The space-separated list of all GCC versions we support in this NDK
-DEFAULT_GCC_VERSION_LIST="4.8 4.9"
+DEFAULT_GCC_VERSION_LIST="4.9"
 
-DEFAULT_GCC32_VERSION=4.8
+DEFAULT_GCC32_VERSION=4.9
 DEFAULT_GCC64_VERSION=4.9
-FIRST_GCC32_VERSION=4.8
+FIRST_GCC32_VERSION=4.9
 FIRST_GCC64_VERSION=4.9
-DEFAULT_LLVM_GCC32_VERSION=4.8
+DEFAULT_LLVM_GCC32_VERSION=4.9
 DEFAULT_LLVM_GCC64_VERSION=4.9
 
 DEFAULT_BINUTILS_VERSION=2.25
-DEFAULT_GDB_VERSION=7.7
+DEFAULT_GDB_VERSION=7.10
 DEFAULT_MPFR_VERSION=3.1.1
 DEFAULT_GMP_VERSION=5.0.5
 DEFAULT_MPC_VERSION=1.0.1
@@ -66,8 +62,6 @@ DEFAULT_ISL_VERSION=0.11.1
 DEFAULT_PPL_VERSION=1.0
 DEFAULT_PYTHON_VERSION=2.7.5
 DEFAULT_PERL_VERSION=5.16.2
-
-RECENT_BINUTILS_VERSION=2.25
 
 # Default platform to build target binaries against.
 DEFAULT_PLATFORM=android-9
@@ -97,11 +91,8 @@ DEFAULT_ARCH_TOOLCHAIN_PREFIX_mips=mipsel-linux-android
 DEFAULT_ARCH_TOOLCHAIN_NAME_mips64=mips64el-linux-android
 DEFAULT_ARCH_TOOLCHAIN_PREFIX_mips64=mips64el-linux-android
 
-# The space-separated list of all LLVM versions we support in NDK
-DEFAULT_LLVM_VERSION_LIST="3.6 3.5"
-
-# The default LLVM version (first item in the list)
-DEFAULT_LLVM_VERSION=$(echo "$DEFAULT_LLVM_VERSION_LIST" | tr ' ' '\n' | head -n 1)
+# The build number of clang used to build pieces of the NDK (like platforms).
+DEFAULT_LLVM_VERSION="2455903"
 
 # The default URL to download the LLVM tar archive
 DEFAULT_LLVM_URL="http://llvm.org/releases"
@@ -264,7 +255,7 @@ get_toolchain_name_list_for_arch ()
 # binutils was reverted to 2.19, to ensure at least
 # feature/bug compatibility.
 #
-# $1: toolchain with version numer (e.g. 'arm-linux-androideabi-4.8')
+# $1: toolchain with version number (e.g. 'arm-linux-androideabi-4.8')
 #
 get_default_binutils_version_for_gcc ()
 {
@@ -286,7 +277,7 @@ get_default_binutils_version_for_llvm ()
 # Return the gdb version to be used by default when building a given
 # version of GCC.
 #
-# $1: toolchain with version numer (e.g. 'arm-linux-androideabi-4.8')
+# $1: toolchain with version number (e.g. 'arm-linux-androideabi-4.8')
 #
 get_default_gdb_version_for_gcc ()
 {
@@ -296,7 +287,7 @@ get_default_gdb_version_for_gcc ()
 # Return the gdbserver version to be used by default when building a given
 # version of GCC.
 #
-# $1: toolchain with version numer (e.g. 'arm-linux-androideabi-4.8')
+# $1: toolchain with version number (e.g. 'arm-linux-androideabi-4.8')
 #
 get_default_gdbserver_version_for_gcc ()
 {
