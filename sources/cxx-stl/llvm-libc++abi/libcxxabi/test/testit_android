@@ -69,7 +69,7 @@ run2 () {
 }
 
 # The list of valid target abis supported by this script.
-VALID_ABIS="armeabi armeabi-v7a armeabi-v7a-hard x86 mips"
+VALID_ABIS="armeabi armeabi-v7a x86 mips"
 
 DO_HELP=
 DO_STATIC=
@@ -213,12 +213,6 @@ if [ -z "$TOOLCHAIN_PREFIX" ]; then
       TOOLCHAIN_PREFIX=arm-linux-androideabi
       TOOLCHAIN_CFLAGS="-march=armv7-a $THUMB_MODE -mfpu=vfpv3-d16"
       TOOLCHAIN_LDFLAGS="-march=armv7-a $THUMB_MODE -Wl,--fix-cortex-a8"
-      ;;
-    armeabi-v7a-hard)
-      TOOLCHAIN_PREFIX=arm-linux-androideabi
-      TOOLCHAIN_CFLAGS="-march=armv7-a $THUMB_MODE -mfpu=vfpv3-d16 -mhard-float -D_NDK_MATH_NO_SOFTFP=1"
-      TOOLCHAIN_LDFLAGS="-march=armv7-a $THUMB_MODE -Wl,--fix-cortex-a8 -Wl,--no-warn-mismatch"
-      LIBM="-lm_hard"
       ;;
     x86)
       TOOLCHAIN_PREFIX=i686-linux-android

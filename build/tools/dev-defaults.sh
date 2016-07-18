@@ -1,19 +1,22 @@
 # Default values used by several dev-scripts.
 #
 
-# Current list of platform levels we support
-#
-# Note: levels 6 and 7 are omitted since they have the same native
-# APIs as level 5. Same for levels 10, 11 and 12
-#
-API_LEVELS="3 4 5 8 9 12 13 14 15 16 17 18 19 21"
+# This script is imported while building the NDK, while running the tests, and
+# when running make-standalone-toolchain.sh. Check if we have our own platforms
+# tree (as we would in an installed NDK) first, and fall back to prebuilts/ndk.
+PLATFORMS_DIR=$ANDROID_NDK_ROOT/platforms
+if [ ! -d "$PLATFORMS_DIR" ]; then
+    PLATFORMS_DIR=$ANDROID_NDK_ROOT/../prebuilts/ndk/current/platforms
+fi
+API_LEVELS=$(ls $PLATFORMS_DIR | sed 's/android-//' | sort -n)
+
+# The latest API level is the last one in the list.
+LATEST_API_LEVEL=$(echo $API_LEVELS | awk '{ print $NF }')
 
 FIRST_API64_LEVEL=21
 
-LATEST_API_LEVEL=21
-
 # Default ABIs for the target prebuilt binaries.
-PREBUILT_ABIS="armeabi armeabi-v7a x86 mips armeabi-v7a-hard arm64-v8a x86_64 mips64"
+PREBUILT_ABIS="armeabi armeabi-v7a x86 mips arm64-v8a x86_64 mips64"
 
 # Location of the STLport sources, relative to the NDK root directory
 STLPORT_SUBDIR=sources/cxx-stl/stlport
@@ -53,7 +56,7 @@ DEFAULT_LLVM_GCC32_VERSION=4.9
 DEFAULT_LLVM_GCC64_VERSION=4.9
 
 DEFAULT_BINUTILS_VERSION=2.25
-DEFAULT_GDB_VERSION=7.10
+DEFAULT_GDB_VERSION=7.11
 DEFAULT_MPFR_VERSION=3.1.1
 DEFAULT_GMP_VERSION=5.0.5
 DEFAULT_MPC_VERSION=1.0.1
@@ -161,7 +164,7 @@ get_default_abis_for_arch ()
     local RET
     case $1 in
         arm)
-            RET="armeabi armeabi-v7a armeabi-v7a-hard"
+            RET="armeabi armeabi-v7a"
             ;;
         arm64)
             RET="arm64-v8a"

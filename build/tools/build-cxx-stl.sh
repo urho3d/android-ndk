@@ -492,8 +492,7 @@ build_stl_libs_for_abi ()
 {
     local ARCH BINPREFIX SYSROOT
     local ABI=$1
-    local THUMB="$5"
-    local BUILDDIR="$2"/$THUMB
+    local BUILDDIR="$2"
     local TYPE="$3"
     local DSTDIR="$4"
     local FLOAT_ABI=""
@@ -505,12 +504,6 @@ build_stl_libs_for_abi ()
     EXTRA_LDFLAGS=""
 
     case $ABI in
-        armeabi-v7a-hard)
-            EXTRA_CFLAGS="-mhard-float -D_NDK_MATH_NO_SOFTFP=1"
-            EXTRA_CXXFLAGS="-mhard-float -D_NDK_MATH_NO_SOFTFP=1"
-            EXTRA_LDFLAGS="-Wl,--no-warn-mismatch -lm_hard"
-            FLOAT_ABI="hard"
-            ;;
         arm64-v8a)
             EXTRA_CFLAGS="-mfix-cortex-a53-835769"
             EXTRA_CXXFLAGS="-mfix-cortex-a53-835769"
@@ -520,6 +513,12 @@ build_stl_libs_for_abi ()
             #       stack aligned to 16-byte
             EXTRA_CFLAGS="-mstackrealign"
             EXTRA_CXXFLAGS="-mstackrealign"
+            ;;
+        mips)
+            # TODO: Remove this once mipsel-linux-android target is changed in clang
+            EXTRA_CFLAGS="-mips32"
+            EXTRA_CXXFLAGS="-mips32"
+            EXTRA_LDFLAGS="-mips32"
             ;;
         mips32r6)
             EXTRA_CFLAGS="-mips32r6"
@@ -543,7 +542,7 @@ build_stl_libs_for_abi ()
             ;;
     esac
 
-    if [ -n "$THUMB" ]; then
+    if [ "$ABI" != "${ABI%%arm*}" -a "$ABI" = "${ABI%%64*}" ] ; then
         EXTRA_CFLAGS="$EXTRA_CFLAGS -mthumb"
         EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS -mthumb"
     fi
@@ -556,7 +555,7 @@ build_stl_libs_for_abi ()
         EXTRA_CXXFLAGS="$EXTRA_CXXFLAGS $SHARED_CXXFLAGS"
     fi
 
-    DSTDIR=$DSTDIR/$CXX_STL_SUBDIR/libs/$ABI/$THUMB
+    DSTDIR=$DSTDIR/$CXX_STL_SUBDIR/libs/$ABI
     LIB_SUFFIX="$(get_lib_suffix_for_abi $ABI)"
 
     mkdir -p "$BUILDDIR"
@@ -641,14 +640,8 @@ build_stl_libs_for_abi ()
 for ABI in $ABIS; do
     build_stl_libs_for_abi $ABI "$BUILD_DIR/$ABI/static" "static" "$OUT_DIR"
     build_stl_libs_for_abi $ABI "$BUILD_DIR/$ABI/shared" "shared" "$OUT_DIR"
-    # build thumb version of libraries for 32-bit arm
-    if [ "$ABI" != "${ABI%%arm*}" -a "$ABI" = "${ABI%%64*}" ] ; then
-        build_stl_libs_for_abi $ABI "$BUILD_DIR/$ABI/static" "static" "$OUT_DIR" thumb
-        build_stl_libs_for_abi $ABI "$BUILD_DIR/$ABI/shared" "shared" "$OUT_DIR" thumb
-    fi
 done
 
-# If needed, package files into tarballs
 if [ -n "$PACKAGE_DIR" ] ; then
     if [ "$CXX_STL" = "libc++" ]; then
         STL_DIR="llvm-libc++"
@@ -663,48 +656,6 @@ if [ -n "$PACKAGE_DIR" ] ; then
     log "Packaging: $PACKAGE"
     pack_archive "$PACKAGE" "$OUT_DIR/sources/cxx-stl" "$STL_DIR"
     fail_panic "Could not package $CXX_STL binaries!"
-
-    # TODO(danalbert): Move these up into checkbuild.py?
-    # None of these actually have a build step, so we could just pack them up
-    # simply in checkbuild.py.
-    #
-    # gabi++ and libc++abi should actually probably be moved around to be in the
-    # same package as stlport and libc++ respectively since they are actually
-    # bound to each other.
-    if [ "$CXX_STL" = "libc++" ]; then
-        # We need to package libc++abi in case the user needs to rebuild libc++.
-        SUBDIR="sources/cxx-stl"
-        make_repo_prop "$OUT_DIR/$SUBDIR/llvm-libc++abi"
-        PACKAGE="$PACKAGE_DIR/libcxxabi.zip"
-        log "Packaging: $PACKAGE"
-        pack_archive "$PACKAGE" "$OUT_DIR/$SUBDIR" "llvm-libc++abi"
-        fail_panic "Could not package libc++abi!"
-
-        # libc++ needs libandroid_support.
-        make_repo_prop "$OUT_DIR/sources/android/support"
-        PACKAGE="$PACKAGE_DIR/libandroid_support.zip"
-        log "Packaging: $PACKAGE"
-        pack_archive "$PACKAGE" "$OUT_DIR/sources/android" "support"
-        fail_panic "Could not package libandroid_support!"
-    elif [ "$CXX_STL" = "stlport" ]; then
-        # Stlport depends on gabi++.
-        SUBDIR="sources/cxx-stl"
-        make_repo_prop "$OUT_DIR/$SUBDIR/gabi++"
-        PACKAGE="$PACKAGE_DIR/gabixx.zip"
-        log "Packaging: $PACKAGE"
-        pack_archive "$PACKAGE" "$OUT_DIR/$SUBDIR" "gabi++"
-        fail_panic "Could not package gabi++!"
-
-        # ... and the system STL.
-        SUBDIR="sources/cxx-stl"
-        make_repo_prop "$OUT_DIR/$SUBDIR/system"
-        PACKAGE="$PACKAGE_DIR/system-stl.zip"
-        log "Packaging: $PACKAGE"
-        pack_archive "$PACKAGE" "$OUT_DIR/$SUBDIR" "system"
-        fail_panic "Could not package gabi++!"
-    else
-        panic "Unknown STL: $CXX_STL"
-    fi
 fi
 
 if [ -z "$OPTION_BUILD_DIR" ]; then

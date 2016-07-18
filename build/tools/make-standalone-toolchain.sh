@@ -16,6 +16,9 @@
 
 # Create a standalone toolchain package for Android.
 
+echo WARNING: make-standalone-toolchain.sh will be removed in r13. Please try \
+     make_standalone_toolchain.py now to make sure it works for your needs.
+
 . `dirname $0`/prebuilt-common.sh
 
 PROGRAM_PARAMETERS=""
@@ -58,7 +61,7 @@ INSTALL_DIR=
 register_var_option "--install-dir=<path>" INSTALL_DIR "Don't create package, install files to <path> instead."
 
 PLATFORM=
-register_option "--platform=<name>" do_platform "Specify target Android platform/API level." "android-3"
+register_option "--platform=<name>" do_platform "Specify target Android platform/API level." "android-9"
 do_platform () {
     PLATFORM=$1;
     if [ "$PLATFORM" = "android-L" ]; then
@@ -145,9 +148,7 @@ fi
 # Check PLATFORM
 if [ -z "$PLATFORM" ] ; then
     case $ARCH in
-        arm) PLATFORM=android-3
-            ;;
-        x86|mips)
+        arm|x86|mips)
             PLATFORM=android-9
             ;;
         arm64|x86_64|mips64)
@@ -248,7 +249,8 @@ LIBGCC_BASE_PATH=${LIBGCC_PATH%/*}         # base path of libgcc.a
 GCC_BASE_VERSION=${LIBGCC_BASE_PATH##*/}   # stuff after the last /
 
 # Create temporary directory
-TMPDIR=`mktemp -d $NDK_TMPDIR/ndk.XXXXXXX`
+TMPDIR=`mktemp -d $NDK_TMPDIR/ndk.XXXXXXX`/$TOOLCHAIN_NAME
+mkdir -p $TMPDIR
 
 dump "Copying prebuilt binaries..."
 # Now copy the GCC toolchain prebuilt binaries
@@ -457,16 +459,8 @@ copy_stl_common_headers () {
         libcxx|libc++)
             copy_directory "$LIBCXX_DIR/libcxx/include" "$ABI_STL_INCLUDE"
             copy_directory "$SUPPORT_DIR/include" "$ABI_STL_INCLUDE"
-            if [ "$LIBCXX_SUPPORT_LIB" = "gabi++" ]; then
-                copy_directory "$STLPORT_DIR/../gabi++/include" "$ABI_STL_INCLUDE/../../gabi++/include"
-                copy_abi_headers gabi++ cxxabi.h unwind.h unwind-arm.h unwind-itanium.h gabixx_config.h
-            elif [ "$LIBCXX_SUPPORT_LIB" = "libc++abi" ]; then
-                copy_directory "$LIBCXX_DIR/../llvm-libc++abi/libcxxabi/include" "$ABI_STL_INCLUDE/../../llvm-libc++abi/include"
-                copy_abi_headers llvm-libc++abi cxxabi.h __cxxabi_config.h libunwind.h unwind.h
-            else
-                dump "ERROR: Unknown libc++ support lib: $LIBCXX_SUPPORT_LIB"
-                exit 1
-            fi
+            copy_directory "$LIBCXX_DIR/../llvm-libc++abi/libcxxabi/include" "$ABI_STL_INCLUDE/../../llvm-libc++abi/include"
+            copy_abi_headers llvm-libc++abi cxxabi.h __cxxabi_config.h libunwind.h unwind.h
             ;;
         stlport)
             copy_directory "$STLPORT_DIR/stlport" "$ABI_STL_INCLUDE"
@@ -477,42 +471,56 @@ copy_stl_common_headers () {
 }
 
 # $1: Source ABI (e.g. 'armeabi')
-# #2  Optional destination path of additional header to copy (eg. include/bits), default to empty
-# $3: Optional source path of additional additional header to copy, default to empty
-# $4: Optional destination directory, default to empty (e.g. "", "thumb", "armv7-a/thumb")
-# $5: Optional source directory, default to empty (e.g. "", "thumb", "armv7-a/thumb")
+# $2: Optional destination directory, default to empty (e.g. "", "thumb", "armv7-a/thumb")
 copy_stl_libs () {
     local ABI=$1
-    local HEADER_DST=$2
-    local HEADER_SRC=$3
-    local DEST_DIR=$4
-    local SRC_DIR=$5
+    local DEST_DIR=$2
     local ABI_SRC_DIR=$ABI
 
-    if [ -n "$SRC_DIR" ]; then
-        ABI_SRC_DIR=$ABI/$SRC_DIR
-    else
-        if [ "$DEST_DIR" != "${DEST_DIR%%/*}" ] ; then
-            ABI_SRC_DIR=$ABI/`basename $DEST_DIR`
-        fi
+    if [ "$DEST_DIR" != "${DEST_DIR%%/*}" ] ; then
+        ABI_SRC_DIR=$ABI/`basename $DEST_DIR`
+    fi
+
+    LIBDIR="lib"
+    if [ "$ABI" = "mips64" -o "$ABI" = "x86_64" ]; then
+        LIBDIR="lib64"
     fi
 
     case $STL in
         gnustl)
-            if [ "$HEADER_SRC" != "" ]; then
-                copy_directory "$GNUSTL_LIBS/$ABI/include/$HEADER_SRC" "$ABI_STL_INCLUDE_TARGET/$HEADER_DST"
-            fi
-            copy_file_list "$GNUSTL_LIBS/$ABI_SRC_DIR" "$ABI_STL/lib/$DEST_DIR" "libgnustl_shared.so"
-            copy_file_list "$GNUSTL_LIBS/$ABI_SRC_DIR" "$ABI_STL/lib/$DEST_DIR" "libsupc++.a"
-            cp -p "$GNUSTL_LIBS/$ABI_SRC_DIR/libgnustl_static.a" "$ABI_STL/lib/$DEST_DIR/libstdc++.a"
+            copy_file_list "$GNUSTL_LIBS/$ABI_SRC_DIR" "$ABI_STL/$LIBDIR/$DEST_DIR" "libgnustl_shared.so"
+            copy_file_list "$GNUSTL_LIBS/$ABI_SRC_DIR" "$ABI_STL/$LIBDIR/$DEST_DIR" "libsupc++.a"
+            cp -p "$GNUSTL_LIBS/$ABI_SRC_DIR/libgnustl_static.a" "$ABI_STL/$LIBDIR/$DEST_DIR/libstdc++.a"
             ;;
         libcxx|libc++)
-            copy_file_list "$LIBCXX_LIBS/$ABI_SRC_DIR" "$ABI_STL/lib/$DEST_DIR" "libc++_shared.so"
-            cp -p "$LIBCXX_LIBS/$ABI_SRC_DIR/libc++_static.a" "$ABI_STL/lib/$DEST_DIR/libstdc++.a"
+            # libc++ is different from the other STLs. It has a libc++.(a|so)
+            # that is a linker script which automatically pulls in the
+            # necessary libraries. This way users don't have to do
+            # `-lc++abi -lunwind -landroid_support` on their own.
+            #
+            # As with the other STLs, we still copy this as libstdc++.a so the
+            # compiler will pick it up by default.
+            #
+            # Unlike the other STLs, also copy libc++.so (another linker
+            # script) over as libstdc++.so.  Since it's a linker script, the
+            # linker will still get the right DT_NEEDED from the SONAME of the
+            # actual linked object.
+            FILES="libc++.so libc++.a libc++_shared.so libc++_static.a libc++abi.a"
+            case $ABI in
+                armeabi*)
+                    FILES=$FILES" libunwind.a"
+                    ;;
+            esac
+            copy_file_list "$LIBCXX_LIBS/$ABI_SRC_DIR" \
+                "$ABI_STL/$LIBDIR/$DEST_DIR" "$FILES"
+            cp -p "$LIBCXX_LIBS/$ABI_SRC_DIR/libc++.a" \
+                "$ABI_STL/$LIBDIR/$DEST_DIR/libstdc++.a"
+            cp -p "$LIBCXX_LIBS/$ABI_SRC_DIR/libc++.so" \
+                "$ABI_STL/$LIBDIR/$DEST_DIR/libstdc++.so"
             ;;
         stlport)
-            copy_file_list "$STLPORT_LIBS/$ABI_SRC_DIR" "$ABI_STL/lib/$DEST_DIR" "libstlport_shared.so"
-            cp -p "$STLPORT_LIBS/$ABI_SRC_DIR/libstlport_static.a" "$ABI_STL/lib/$DEST_DIR/libstdc++.a"
+            copy_file_list "$STLPORT_LIBS/$ABI_SRC_DIR" "$ABI_STL/$LIBDIR/$DEST_DIR" "libstlport_shared.so"
+            cp -p "$STLPORT_LIBS/$ABI_SRC_DIR/libstlport_static.a" "$ABI_STL/$LIBDIR/$DEST_DIR/libstdc++.a"
             ;;
         *)
             dump "ERROR: Unsupported STL: $STL"
@@ -530,51 +538,32 @@ copy_stl_libs_for_abi () {
         exit 1
     fi
 
-    case $ABI in
-        armeabi)
-            copy_stl_libs armeabi          "bits"                "bits"
-            copy_stl_libs armeabi          "thumb/bits"          "bits"       "/thumb"
-            ;;
-        armeabi-v7a)
-            copy_stl_libs armeabi-v7a      "armv7-a/bits"        "bits"       "armv7-a"
-            copy_stl_libs armeabi-v7a      "armv7-a/thumb/bits"  "bits"       "armv7-a/thumb"
-            ;;
-        armeabi-v7a-hard)
-            copy_stl_libs armeabi-v7a-hard ""                    ""           "armv7-a/hard"       "."
-            copy_stl_libs armeabi-v7a-hard ""                    ""           "armv7-a/thumb/hard" "thumb"
-            ;;
-        x86_64)
-            if [ "$STL" = "gnustl" ]; then
-                copy_stl_libs x86_64       "32/bits"             "32/bits"    ""                   "lib"
-                copy_stl_libs x86_64       "bits"                "bits"       "../lib64"           "lib64"
-                copy_stl_libs x86_64       "x32/bits"            "x32/bits"   "../libx32"          "libx32"
-            else
-                copy_stl_libs x86_64       ""                    ""           "../lib64"           "."
-            fi
-            ;;
-        mips64)
-            if [ "$STL" = "gnustl" ]; then
-                copy_stl_libs mips64       "32/mips-r1/bits"     "32/mips-r1/bits"  ""             "lib"
-                copy_stl_libs mips64       "32/mips-r2/bits"     "32/mips-r2/bits"  "../libr2"     "libr2"
-                copy_stl_libs mips64       "32/mips-r6/bits"     "32/mips-r6/bits"  "../libr6"     "libr6"
-                copy_stl_libs mips64       "bits"                "bits"             "../lib64"     "lib64"
-            else
-                copy_stl_libs mips64       ""                    ""                 "../lib64"     "."
-            fi
-            ;;
-        mips|mips32r6)
-            if [ "$STL" = "gnustl" ]; then
-                copy_stl_libs mips         "bits"                "bits"             "../lib"       "lib"
-                copy_stl_libs mips         "mips-r2/bits"        "mips-r2/bits"     "../libr2"     "libr2"
-                copy_stl_libs mips         "mips-r6/bits"        "mips-r6/bits"     "../libr6"     "libr6"
-            else
-                copy_stl_libs mips         "bits"                "bits"
-            fi
-            ;;
-        *)
-            copy_stl_libs "$ABI"           "bits"                "bits"
-            ;;
-    esac
+    if [ "$STL" == "gnustl" ]; then
+        case $ABI in
+            armeabi)
+                copy_directory "$GNUSTL_LIBS/$ABI/include/bits" \
+                    "$ABI_STL_INCLUDE_TARGET/bits"
+                copy_directory "$GNUSTL_LIBS/$ABI/include/bits" \
+                    "$ABI_STL_INCLUDE_TARGET/thumb/bits"
+                ;;
+            armeabi-v7a)
+                copy_directory "$GNUSTL_LIBS/$ABI/include/bits" \
+                    "$ABI_STL_INCLUDE_TARGET/armv7-a/bits"
+                copy_directory "$GNUSTL_LIBS/$ABI/include/bits" \
+                    "$ABI_STL_INCLUDE_TARGET/armv7-a/thumb/bits"
+                ;;
+            *)
+                copy_directory "$GNUSTL_LIBS/$ABI/include/bits" \
+                    "$ABI_STL_INCLUDE_TARGET/bits"
+                ;;
+        esac
+    fi
+
+    if [ "$ABI" == "armeabi-v7a" ]; then
+        copy_stl_libs armeabi-v7a "armv7-a"
+    else
+        copy_stl_libs "$ABI"
+    fi
 }
 
 mkdir -p "$ABI_STL_INCLUDE_TARGET"

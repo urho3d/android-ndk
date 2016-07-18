@@ -68,7 +68,6 @@ OPTION_PLATFORMS=
 OPTION_SRCDIR=
 OPTION_DSTDIR=
 OPTION_FAST_COPY=
-OPTION_MINIMAL=
 OPTION_ARCH=
 OPTION_ABI=
 OPTION_DEBUG_LIBS=
@@ -109,9 +108,6 @@ for opt do
   --fast-copy)
     OPTION_FAST_COPY=yes
     ;;
-  --minimal)
-    OPTION_MINIMAL=yes
-    ;;
   --package-dir=*)
     PACKAGE_DIR=$optarg
     ;;
@@ -149,15 +145,9 @@ if [ $OPTION_HELP = "yes" ] ; then
     echo "  --ndk-dir=<path>      Use toolchains from this NDK directory [$NDK_DIR]"
     echo "  --platform=<list>     List of API levels [$PLATFORMS]"
     echo "  --arch=<list>         List of CPU architectures [$ARCHS]"
-    echo "  --minimal             Ignore symlinks and generated shared libs."
     echo "  --fast-copy           Don't create symlinks, copy files instead"
     echo "  --package-dir=<path>  Package platforms archive in specific path."
     echo "  --debug-libs          Also generate C source file for generated libraries."
-    echo ""
-    echo "Use the --minimal flag if you want to generate minimal sysroot directories"
-    echo "that will be used to generate prebuilt toolchains. Otherwise, the script"
-    echo "will require these toolchains to be pre-installed and will use them to"
-    echo "generate shared system shared libraries from the symbol list files."
     exit 0
 fi
 
@@ -244,10 +234,6 @@ for PLATFORM in $PLATFORMS; do
         fi
     done
 done
-
-if [ "$OPTION_MINIMAL" ]; then
-    OPTION_FAST_COPY=yes
-fi
 
 BAD_ARCHS=
 for ARCH in $ARCHS; do
@@ -380,8 +366,6 @@ get_default_compiler_for_arch()
 
     if [ ! -f "$CC" ]; then
         dump "ERROR: $ARCH toolchain not installed: $CC"
-        dump "Important: Use the --minimal flag to use this script without generated system shared libraries."
-        dump "This is generally useful when you want to generate the host cross-toolchain programs."
         exit 1
     fi
     echo "$CC"
@@ -701,112 +685,85 @@ for ARCH in $ARCHS; do
 
         generate_api_level "$PLATFORM" "$ARCH" "$DSTDIR"
 
-        # If --minimal is not used, copy or generate binary files.
-        if [ -z "$OPTION_MINIMAL" ]; then
-            # Copy the prebuilt static libraries.  We need full set for multilib compiler for some arch
-            case "$ARCH" in
-                x86_64)
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib $SYSROOT_DST/lib "x86 sysroot libs"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib64 $SYSROOT_DST/lib64 "x86_64 sysroot libs"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/libx32 $SYSROOT_DST/libx32 "x32 sysroot libs"
-                    ;;
-                mips64)
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib $SYSROOT_DST/lib "mips -mabi=32 -mips32 sysroot libs"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/libr2 $SYSROOT_DST/libr2 "mips -mabi=32 -mips32r2 sysroot libs"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/libr6 $SYSROOT_DST/libr6 "mips -mabi=32 -mips32r6 sysroot libs"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib64r2 $SYSROOT_DST/lib64r2 "mips -mabi=64 -mips64r2 sysroot libs"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib64 $SYSROOT_DST/lib64 "mips -mabi=64 -mips64r6 sysroot libs"
-                    ;;
-                mips)
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib $SYSROOT_DST/lib "mips -mabi=32 -mips32 sysroot libs"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/libr2 $SYSROOT_DST/libr2 "mips -mabi=32 -mips32r2 sysroot libs"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/libr6 $SYSROOT_DST/libr6 "mips -mabi=32 -mips32r6 sysroot libs"
-                    ;;
-                *)
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/$LIBDIR $SYSROOT_DST/$LIBDIR "$ARCH sysroot libs"
-                    ;;
-            esac
+        # Copy the prebuilt static libraries.  We need full set for multilib compiler for some arch
+        case "$ARCH" in
+            x86_64)
+                copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib $SYSROOT_DST/lib "x86 sysroot libs"
+                copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib64 $SYSROOT_DST/lib64 "x86_64 sysroot libs"
+                copy_src_directory $PLATFORM_SRC/arch-$ARCH/libx32 $SYSROOT_DST/libx32 "x32 sysroot libs"
+                ;;
+            mips64)
+                copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib $SYSROOT_DST/lib "mips -mabi=32 -mips32 sysroot libs"
+                copy_src_directory $PLATFORM_SRC/arch-$ARCH/libr2 $SYSROOT_DST/libr2 "mips -mabi=32 -mips32r2 sysroot libs"
+                copy_src_directory $PLATFORM_SRC/arch-$ARCH/libr6 $SYSROOT_DST/libr6 "mips -mabi=32 -mips32r6 sysroot libs"
+                copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib64r2 $SYSROOT_DST/lib64r2 "mips -mabi=64 -mips64r2 sysroot libs"
+                copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib64 $SYSROOT_DST/lib64 "mips -mabi=64 -mips64r6 sysroot libs"
+                ;;
+            mips)
+                copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib $SYSROOT_DST/lib "mips -mabi=32 -mips32 sysroot libs"
+                copy_src_directory $PLATFORM_SRC/arch-$ARCH/libr2 $SYSROOT_DST/libr2 "mips -mabi=32 -mips32r2 sysroot libs"
+                copy_src_directory $PLATFORM_SRC/arch-$ARCH/libr6 $SYSROOT_DST/libr6 "mips -mabi=32 -mips32r6 sysroot libs"
+                ;;
+            *)
+                copy_src_directory $PLATFORM_SRC/arch-$ARCH/$LIBDIR $SYSROOT_DST/$LIBDIR "$ARCH sysroot libs"
+                ;;
+        esac
 
-            # Generate C runtime object files when available
-            PLATFORM_SRC_ARCH=$PLATFORM_SRC/arch-$ARCH/src
-            if [ ! -d "$SRCDIR/$PLATFORM_SRC_ARCH" ]; then
-                PLATFORM_SRC_ARCH=$PREV_PLATFORM_SRC_ARCH
-            else
-                PREV_PLATFORM_SRC_ARCH=$PLATFORM_SRC_ARCH
-            fi
-
-            # Genreate crt objects
-            case "$ARCH" in
-                x86_64)
-                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib "-m32"
-                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib64 "-m64"
-                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libx32 "-mx32"
-                    ;;
-                mips64)
-                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib "-mabi=32 -mips32"
-                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
-                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
-                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib64r2 "-mabi=64 -mips64r2"
-                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib64 "-mabi=64 -mips64r6"
-                    ;;
-                mips)
-                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib "-mabi=32 -mips32"
-                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
-                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
-                    ;;
-                *)
-                    gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/$LIBDIR
-                    ;;
-            esac
-
-            # Generate shared libraries from symbol files
-            case "$ARCH" in
-                x86_64)
-                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-m32"
-                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64 "-m64"
-                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libx32 "-mx32"
-                    ;;
-                mips64)
-                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-mabi=32 -mips32"
-                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
-                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
-                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64r2 "-mabi=64 -mips64r2"
-                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64 "-mabi=64 -mips64r6"
-                    ;;
-                mips)
-                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-mabi=32 -mips32"
-                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
-                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
-                    ;;
-                *)
-                    gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/$LIBDIR
-                    ;;
-            esac
+        # Generate C runtime object files when available
+        PLATFORM_SRC_ARCH=$PLATFORM_SRC/arch-$ARCH/src
+        if [ ! -d "$SRCDIR/$PLATFORM_SRC_ARCH" ]; then
+            PLATFORM_SRC_ARCH=$PREV_PLATFORM_SRC_ARCH
         else
-            # Copy the prebuilt binaries to bootstrap GCC
-            case "$ARCH" in
-                x86_64)
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib-bootstrap/lib $SYSROOT_DST/lib "x86 sysroot libs (boostrap)"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib-bootstrap/lib64 $SYSROOT_DST/lib64 "x86_64 sysroot libs (boostrap)"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib-bootstrap/libx32 $SYSROOT_DST/libx32 "x32 sysroot libs (boostrap)"
-                    ;;
-                mips64)
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib-bootstrap/lib $SYSROOT_DST/lib "mips -mabi=32 -mips32 sysroot libs (boostrap)"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib-bootstrap/libr2 $SYSROOT_DST/libr2 "mips -mabi=32 -mips32r2 sysroot libs (boostrap)"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib-bootstrap/libr6 $SYSROOT_DST/libr6 "mips -mabi=32 -mips32r6 sysroot libs (boostrap)"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib-bootstrap/lib64r2 $SYSROOT_DST/lib64r2 "mips -mabi=64 -mips64r2 sysroot libs (boostrap)"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib-bootstrap/lib64 $SYSROOT_DST/lib64 "mips -mabi=64 -mips64r6 sysroot libs (boostrap)"
-                    ;;
-                mips)
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib-bootstrap/lib $SYSROOT_DST/lib "mips -mabi=32 -mips32 sysroot libs (boostrap)"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib-bootstrap/libr2 $SYSROOT_DST/libr2 "mips -mabi=32 -mips32r2 sysroot libs (boostrap)"
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib-bootstrap/libr6 $SYSROOT_DST/libr6 "mips -mabi=32 -mips32r6 sysroot libs (boostrap)"
-                    ;;
-                *)
-                    copy_src_directory $PLATFORM_SRC/arch-$ARCH/lib-bootstrap $SYSROOT_DST/$LIBDIR "$ARCH sysroot libs (boostrap)"
-                    ;;
-            esac
+            PREV_PLATFORM_SRC_ARCH=$PLATFORM_SRC_ARCH
         fi
+
+        # Genreate crt objects
+        case "$ARCH" in
+            x86_64)
+                gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib "-m32"
+                gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib64 "-m64"
+                gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libx32 "-mx32"
+                ;;
+            mips64)
+                gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib "-mabi=32 -mips32"
+                gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
+                gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
+                gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib64r2 "-mabi=64 -mips64r2"
+                gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib64 "-mabi=64 -mips64r6"
+                ;;
+            mips)
+                gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/lib "-mabi=32 -mips32"
+                gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
+                gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
+                ;;
+            *)
+                gen_crt_objects $PLATFORM $ARCH platforms/common/src $PLATFORM_SRC_ARCH $SYSROOT_DST/$LIBDIR
+                ;;
+        esac
+
+        # Generate shared libraries from symbol files
+        case "$ARCH" in
+            x86_64)
+                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-m32"
+                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64 "-m64"
+                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libx32 "-mx32"
+                ;;
+            mips64)
+                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-mabi=32 -mips32"
+                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
+                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
+                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64r2 "-mabi=64 -mips64r2"
+                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib64 "-mabi=64 -mips64r6"
+                ;;
+            mips)
+                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/lib "-mabi=32 -mips32"
+                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr2 "-mabi=32 -mips32r2"
+                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/libr6 "-mabi=32 -mips32r6"
+                ;;
+            *)
+                gen_shared_libraries $ARCH $PLATFORM_SRC/arch-$ARCH/symbols $SYSROOT_DST/$LIBDIR
+                ;;
+        esac
         PREV_SYSROOT_DST=$SYSROOT_DST
     done
 done

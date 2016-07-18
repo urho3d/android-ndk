@@ -51,6 +51,11 @@ endif
 # when we detect this case.
 libs_in_ldflags := $(filter -l% %.so %.a,$(LOCAL_LDLIBS) $(LOCAL_LDFLAGS))
 
+# Since the above will glob anything ending in .so or .a, we need to filter out
+# any cases of -Wl,--exclude-libs since we use that to hide symbols in STLs.
+libs_in_ldflags := \
+    $(filter-out -Wl$(comma)--exclude-libs$(comma)%,$(libs_in_ldflags))
+
 # Remove the system libraries we know about from the warning, it's ok
 # (and actually expected) to link them with -l<name>.
 system_libs := \
@@ -161,6 +166,8 @@ ifeq ($(LOCAL_CPP_EXTENSION),)
   LOCAL_CPP_EXTENSION := $(default-c++-extensions)
 endif
 LOCAL_RS_EXTENSION := $(default-rs-extensions)
+
+LOCAL_LDFLAGS += -Wl,--build-id
 
 #
 # If LOCAL_ALLOW_UNDEFINED_SYMBOLS is not true, the linker will allow the generation
@@ -283,8 +290,8 @@ endif
 
 neon_sources := $(strip $(neon_sources))
 ifdef neon_sources
-  ifeq ($(filter $(TARGET_ARCH_ABI), armeabi-v7a armeabi-v7a-hard arm64-v8a x86 x86_64),)
-    $(call __ndk_info,NEON support is only possible for armeabi-v7a ABI, its variant armeabi-v7a-hard, and arm64-v8a, x86 and x86_64 ABIs)
+  ifeq ($(filter $(TARGET_ARCH_ABI), armeabi-v7a arm64-v8a x86 x86_64),)
+    $(call __ndk_info,NEON support is only available for armeabi-v7a, arm64-v8a, x86, and x86_64 ABIs)
     $(call __ndk_info,Please add checks against TARGET_ARCH_ABI in $(LOCAL_MAKEFILE))
     $(call __ndk_error,Aborting)
   endif
@@ -307,14 +314,6 @@ ifeq ($(LOCAL_ARM_MODE),arm)
     ifneq (,$(LOCAL_PCH))
         $(call tag-src-files,$(LOCAL_PCH),arm)
     endif
-else
-# For arm, all sources are compiled in thumb mode by default in release mode.
-# Linker should behave similarly
-ifneq ($(filter armeabi%, $(TARGET_ARCH_ABI)),)
-ifneq ($(APP_OPTIM),debug)
-    LOCAL_LDFLAGS += -mthumb
-endif
-endif
 endif
 ifeq ($(LOCAL_ARM_MODE),thumb)
     arm_sources := $(empty)
@@ -437,16 +436,29 @@ ifneq (,$(LOCAL_PCH))
     # Build PCH into obj directory
     LOCAL_BUILT_PCH := $(call get-pch-name,$(LOCAL_PCH))
 
+    # Clang whines about a "c-header" (.h rather than .hpp) being used in C++
+    # mode (note that we use compile-cpp-source to build the header).
+    LOCAL_SRC_FILES_TARGET_CFLAGS.$(LOCAL_PCH) += -x c++-header
+
     # Build PCH
     $(call compile-cpp-source,$(LOCAL_PCH),$(LOCAL_BUILT_PCH).gch)
 
-    # All obj files are dependent on the PCH
-    $(foreach src,$(filter $(all_cpp_patterns),$(LOCAL_SRC_FILES)),\
+    # Filter obj files that are dependent on the PCH (only those without tags)
+    ifeq (true,$(LOCAL_ARM_NEON))
+        TAGS_TO_FILTER=arm
+    else
+        TAGS_TO_FILTER=arm neon
+    endif
+
+    allowed_src := $(foreach src,$(filter $(all_cpp_patterns),$(LOCAL_SRC_FILES)),\
+        $(if $(filter $(TAGS_TO_FILTER),$(LOCAL_SRC_FILES_TAGS.$(src))),,$(src))\
+    )
+    # All files without tags depend on PCH
+    $(foreach src,$(allowed_src),\
         $(eval $(LOCAL_OBJS_DIR)/$(call get-object-name,$(src)) : $(LOCAL_OBJS_DIR)/$(LOCAL_BUILT_PCH).gch)\
     )
-
-    # Files from now on build with PCH
-    LOCAL_CPPFLAGS += -Winvalid-pch -include $(LOCAL_OBJS_DIR)/$(LOCAL_BUILT_PCH)
+    # Make sure those files are built with PCH
+    $(call add-src-files-target-cflags,$(allowed_src),-Winvalid-pch -include $(LOCAL_OBJS_DIR)/$(LOCAL_BUILT_PCH))
 
     # Insert PCH dir at beginning of include search path
     LOCAL_C_INCLUDES := \

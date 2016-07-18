@@ -1971,7 +1971,7 @@ NDK_STL_LIST :=
 # $2: STL module name (e.g. cxx-stl/system)
 # $3: list of static libraries all modules will depend on
 # $4: list of shared libraries all modules will depend on
-# $5: list of ldlibs all modules will link
+# $5: list of ldlibs to be exported to all modules
 #
 ndk-stl-register = \
     $(eval __ndk_stl := $(strip $1)) \
@@ -1979,7 +1979,7 @@ ndk-stl-register = \
     $(eval NDK_STL.$(__ndk_stl).IMPORT_MODULE := $(strip $2)) \
     $(eval NDK_STL.$(__ndk_stl).STATIC_LIBS := $(strip $(call strip-lib-prefix,$3))) \
     $(eval NDK_STL.$(__ndk_stl).SHARED_LIBS := $(strip $(call strip-lib-prefix,$4))) \
-    $(eval NDK_STL.$(__ndk_stl).LDLIBS := $(strip $5))
+    $(eval NDK_STL.$(__ndk_stl).EXPORT_LDLIBS := $(strip $5))
 
 # Called to check that the value of APP_STL is a valid one.
 # $1: STL name as it apperas in APP_STL (e.g. 'system')
@@ -2065,7 +2065,7 @@ $(call ndk-stl-register,\
 $(call ndk-stl-register,\
     c++_static,\
     cxx-stl/llvm-libc++,\
-    c++_static,\
+    c++_static libc++abi libunwind android_support,\
     ,\
     -ldl\
     )
@@ -2075,7 +2075,7 @@ $(call ndk-stl-register,\
 $(call ndk-stl-register,\
     c++_shared,\
     cxx-stl/llvm-libc++,\
-    ,\
+    libunwind,\
     c++_shared,\
     \
     )

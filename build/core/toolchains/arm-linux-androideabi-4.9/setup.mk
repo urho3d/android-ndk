@@ -28,60 +28,54 @@ TARGET_CFLAGS := \
     -ffunction-sections \
     -funwind-tables \
     -fstack-protector-strong \
-    -no-canonical-prefixes
+    -no-canonical-prefixes \
+
+# Always enable debug info. We strip binaries when needed.
+TARGET_CFLAGS += -g
 
 TARGET_LDFLAGS := -no-canonical-prefixes
 
-ifneq ($(filter $(TARGET_ARCH_ABI), armeabi-v7a armeabi-v7a-hard),)
-    TARGET_CFLAGS += -march=armv7-a \
-                     -mfpu=vfpv3-d16
-    TARGET_LDFLAGS += -march=armv7-a \
-                     -Wl,--fix-cortex-a8
 ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
-    TARGET_CFLAGS += -mfloat-abi=softfp
-else
-    TARGET_CFLAGS += -mhard-float \
-                     -D_NDK_MATH_NO_SOFTFP=1
-    TARGET_LDFLAGS += -Wl,--no-warn-mismatch \
-                     -lm_hard
-endif
+    TARGET_CFLAGS += \
+        -march=armv7-a \
+        -mfpu=vfpv3-d16 \
+        -mfloat-abi=softfp \
+
+    TARGET_LDFLAGS += \
+        -march=armv7-a \
+        -Wl,--fix-cortex-a8 \
+
+else ifeq ($(TARGET_ARCH_ABI),armeabi)
+    TARGET_CFLAGS += \
+        -march=armv5te \
+        -mtune=xscale \
+        -msoft-float \
 
 else
-    TARGET_CFLAGS += -march=armv5te \
-                            -mtune=xscale \
-                            -msoft-float
+    $(call __ndk_error,Unsupported ABI: $(TARGET_ARCH_ABI))
 endif
 
 TARGET_CFLAGS.neon := -mfpu=neon
 
-TARGET_arm_release_CFLAGS :=  -O2 \
-                              -g \
-                              -DNDEBUG \
-                              -fomit-frame-pointer \
-                              -fstrict-aliasing    \
-                              -funswitch-loops     \
-                              -finline-limit=300
+TARGET_arm_release_CFLAGS := \
+    -marm \
+    -O2 \
+    -DNDEBUG \
 
-TARGET_thumb_release_CFLAGS := -mthumb \
-                               -Os \
-                               -g \
-                               -DNDEBUG \
-                               -fomit-frame-pointer \
-                               -fno-strict-aliasing \
-                               -finline-limit=64
+TARGET_thumb_release_CFLAGS := \
+    -mthumb \
+    -Os \
+    -DNDEBUG \
 
-# When building for debug, compile everything as arm.
-TARGET_arm_debug_CFLAGS := $(TARGET_arm_release_CFLAGS) \
-                           -O0 \
-                           -UNDEBUG \
-                           -fno-omit-frame-pointer \
-                           -fno-strict-aliasing
+TARGET_arm_debug_CFLAGS := \
+    -marm \
+    -O0 \
+    -UNDEBUG \
 
-TARGET_thumb_debug_CFLAGS := $(TARGET_thumb_release_CFLAGS) \
-                             -O0 \
-                             -UNDEBUG \
-                             -marm \
-                             -fno-omit-frame-pointer
+TARGET_thumb_debug_CFLAGS := \
+    -mthumb \
+    -O0 \
+    -UNDEBUG \
 
 # This function will be called to determine the target CFLAGS used to build
 # a C or Assembler source file, based on its tags.
@@ -98,14 +92,11 @@ $(call set-src-files-target-cflags,\
     $(call set_intersection,$(__arm_sources),$(__release_sources)),\
     $(TARGET_arm_release_CFLAGS)) \
 $(call set-src-files-target-cflags,\
-    $(call set_intersection,$(__arm_sources),$(__debug_sources)),\
-    $(TARGET_arm_debug_CFLAGS)) \
+    $(call set_intersection,$(__thumb_sources),$(__debug_sources)),\
+    $(TARGET_thumb_debug_CFLAGS)) \
 $(call set-src-files-target-cflags,\
     $(call set_intersection,$(__thumb_sources),$(__release_sources)),\
     $(TARGET_thumb_release_CFLAGS)) \
-$(call set-src-files-target-cflags,\
-    $(call set_intersection,$(__thumb_sources),$(__debug_sources)),\
-    $(TARGET_thumb_debug_CFLAGS)) \
 $(call add-src-files-target-cflags,\
     $(call get-src-files-with-tag,neon),\
     $(TARGET_CFLAGS.neon)) \

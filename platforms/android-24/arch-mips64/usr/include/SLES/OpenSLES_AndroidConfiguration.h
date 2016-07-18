@@ -41,6 +41,9 @@ extern "C" {
 #define SL_ANDROID_RECORDING_PRESET_VOICE_RECOGNITION   ((SLuint32) 0x00000003)
 /**   uses the main microphone tuned for audio communications */
 #define SL_ANDROID_RECORDING_PRESET_VOICE_COMMUNICATION ((SLuint32) 0x00000004)
+/**   uses the main microphone unprocessed */
+#define SL_ANDROID_RECORDING_PRESET_UNPROCESSED         ((SLuint32) 0x00000005)
+
 
 /*---------------------------------------------------------------------------*/
 /* Android AudioPlayer configuration                                         */

@@ -14,13 +14,18 @@
 # limitations under the License.
 #
 import argparse
+import datetime
 import multiprocessing
 import os
 import shutil
 import subprocess
 import sys
 import tempfile
+import timeit
 import zipfile
+
+
+THIS_DIR = os.path.realpath(os.path.dirname(__file__))
 
 
 # TODO: Make the x86 toolchain names just be the triple.
@@ -57,13 +62,35 @@ ALL_ARCHITECTURES = (
 ALL_ABIS = (
     'armeabi',
     'armeabi-v7a',
-    'armeabi-v7a-hard',
     'arm64-v8a',
     'mips',
     'mips64',
     'x86',
     'x86_64',
 )
+
+
+class Timer(object):
+    def __init__(self):
+        self.start_time = None
+        self.end_time = None
+        self.duration = None
+
+    def start(self):
+        self.start_time = timeit.default_timer()
+
+    def finish(self):
+        self.end_time = timeit.default_timer()
+
+        # Not interested in partial seconds at this scale.
+        seconds = int(self.end_time - self.start_time)
+        self.duration = datetime.timedelta(seconds=seconds)
+
+    def __enter__(self):
+        self.start()
+
+    def __exit__(self, _exc_type, _exc_value, _traceback):
+        self.finish()
 
 
 def arch_to_toolchain(arch):
@@ -80,7 +107,7 @@ def toolchain_to_arch(toolchain):
 
 def arch_to_abis(arch):
     return {
-        'arm': ['armeabi', 'armeabi-v7a', 'armeabi-v7a-hard'],
+        'arm': ['armeabi', 'armeabi-v7a'],
         'arm64': ['arm64-v8a'],
         'mips': ['mips'],
         'mips64': ['mips64'],
@@ -93,7 +120,6 @@ def abi_to_arch(arch):
     return {
         'armeabi': 'arm',
         'armeabi-v7a': 'arm',
-        'armeabi-v7a-hard': 'arm',
         'arm64-v8a': 'arm64',
         'mips': 'mips',
         'mips64': 'mips64',
@@ -102,9 +128,9 @@ def abi_to_arch(arch):
     }[arch]
 
 
-def android_path(path=''):
-    top = os.getenv('ANDROID_BUILD_TOP', '')
-    return os.path.realpath(os.path.join(top, path))
+def android_path(*args):
+    top = os.path.realpath(os.path.join(THIS_DIR, '../../..'))
+    return os.path.normpath(os.path.join(top, *args))
 
 
 def sysroot_path(toolchain):
@@ -113,15 +139,15 @@ def sysroot_path(toolchain):
 
     prebuilt_ndk = 'prebuilts/ndk/current'
     sysroot_subpath = 'platforms/android-{}/arch-{}'.format(version, arch)
-    return android_path(os.path.join(prebuilt_ndk, sysroot_subpath))
+    return android_path(prebuilt_ndk, sysroot_subpath)
 
 
-def ndk_path(path=''):
-    return android_path(os.path.join('ndk', path))
+def ndk_path(*args):
+    return android_path('ndk', *args)
 
 
-def toolchain_path(path=''):
-    return android_path(os.path.join('toolchain', path))
+def toolchain_path(*args):
+    return android_path('toolchain', *args)
 
 
 def default_api_level(arch):
@@ -225,7 +251,7 @@ def make_package(name, directory, out_dir):
     try:
         subprocess.check_call(
             ['zip', '-x', '*.pyc', '-x', '*.pyo', '-x', '*.swp',
-             '-x', '*.git*', '-9qr', path, basename])
+             '-x', '*.git*', '-0qr', path, basename])
     finally:
         os.chdir(cwd)
 
@@ -237,6 +263,16 @@ def make_package(name, directory, out_dir):
             zip_file.write(os.path.join(tmpdir, 'repo.prop'), arcname)
         finally:
             shutil.rmtree(tmpdir)
+
+
+def merge_license_files(output_path, files):
+    licenses = []
+    for license_path in files:
+        with open(license_path) as license_file:
+            licenses.append(license_file.read())
+
+    with open(output_path, 'w') as output_file:
+        output_file.write('\n'.join(licenses))
 
 
 class ArgParser(argparse.ArgumentParser):

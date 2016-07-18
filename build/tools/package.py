@@ -18,6 +18,7 @@
 from __future__ import print_function
 
 import argparse
+import distutils.spawn  # For find_executable.
 import ntpath
 import os
 import shutil
@@ -29,20 +30,14 @@ import tempfile
 import zipfile
 
 site.addsitedir(os.path.join(os.path.dirname(__file__), '../..'))
-import config  # pylint: disable=import-error
+import config  # noqa pylint: disable=import-error
 
 site.addsitedir(os.path.join(os.path.dirname(__file__), '../lib'))
-import build_support  # pylint: disable=import-error
+import build_support  # noqa pylint: disable=import-error
 
 
 THIS_DIR = os.path.dirname(__file__)
 ANDROID_TOP = os.path.realpath(os.path.join(THIS_DIR, '../../..'))
-
-# Note that we can't actually support creating both layouts from the same
-# sources because changes are needed in gnustl's Android.mk and in the build
-# system. The various "USE_NEW_LAYOUT" blocks are so we can more easily undo
-# this change when we finalize a new layout.
-USE_NEW_LAYOUT = False
 
 
 def expand_packages(package, host, arches):
@@ -61,7 +56,7 @@ def expand_packages(package, host, arches):
     ['platforms']
 
     >>> expand_packages('libc++-{abi}', 'linux', ['arm'])
-    ['libc++-armeabi', 'libc++-armeabi-v7a', 'libc++-armeabi-v7a-hard']
+    ['libc++-armeabi', 'libc++-armeabi-v7a']
 
     >>> expand_packages('binutils/{triple}', 'linux', ['arm', 'x86_64'])
     ['binutils/arm-linux-androideabi', 'binutils/x86_64-linux-android']
@@ -86,34 +81,12 @@ def expand_packages(package, host, arches):
 
 
 def get_all_packages(host, arches):
-    new_layout = [
-        ('binutils-{arch}-{host}', 'binutils/{triple}'),
-        ('build', 'build'),
-        ('cpufeatures', 'sources/android/cpufeatures'),
-        ('gabixx', 'sources/cxx-stl/gabi++'),
-        ('gcc-{arch}-{host}', 'toolchains/{toolchain}-4.9'),
-        ('gcclibs-{arch}', 'gcclibs/{triple}'),
-        ('gdbserver-{arch}', 'gdbserver/{arch}'),
-        ('gnustl-4.9', 'sources/cxx-stl/gnu-libstdc++'),
-        ('gtest', 'sources/third_party/googletest'),
-        ('host-tools-{host}', 'host-tools'),
-        ('libandroid_support', 'sources/android/support'),
-        ('libcxx', 'sources/cxx-stl/llvm-libc++'),
-        ('libcxxabi', 'sources/cxx-stl/llvm-libc++abi'),
-        ('llvm-{host}', 'toolchains/llvm'),
-        ('native_app_glue', 'sources/android/native_app_glue'),
-        ('ndk_helper', 'sources/android/ndk_helper'),
-        ('python-packages', 'python-packages'),
-        ('stlport', 'sources/cxx-stl/stlport'),
-        ('system-stl', 'sources/cxx-stl/system'),
-    ]
-
-    old_layout = [
-        ('build', 'build'),
+    packages = [
         ('cpufeatures', 'sources/android/cpufeatures'),
         ('gabixx', 'sources/cxx-stl/gabi++'),
         ('gcc-{arch}-{host}', 'toolchains/{toolchain}-4.9/prebuilt/{host}'),
         ('gdbserver-{arch}', 'prebuilt/android-{arch}/gdbserver'),
+        ('shader-tools-{host}', 'shader-tools/{host}'),
         ('gnustl-4.9', 'sources/cxx-stl/gnu-libstdc++/4.9'),
         ('gtest', 'sources/third_party/googletest'),
         ('host-tools-{host}', 'prebuilt/{host}'),
@@ -122,22 +95,25 @@ def get_all_packages(host, arches):
         ('libcxxabi', 'sources/cxx-stl/llvm-libc++abi'),
         ('llvm-{host}', 'toolchains/llvm/prebuilt/{host}'),
         ('native_app_glue', 'sources/android/native_app_glue'),
+        ('ndk-build', 'build'),
         ('ndk_helper', 'sources/android/ndk_helper'),
         ('python-packages', 'python-packages'),
+        ('shaderc', 'sources/third_party/shaderc'),
         ('stlport', 'sources/cxx-stl/stlport'),
         ('system-stl', 'sources/cxx-stl/system'),
+        ('vulkan', 'sources/third_party/vulkan'),
     ]
-
-    if USE_NEW_LAYOUT:
-        packages = new_layout
-    else:
-        packages = old_layout
 
     platforms_path = 'development/ndk/platforms'
     for platform_dir in os.listdir(build_support.android_path(platforms_path)):
         if not platform_dir.startswith('android-'):
             continue
         _, platform_str = platform_dir.split('-')
+
+        # Anything before Ginger Bread is unsupported, so don't ship them.
+        if int(platform_str) < 9:
+            continue
+
         package_name = 'platform-' + platform_str
         install_path = 'platforms/android-' + platform_str
         packages.append((package_name, install_path))
@@ -203,17 +179,16 @@ def extract_all(path, packages, out_dir):
         finally:
             shutil.rmtree(extract_dir)
 
-    if not USE_NEW_LAYOUT:
-        # FIXME(danalbert): OMG HACK
-        # The old package layout had libstdc++'s Android.mk at
-        # sources/cxx-stl/gnu-libstdc++/Android.mk. The gnustl package doesn't
-        # include the version in the path. To mimic the old package layout, we
-        # extract the gnustl package to sources/cxx-stl/gnu-libstdc++/4.9. As
-        # such, the Android.mk ends up in the 4.9 directory. We need to pull it
-        # up a directory.
-        gnustl_path = os.path.join(out_dir, 'sources/cxx-stl/gnu-libstdc++')
-        shutil.move(os.path.join(gnustl_path, '4.9/Android.mk'),
-                    os.path.join(gnustl_path, 'Android.mk'))
+    # FIXME(danalbert): OMG HACK
+    # The old package layout had libstdc++'s Android.mk at
+    # sources/cxx-stl/gnu-libstdc++/Android.mk. The gnustl package doesn't
+    # include the version in the path. To mimic the old package layout, we
+    # extract the gnustl package to sources/cxx-stl/gnu-libstdc++/4.9. As such,
+    # the Android.mk ends up in the 4.9 directory. We need to pull it up a
+    # directory.
+    gnustl_path = os.path.join(out_dir, 'sources/cxx-stl/gnu-libstdc++')
+    shutil.move(os.path.join(gnustl_path, '4.9/Android.mk'),
+                os.path.join(gnustl_path, 'Android.mk'))
 
 
 def make_shortcuts(out_dir, host):
@@ -234,11 +209,13 @@ def make_shortcut(out_dir, host, path, basename, windows_ext=None):
 
 
 def make_cmd_helper(out_dir, path, basename, windows_ext):
+    shortcut_basename = basename
     if windows_ext is not None:
         basename += '.' + windows_ext
+        shortcut_basename += '.cmd'
 
     full_path = ntpath.join('%~dp0', ntpath.normpath(path), basename)
-    with open(os.path.join(out_dir, basename), 'w') as helper:
+    with open(os.path.join(out_dir, shortcut_basename), 'w') as helper:
         helper.writelines([
             '@echo off\n',
             full_path + ' %*\n',
@@ -262,6 +239,8 @@ def make_source_properties(out_dir, build_number):
     path = os.path.join(out_dir, 'source.properties')
     with open(path, 'w') as source_properties:
         version = '{}.{}.{}'.format(config.major, config.hotfix, build_number)
+        if config.beta > 0:
+            version += '-beta{}'.format(config.beta)
         source_properties.writelines([
             'Pkg.Desc = Android NDK\n',
             'Pkg.Revision = {}\n'.format(version)
@@ -278,26 +257,44 @@ def make_package(build_number, package_dir, packages, host, out_dir, temp_dir):
     extract_dir = os.path.join(temp_dir, release_name)
     if os.path.exists(extract_dir):
         shutil.rmtree(extract_dir)
-    extract_all(package_dir, packages, extract_dir)
+
+    extract_timer = build_support.Timer()
+    with extract_timer:
+        extract_all(package_dir, packages, extract_dir)
     make_shortcuts(extract_dir, host)
     make_source_properties(extract_dir, build_number)
     copy_changelog(extract_dir)
 
     host_tag = build_support.host_to_tag(host)
-    package_name = '{}-{}'.format(release_name, host_tag)
+    # The release tooling really wants us to only name packages with the build
+    # number. The release tooling will rename the package as appropriate.
+    # `build_number` will be 0 for local builds. Rename as -dev.
+    package_name = 'android-ndk-{}-{}'.format(build_number or 'dev', host_tag)
     package_path = os.path.join(out_dir, package_name)
     print('Packaging ' + package_name)
     files = os.path.relpath(extract_dir, temp_dir)
 
-    if host.startswith('windows'):
-        _make_zip_package(package_path, temp_dir, files)
-    else:
-        _make_tar_package(package_path, temp_dir, files)
+    package_timer = build_support.Timer()
+    with package_timer:
+        if host.startswith('windows'):
+            _make_zip_package(package_path, temp_dir, files)
+        else:
+            _make_tar_package(package_path, temp_dir, files)
+
+    print('Extracting took {}'.format(extract_timer.duration))
+    print('Packaging took {}'.format(package_timer.duration))
 
 
 def _make_tar_package(package_path, base_dir, files):
-    subprocess.check_call(
-        ['tar', 'cjf', package_path + '.tar.bz2', '-C', base_dir, files])
+    has_pbzip2 = distutils.spawn.find_executable('pbzip2') is not None
+    if has_pbzip2:
+        compress_arg = '--use-compress-prog=pbzip2'
+    else:
+        compress_arg = '-j'
+
+    cmd = ['tar', compress_arg, '-cf',
+           package_path + '.tar.bz2', '-C', base_dir, files]
+    subprocess.check_call(cmd)
 
 
 def _make_zip_package(package_path, base_dir, files):

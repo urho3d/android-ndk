@@ -138,6 +138,18 @@ endif
 
 endif  # 64-/32-bit ABIs
 
+ifneq ($(LIBCXX_FORCE_REBUILD),true) # Using prebuilt
+
+LIBCXX_LIBS := ../../cxx-stl/llvm-libc++/libs/$(TARGET_ARCH_ABI)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := android_support
+LOCAL_SRC_FILES := $(LIBCXX_LIBS)/lib$(LOCAL_MODULE)$(TARGET_LIB_EXTENSION)
+LOCAL_EXPORT_C_INCLUDES := $(android_support_c_includes)
+include $(PREBUILT_STATIC_LIBRARY)
+
+else # Building
+
 # This is only available as a static library for now.
 include $(CLEAR_VARS)
 LOCAL_MODULE := android_support
@@ -163,3 +175,4 @@ LOCAL_EXPORT_CFLAGS := $(android_support_cflags)
 LOCAL_EXPORT_C_INCLUDES := $(android_support_c_includes)
 include $(BUILD_STATIC_LIBRARY)
 
+endif # Prebuilt/building

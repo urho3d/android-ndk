@@ -543,7 +543,7 @@ builder_begin_android ()
     if [ -n "$LLVM_VERSION" ]; then
         GCC_TOOLCHAIN=`dirname $BINPREFIX`
         GCC_TOOLCHAIN=`dirname $GCC_TOOLCHAIN`
-        LLVM_BINPREFIX=$(get_llvm_toolchain_binprefix $LLVM_VERSION $TAG)
+        LLVM_BINPREFIX=$(get_llvm_toolchain_binprefix $TAG)
     fi
 
     if [ -z "$PLATFORM" ]; then
@@ -575,7 +575,7 @@ builder_begin_android ()
             armeabi)
                 LLVM_TRIPLE=armv5te-none-linux-androideabi
                 ;;
-            armeabi-v7a|armeabi-v7a-hard)
+            armeabi-v7a)
                 LLVM_TRIPLE=armv7-none-linux-androideabi
                 ;;
             arm64-v8a)
@@ -636,21 +636,11 @@ builder_begin_android ()
                 builder_cxxflags ""
             fi
             ;;
-        armeabi-v7a|armeabi-v7a-hard)
-            SCRATCH_FLAGS="-march=armv7-a -mfpu=vfpv3-d16"
+        armeabi-v7a)
+            SCRATCH_FLAGS="-march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=softfp"
             builder_cflags "$SCRATCH_FLAGS"
             builder_cxxflags "$SCRATCH_FLAGS"
             builder_ldflags "-march=armv7-a -Wl,--fix-cortex-a8"
-            if [ "$ABI" != "armeabi-v7a-hard" ]; then
-                SCRATCH_FLAGS="-mfloat-abi=softfp"
-                builder_cflags "$SCRATCH_FLAGS"
-                builder_cxxflags "$SCRATCH_FLAGS"
-            else
-                SCRATCH_FLAGS="-mhard-float -D_NDK_MATH_NO_SOFTFP=1"
-                builder_cflags "$SCRATCH_FLAGS"
-                builder_cxxflags "$SCRATCH_FLAGS"
-                builder_ldflags "-Wl,--no-warn-mismatch -lm_hard"
-            fi
             ;;
     esac
 }

@@ -29,9 +29,12 @@ class ArgParser(build_support.ArgParser):
     def __init__(self):  # pylint: disable=super-on-old-class
         super(ArgParser, self).__init__()
 
+        # pylint doesn't know about ArgParser's base because of addsitedir.
+        # pylint: disable=no-member
         self.add_argument(
             '--arch', choices=build_support.ALL_ARCHITECTURES,
             help='Architecture to build. Builds all if not present.')
+        # pylint: enable=no-member
 
 
 def get_gcc_prebuilt_path(host):

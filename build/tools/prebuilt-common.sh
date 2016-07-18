@@ -1242,7 +1242,7 @@ convert_abi_to_arch ()
     local RET
     local ABI=$1
     case $ABI in
-        armeabi|armeabi-v7a|armeabi-v7a-hard)
+        armeabi|armeabi-v7a)
             RET=arm
             ;;
         x86|mips|x86_64|mips64)
@@ -1255,7 +1255,7 @@ convert_abi_to_arch ()
             RET=arm64
             ;;
         *)
-            >&2 echo "ERROR: Unsupported ABI name: $ABI, use one of: armeabi, armeabi-v7a, x86, mips, armeabi-v7a-hard, arm64-v8a, x86_64 or mips64"
+            >&2 echo "ERROR: Unsupported ABI name: $ABI, use one of: armeabi, armeabi-v7a, x86, mips, arm64-v8a, x86_64 or mips64"
             exit 1
             ;;
     esac
@@ -1272,7 +1272,7 @@ convert_arch_to_abi ()
     local ARCH=$1
     case $ARCH in
         arm)
-            RET=armeabi,armeabi-v7a,armeabi-v7a-hard
+            RET=armeabi,armeabi-v7a
             ;;
         x86|x86_64|mips|mips64)
             RET=$ARCH
@@ -1326,14 +1326,14 @@ get_toolchain_binprefix_for_arch ()
 }
 
 # Return llvm toolchain binary path prefix for given llvm version
-# $1: llvm version
-# $2: optional, system name, defaults to $HOST_TAG
+# $1: optional, system name, defaults to $HOST_TAG
 get_llvm_toolchain_binprefix ()
 {
     local NAME DIR BINPREFIX
-    local SYSTEM=${2:-$(get_prebuilt_host_tag)}
+    local SYSTEM=${1:-$(get_prebuilt_host_tag)}
+    local VERSION=2812033
     SYSTEM=${SYSTEM%_64} # Trim _64 suffix. We only have one LLVM.
-    BINPREFIX=$ANDROID_BUILD_TOP/prebuilts/clang/$SYSTEM/host/$1/bin
+    BINPREFIX=$ANDROID_BUILD_TOP/prebuilts/clang/host/$SYSTEM/clang-$VERSION/bin
     echo "$BINPREFIX"
 }
 

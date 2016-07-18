@@ -103,18 +103,22 @@ endif
 # -----------------------------------------------------------------------------
 # Function : host-toolchain-path
 # Arguments: 1: NDK root
+#            2: Toolchain name
 # Returns  : The parent path of all toolchains for this host. Note that
 #            HOST_TAG64 == HOST_TAG for 32-bit systems.
 # -----------------------------------------------------------------------------
-host-toolchain-path = $1/prebuilt/$(HOST_TAG64)
+ifeq ($(NDK_NEW_TOOLCHAINS_LAYOUT),true)
+    host-toolchain-path = $1/$(HOST_TAG64)/$2
+else
+    host-toolchain-path = $1/$2/prebuilt/$(HOST_TAG64)
+endif
 
 # -----------------------------------------------------------------------------
 # Function : get-toolchain-root
-# Arguments: 1: NDK root
-#            2: Toolchain name
+# Arguments: 1: Toolchain name
 # Returns  : Path to the given prebuilt toolchain.
 # -----------------------------------------------------------------------------
-get-toolchain-root = $(call host-toolchain-path,$1/toolchains/$2)
+get-toolchain-root = $(call host-toolchain-path,$(NDK_TOOLCHAINS_ROOT),$1)
 
 # -----------------------------------------------------------------------------
 # Function : get-binutils-root
@@ -515,6 +519,15 @@ $(foreach level,$(NDK_ALL_PLATFORM_LEVELS),\
 
 $(call ndk_log,Found max platform level: $(NDK_MAX_PLATFORM_LEVEL))
 
+# Allow the user to point at an alternate location for the toolchains. This is
+# particularly helpful if we want to use prebuilt toolchains for building an NDK
+# module. Specifically, we use this to build libc++ using ndk-build instead of
+# the old build-cxx-stl.sh and maintaining two sets of build rules.
+NDK_TOOLCHAINS_ROOT := $(strip $(NDK_TOOLCHAINS_ROOT))
+ifndef NDK_TOOLCHAINS_ROOT
+    NDK_TOOLCHAINS_ROOT := $(strip $(NDK_ROOT)/toolchains)
+endif
+
 # ====================================================================
 #
 # Read all toolchain-specific configuration files.
@@ -538,8 +551,8 @@ ADD_TOOLCHAIN := $(BUILD_SYSTEM)/add-toolchain.mk
 NDK_KNOWN_DEVICE_ABI64S := arm64-v8a x86_64 mips64
 NDK_KNOWN_DEVICE_ABI32S := armeabi-v7a armeabi x86 mips
 NDK_KNOWN_DEVICE_ABIS := $(NDK_KNOWN_DEVICE_ABI64S) $(NDK_KNOWN_DEVICE_ABI32S)
-NDK_KNOWN_ABIS     := armeabi-v7a-hard $(NDK_KNOWN_DEVICE_ABIS)
-NDK_KNOWN_ABI32S   := armeabi-v7a-hard $(NDK_KNOWN_DEVICE_ABI32S)
+NDK_KNOWN_ABIS     := $(NDK_KNOWN_DEVICE_ABIS)
+NDK_KNOWN_ABI32S   := $(NDK_KNOWN_DEVICE_ABI32S)
 NDK_KNOWN_ARCHS    := arm x86 mips arm64 x86_64 mips64
 _archs := $(sort $(strip $(notdir $(wildcard $(NDK_PLATFORMS_ROOT)/android-*/arch-*))))
 NDK_FOUND_ARCHS    := $(_archs:arch-%=%)
@@ -579,6 +592,8 @@ $(foreach _config_mk,$(TOOLCHAIN_CONFIGS),\
 NDK_ALL_TOOLCHAINS   := $(sort $(NDK_ALL_TOOLCHAINS))
 NDK_ALL_ABIS         := $(sort $(NDK_ALL_ABIS))
 NDK_ALL_ARCHS        := $(sort $(NDK_ALL_ARCHS))
+
+NDK_DEFAULT_ABIS := all
 
 # Check that each ABI has a single architecture definition
 $(foreach _abi,$(strip $(NDK_ALL_ABIS)),\

@@ -338,6 +338,9 @@ compute_host_tag ()
         windows-x86|cygwin-x86)
             HOST_TAG="windows"
             ;;
+        cygwin-x86_64)
+            HOST_TAG="windows-x86_64"
+            ;;
     esac
     log "HOST_TAG=$HOST_TAG"
 }
@@ -725,7 +728,7 @@ pack_archive ()
     mkdir -p `dirname $ARCHIVE`
 
     TARFLAGS="--exclude='*.py[cod]' --exclude='*.swp' --exclude=.git --exclude=.gitignore -cf"
-    ZIPFLAGS="-x *.git* -x *.pyc -x *.pyo -9qr"
+    ZIPFLAGS="-x *.git* -x *.pyc -x *.pyo -0qr"
     # Ensure symlinks are stored as is in zip files. for toolchains
     # this can save up to 7 MB in the size of the final archive
     #ZIPFLAGS="$ZIPFLAGS --symlinks"
@@ -817,7 +820,7 @@ copy_file_list ()
     log "Copying file: $@"
     log "  from $SRCDIR"
     log "  to $DSTDIR"
-    mkdir -p "$DSTDIR" && (cd "$SRCDIR" && (echo $@ | tr ' ' '\n' | tar cf - -T -)) | (tar xf - -C "$DSTDIR")
+    mkdir -p "$DSTDIR" && (cd "$SRCDIR" && (echo $@ | tr ' ' '\n' | tar hcf - -T -)) | (tar xf - -C "$DSTDIR")
     fail_panic "Cannot copy files to directory: $DSTDIR"
 }
 

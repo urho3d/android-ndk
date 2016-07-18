@@ -1,0 +1,5 @@
+platform/external/shaderc/glslang c1ccd4bf91d665a19c7ed2694fe65bf1738a6845
+platform/external/shaderc/shaderc 08f8e49598711f107422b6027c26d6957a241e1d
+platform/external/shaderc/spirv-tools ed0b8866c47b26c9fe2a728b73392f6baefa2158
+platform/external/vulkan-validation-layers 99341848129a0a17e024a7395aac6fa8eec9b578
+platform/manifest f401c123ef705aca5045ebea26b5e5dbe66ec1ee

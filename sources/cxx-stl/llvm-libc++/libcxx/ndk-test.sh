@@ -1,5 +1,7 @@
 #!/bin/bash
 
+THIS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 if [ -z "$NDK" ]; then
     >&2 echo "Error: $$NDK must be set in your environment."
     exit 1
@@ -44,6 +46,7 @@ esac
 
 HOST_TAG=linux-x86_64
 
+LIT=$THIS_DIR/../../../../../external/llvm/utils/lit/lit.py
 LIT_ARGS=${@:2}
 
 LIBCXX_DIR=$NDK/sources/cxx-stl/llvm-libc++/libcxx
@@ -52,4 +55,4 @@ sed -e "s:%ABI%:$ABI:g" -e "s:%TRIPLE%:$TRIPLE:g" \
     $LIBCXX_DIR/test/lit.ndk.cfg.in > $LIBCXX_DIR/test/lit.site.cfg
 
 adb push $LIBCXX_DIR/../libs/$ABI/libc++_shared.so /data/local/tmp
-lit -sv $LIT_ARGS $LIBCXX_DIR/test
+$LIT -sv $LIT_ARGS $LIBCXX_DIR/test

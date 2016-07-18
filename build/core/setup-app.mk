@@ -46,12 +46,10 @@ $(call __ndk_warning,WARNING: android-L is renamed as android-21)
 TARGET_PLATFORM := android-21
 endif
 
-
 # The ABI(s) to use
 NDK_APP_ABI := $(subst $(comma),$(space),$(strip $(NDK_APP_ABI)))
 ifndef NDK_APP_ABI
-    # the default ABI for now is armeabi
-    NDK_APP_ABI := armeabi
+    NDK_APP_ABI := $(NDK_DEFAULT_ABIS)
 endif
 
 NDK_ABI_FILTER := $(strip $(NDK_ABI_FILTER))
@@ -113,6 +111,10 @@ else
     # check the target ABIs for this application
     _bad_abis = $(strip $(filter-out $(NDK_ALL_ABIS),$(NDK_APP_ABI)))
     ifneq ($(_bad_abis),)
+        ifneq ($(filter $(_bad_abis),armeabi-v7a-hard),)
+            $(call __ndk_info,armeabi-v7a-hard is no longer supported. Use armeabi-v7a.)
+            $(call __ndk_info,See https://android.googlesource.com/platform/ndk/+/master/docs/HardFloatAbi.md)
+        endif
         $(call __ndk_info,NDK Application '$(_app)' targets unknown ABI(s): $(_bad_abis))
         $(call __ndk_info,Please fix the APP_ABI definition in $(NDK_APP_APPLICATION_MK))
         $(call __ndk_error,Aborting)
@@ -136,7 +138,7 @@ endif
 
 # Renderscript
 
-RENDERSCRIPT_TOOLCHAIN_PREBUILT_ROOT := $(call get-toolchain-root,$(NDK_ROOT),renderscript)
+RENDERSCRIPT_TOOLCHAIN_PREBUILT_ROOT := $(call get-toolchain-root,renderscript)
 RENDERSCRIPT_TOOLCHAIN_PREFIX := $(RENDERSCRIPT_TOOLCHAIN_PREBUILT_ROOT)/bin/
 RENDERSCRIPT_TOOLCHAIN_HEADER := $(RENDERSCRIPT_TOOLCHAIN_PREBUILT_ROOT)/lib/clang/3.5/include
 

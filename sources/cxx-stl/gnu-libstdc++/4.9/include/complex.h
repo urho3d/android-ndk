@@ -39,7 +39,7 @@
 // <complex.h> is defined to provide only what C++11's <ccomplex> does in a
 // different namespace.
 #ifdef _GLIBCXX_COMPLEX
-# error Cannot include both <complex> and C99's <complex.h>
+# error "Cannot include both <complex> and C99 <complex.h>"
 #endif
 
 // Delegate to a system complex.h if we don't provide it as part of the C++

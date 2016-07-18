@@ -76,21 +76,19 @@ class ArgumentParser(gdbrunner.ArgumentParser):
 
         start_group.add_argument(
             "--attach", nargs='?', dest="package_name", metavar="PKG_NAME",
-            help="attach to application. PKG_NAME to attach to can optionally be specified.")
+            help="attach to application (default)\n"
+                 "autodetects PKG_NAME if not specified")
 
+        # NB: args.launch can be False (--attach), None (--launch), or a string
         start_group.add_argument(
-            "--launch", action="store_true", dest="launch",
-            help="launch application activity (defaults to main activity, "
-                 "configurable with --launch-activity)")
+            "--launch", nargs='?', dest="launch", default=False,
+            metavar="ACTIVITY",
+            help="launch application activity\n"
+                 "launches main activity if ACTIVITY not specified")
 
         start_group.add_argument(
             "--launch-list", action="store_true",
             help="list all launchable activity names from manifest")
-
-        app_group.add_argument(
-            "--launch-activity", action="store", metavar="ACTIVITY",
-            dest="launch_target", help="launch specified application activity")
-
 
         debug_group = self.add_argument_group("debugging options")
         debug_group.add_argument(
@@ -102,9 +100,14 @@ class ArgumentParser(gdbrunner.ArgumentParser):
             help="do not wait for debugger to attach (may miss early JNI "
                  "breakpoints)")
 
+        if sys.platform.startswith("win"):
+            tui_help = argparse.SUPPRESS
+        else:
+            tui_help = "use GDB's tui mode"
+
         debug_group.add_argument(
             "-t", "--tui", action="store_true", dest="tui",
-            help="use GDB's tui mode")
+            help=tui_help)
 
         debug_group.add_argument(
             "--stdcxx-py-pr", dest="stdcxxpypr",
@@ -180,6 +183,10 @@ def handle_args():
     paths = os.environ["PATH"].replace('"', '').split(os.pathsep)
 
     args = ArgumentParser().parse_args()
+
+    if args.tui and sys.platform.startswith("win"):
+        error("TUI is unsupported on Windows.")
+
     ndk_bin = ndk_bin_path()
     args.make_cmd = find_program("make", [ndk_bin])
     args.jdb_cmd = find_program("jdb", paths)
@@ -253,25 +260,25 @@ def parse_manifest(args):
 
 
 def select_target(args):
-    assert args.launch
+    assert args.launch != False
+
     if len(args.activities) == 0:
         error("No launchable activities found.")
 
-    if args.launch_target is None:
-        args.launch_target = args.activities[0]
+    if args.launch is None:
+        target = args.activities[0]
 
         if len(args.activities) > 1:
             print("WARNING: Multiple launchable activities found, choosing"
                   " '{}'.".format(args.activities[0]))
     else:
-        canonicalize = canonicalize_activity(args.package_name)
-        activity_name = canonicalize(args.launch_target)
+        activity_name = canonicalize_activity(args.package_name, args.launch)
 
         if activity_name not in args.activities:
             msg = "Could not find launchable activity: '{}'."
             error(msg.format(activity_name))
-        args.launch_target = activity_name
-    return args.launch_target
+        target = activity_name
+    return target
 
 
 @contextlib.contextmanager
@@ -336,10 +343,11 @@ def fetch_abi(args):
     if len(set(new_abi_props).intersection(device_props.keys())) == 0:
         abi_props = old_abi_props
 
-    device_abis = [device_props[key].split(",") for key in abi_props]
+    device_abis = []
+    for key in abi_props:
+        if key in device_props:
+            device_abis.extend(device_props[key].split(","))
 
-    # Flatten the list.
-    device_abis = reduce(operator.add, device_abis)
     device_abis_msg = "Device ABIs: {}".format(", ".join(device_abis))
     log(device_abis_msg)
 
@@ -600,8 +608,8 @@ def main():
     if args.launch is False:
         log("Attaching to existing application process.")
     else:
-        launch_target = select_target(args)
-        log("Selected target activity: '{}'".format(launch_target))
+        args.launch = select_target(args)
+        log("Selected target activity: '{}'".format(args.launch))
 
     abi = fetch_abi(args)
 
@@ -633,7 +641,7 @@ def main():
         am_cmd = ["am", "start"]
         if not args.nowait:
             am_cmd.append("-D")
-        component_name = "{}/{}".format(pkg_name, launch_target)
+        component_name = "{}/{}".format(pkg_name, args.launch)
         am_cmd.append(component_name)
         log("Launching activity {}...".format(component_name))
         (rc, _, _) = device.shell_nocheck(am_cmd)

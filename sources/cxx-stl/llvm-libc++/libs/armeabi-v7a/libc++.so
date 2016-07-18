@@ -1,0 +1,1 @@
+INPUT(-lc++abi -landroid_support -lunwind -latomic -lc++_shared)
