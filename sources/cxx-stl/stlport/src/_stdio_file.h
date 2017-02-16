@@ -102,6 +102,10 @@ inline int _FILE_fd(const FILE *__f) { return __f->_handle; }
 /* the prototypes are taken from LynxOS patch for STLport 4.0 */
 inline int _FILE_fd(const FILE *__f) { return __f->_fd; }
 
+#elif defined (__ANDROID__)
+
+inline int _FILE_fd(const FILE *__f) { return fileno(const_cast<FILE *>(__f)); }
+
 #else  /* The most common access to file descriptor. */
 
 inline int _FILE_fd(const FILE *__f) { return __f->_file; }

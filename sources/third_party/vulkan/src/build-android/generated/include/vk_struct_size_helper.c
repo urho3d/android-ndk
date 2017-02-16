@@ -8,24 +8,17 @@
  * Copyright (c) 2015-2016 LunarG, Inc.
  * Copyright (c) 2015-2016 Google Inc.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Materials"),
- * to deal in the Materials without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Materials, and to permit persons to whom the
- * Materials is furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Materials.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- *
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE MATERIALS OR THE
- * USE OR OTHER DEALINGS IN THE MATERIALS
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
  * Author: Tobin Ehlis <tobin@lunarg.com>
@@ -43,6 +36,17 @@ size_t vk_size_vkallocationcallbacks(const VkAllocationCallbacks* pStruct)
     }
     return structSize;
 }
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+size_t vk_size_vkandroidsurfacecreateinfokhr(const VkAndroidSurfaceCreateInfoKHR* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkAndroidSurfaceCreateInfoKHR);
+        structSize += sizeof(ANativeWindow);
+    }
+    return structSize;
+}
+#endif //VK_USE_PLATFORM_ANDROID_KHR
 size_t vk_size_vkapplicationinfo(const VkApplicationInfo* pStruct)
 {
     size_t structSize = 0;
@@ -227,11 +231,62 @@ size_t vk_size_vkcopydescriptorset(const VkCopyDescriptorSet* pStruct)
     }
     return structSize;
 }
+size_t vk_size_vkdebugmarkermarkerinfoext(const VkDebugMarkerMarkerInfoEXT* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkDebugMarkerMarkerInfoEXT);
+        structSize += (pStruct->pMarkerName != NULL) ? sizeof(char)*(1+strlen(pStruct->pMarkerName)) : 0;
+    }
+    return structSize;
+}
+size_t vk_size_vkdebugmarkerobjectnameinfoext(const VkDebugMarkerObjectNameInfoEXT* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkDebugMarkerObjectNameInfoEXT);
+        structSize += (pStruct->pObjectName != NULL) ? sizeof(char)*(1+strlen(pStruct->pObjectName)) : 0;
+    }
+    return structSize;
+}
+size_t vk_size_vkdebugmarkerobjecttaginfoext(const VkDebugMarkerObjectTagInfoEXT* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkDebugMarkerObjectTagInfoEXT);
+        structSize += pStruct->tagSize;
+    }
+    return structSize;
+}
 size_t vk_size_vkdebugreportcallbackcreateinfoext(const VkDebugReportCallbackCreateInfoEXT* pStruct)
 {
     size_t structSize = 0;
     if (pStruct) {
         structSize = sizeof(VkDebugReportCallbackCreateInfoEXT);
+    }
+    return structSize;
+}
+size_t vk_size_vkdedicatedallocationbuffercreateinfonv(const VkDedicatedAllocationBufferCreateInfoNV* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkDedicatedAllocationBufferCreateInfoNV);
+    }
+    return structSize;
+}
+size_t vk_size_vkdedicatedallocationimagecreateinfonv(const VkDedicatedAllocationImageCreateInfoNV* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkDedicatedAllocationImageCreateInfoNV);
+    }
+    return structSize;
+}
+size_t vk_size_vkdedicatedallocationmemoryallocateinfonv(const VkDedicatedAllocationMemoryAllocateInfoNV* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkDedicatedAllocationMemoryAllocateInfoNV);
     }
     return structSize;
 }
@@ -426,6 +481,25 @@ size_t vk_size_vkeventcreateinfo(const VkEventCreateInfo* pStruct)
     }
     return structSize;
 }
+size_t vk_size_vkexportmemoryallocateinfonv(const VkExportMemoryAllocateInfoNV* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkExportMemoryAllocateInfoNV);
+    }
+    return structSize;
+}
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+size_t vk_size_vkexportmemorywin32handleinfonv(const VkExportMemoryWin32HandleInfoNV* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkExportMemoryWin32HandleInfoNV);
+        structSize += sizeof(SECURITY_ATTRIBUTES);
+    }
+    return structSize;
+}
+#endif //VK_USE_PLATFORM_WIN32_KHR
 size_t vk_size_vkextensionproperties(const VkExtensionProperties* pStruct)
 {
     size_t structSize = 0;
@@ -447,6 +521,22 @@ size_t vk_size_vkextent3d(const VkExtent3D* pStruct)
     size_t structSize = 0;
     if (pStruct) {
         structSize = sizeof(VkExtent3D);
+    }
+    return structSize;
+}
+size_t vk_size_vkexternalimageformatpropertiesnv(const VkExternalImageFormatPropertiesNV* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkExternalImageFormatPropertiesNV);
+    }
+    return structSize;
+}
+size_t vk_size_vkexternalmemoryimagecreateinfonv(const VkExternalMemoryImageCreateInfoNV* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkExternalMemoryImageCreateInfoNV);
     }
     return structSize;
 }
@@ -577,6 +667,16 @@ size_t vk_size_vkimageviewcreateinfo(const VkImageViewCreateInfo* pStruct)
     }
     return structSize;
 }
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+size_t vk_size_vkimportmemorywin32handleinfonv(const VkImportMemoryWin32HandleInfoNV* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkImportMemoryWin32HandleInfoNV);
+    }
+    return structSize;
+}
+#endif //VK_USE_PLATFORM_WIN32_KHR
 size_t vk_size_vkinstancecreateinfo(const VkInstanceCreateInfo* pStruct)
 {
     size_t structSize = 0;
@@ -649,6 +749,18 @@ size_t vk_size_vkmemorytype(const VkMemoryType* pStruct)
     }
     return structSize;
 }
+#ifdef VK_USE_PLATFORM_MIR_KHR
+size_t vk_size_vkmirsurfacecreateinfokhr(const VkMirSurfaceCreateInfoKHR* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkMirSurfaceCreateInfoKHR);
+        structSize += sizeof(MirConnection);
+        structSize += sizeof(MirSurface);
+    }
+    return structSize;
+}
+#endif //VK_USE_PLATFORM_MIR_KHR
 size_t vk_size_vkoffset2d(const VkOffset2D* pStruct)
 {
     size_t structSize = 0;
@@ -787,6 +899,14 @@ size_t vk_size_vkpipelinerasterizationstatecreateinfo(const VkPipelineRasterizat
     size_t structSize = 0;
     if (pStruct) {
         structSize = sizeof(VkPipelineRasterizationStateCreateInfo);
+    }
+    return structSize;
+}
+size_t vk_size_vkpipelinerasterizationstaterasterizationorderamd(const VkPipelineRasterizationStateRasterizationOrderAMD* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkPipelineRasterizationStateRasterizationOrderAMD);
     }
     return structSize;
 }
@@ -1132,6 +1252,43 @@ size_t vk_size_vkviewport(const VkViewport* pStruct)
     }
     return structSize;
 }
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+size_t vk_size_vkwaylandsurfacecreateinfokhr(const VkWaylandSurfaceCreateInfoKHR* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkWaylandSurfaceCreateInfoKHR);
+        structSize += sizeof(struct wl_display);
+        structSize += sizeof(struct wl_surface);
+    }
+    return structSize;
+}
+#endif //VK_USE_PLATFORM_WAYLAND_KHR
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+size_t vk_size_vkwin32keyedmutexacquirereleaseinfonv(const VkWin32KeyedMutexAcquireReleaseInfoNV* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkWin32KeyedMutexAcquireReleaseInfoNV);
+        structSize += pStruct->acquireCount*sizeof(VkDeviceMemory);
+        structSize += pStruct->acquireCount*sizeof(uint64_t);
+        structSize += pStruct->acquireCount*sizeof(uint32_t);
+        structSize += pStruct->releaseCount*sizeof(VkDeviceMemory);
+        structSize += pStruct->releaseCount*sizeof(uint64_t);
+    }
+    return structSize;
+}
+#endif //VK_USE_PLATFORM_WIN32_KHR
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+size_t vk_size_vkwin32surfacecreateinfokhr(const VkWin32SurfaceCreateInfoKHR* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkWin32SurfaceCreateInfoKHR);
+    }
+    return structSize;
+}
+#endif //VK_USE_PLATFORM_WIN32_KHR
 size_t vk_size_vkwritedescriptorset(const VkWriteDescriptorSet* pStruct)
 {
     size_t structSize = 0;
@@ -1148,6 +1305,7 @@ size_t vk_size_vkwritedescriptorset(const VkWriteDescriptorSet* pStruct)
     }
     return structSize;
 }
+#ifdef VK_USE_PLATFORM_XCB_KHR
 size_t vk_size_vkxcbsurfacecreateinfokhr(const VkXcbSurfaceCreateInfoKHR* pStruct)
 {
     size_t structSize = 0;
@@ -1156,7 +1314,19 @@ size_t vk_size_vkxcbsurfacecreateinfokhr(const VkXcbSurfaceCreateInfoKHR* pStruc
     }
     return structSize;
 }
-// CODEGEN : file ../vk_helper.py line #1454
+#endif //VK_USE_PLATFORM_XCB_KHR
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+size_t vk_size_vkxlibsurfacecreateinfokhr(const VkXlibSurfaceCreateInfoKHR* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkXlibSurfaceCreateInfoKHR);
+        structSize += sizeof(Display);
+    }
+    return structSize;
+}
+#endif //VK_USE_PLATFORM_XLIB_KHR
+// CODEGEN : file ../vk_helper.py line #1441
 size_t get_struct_chain_size(const void* pStruct)
 {
     // Just use VkApplicationInfo as struct until actual type is resolved
@@ -1407,7 +1577,7 @@ size_t get_struct_chain_size(const void* pStruct)
     }
     return structSize;
 }
-// CODEGEN : file ../vk_helper.py line #1454
+// CODEGEN : file ../vk_helper.py line #1441
 size_t get_dynamic_struct_size(const void* pStruct)
 {
     // Just use VkApplicationInfo as struct until actual type is resolved

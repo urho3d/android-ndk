@@ -145,7 +145,6 @@ LIBCXX_LIBS := ../../cxx-stl/llvm-libc++/libs/$(TARGET_ARCH_ABI)
 include $(CLEAR_VARS)
 LOCAL_MODULE := android_support
 LOCAL_SRC_FILES := $(LIBCXX_LIBS)/lib$(LOCAL_MODULE)$(TARGET_LIB_EXTENSION)
-LOCAL_EXPORT_C_INCLUDES := $(android_support_c_includes)
 include $(PREBUILT_STATIC_LIBRARY)
 
 else # Building
@@ -167,12 +166,12 @@ LOCAL_CFLAGS += \
   -Wno-shift-op-parentheses \
   -Wno-string-plus-int \
   -Wno-dangling-else \
-  -Wno-bitwise-op-parentheses
+  -Wno-bitwise-op-parentheses \
+  -Wno-shift-negative-value
 endif
 
 LOCAL_CFLAGS += $(android_support_cflags)
 LOCAL_EXPORT_CFLAGS := $(android_support_cflags)
-LOCAL_EXPORT_C_INCLUDES := $(android_support_c_includes)
 include $(BUILD_STATIC_LIBRARY)
 
 endif # Prebuilt/building

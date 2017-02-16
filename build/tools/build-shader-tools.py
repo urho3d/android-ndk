@@ -52,6 +52,7 @@ def main(args):
     source_root = os.path.join(build_support.android_path(), 'external',
                                'shaderc')
     shaderc_shaderc_dir = os.path.join(source_root, 'shaderc')
+    spirv_headers_dir = os.path.join(source_root, 'spirv-headers')
 
     cmake = os.path.join(build_support.android_path(),
                          'prebuilts', 'cmake', build_host_tag, 'bin', 'cmake')
@@ -89,19 +90,30 @@ def main(args):
         except:
             pass
 
-    build_support.merge_license_files(os.path.join(package_src, 'NOTICE'), [
+    # Create the NOTICE file.
+    license_files = [
         os.path.join(shaderc_shaderc_dir, 'LICENSE'),
         os.path.join(shaderc_shaderc_dir,
                      'third_party',
                      'LICENSE.spirv-tools'),
         os.path.join(shaderc_shaderc_dir,
                      'third_party',
-                     'LICENSE.glslang')])
+                     'LICENSE.glslang'),
+    ]
+    # The SPIRV-Headers might not have landed just yet.  Use its
+    # license file if it exists.
+    spirv_headers_license = os.path.join(spirv_headers_dir, 'LICENSE')
+    if os.path.exists(spirv_headers_license):
+        license_files.append(spirv_headers_license)
+
+    build_support.merge_license_files(os.path.join(package_src, 'NOTICE'),
+                                      license_files)
 
     cmake_command = [cmake, '-GNinja', '-DCMAKE_MAKE_PROGRAM=' + ninja,
                      '-DCMAKE_BUILD_TYPE=Release',
                      '-DCMAKE_INSTALL_PREFIX=' + install_dir,
                      '-DSHADERC_THIRD_PARTY_ROOT_DIR=' + source_root,
+                     '-DSPIRV-Headers_SOURCE_DIR=' + spirv_headers_dir,
                      gtest_cmd,
                      shaderc_shaderc_dir]
 

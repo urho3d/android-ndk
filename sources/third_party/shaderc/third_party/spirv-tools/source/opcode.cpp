@@ -1,28 +1,16 @@
 // Copyright (c) 2015-2016 The Khronos Group Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and/or associated documentation files (the
-// "Materials"), to deal in the Materials without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Materials, and to
-// permit persons to whom the Materials are furnished to do so, subject to
-// the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Materials.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// MODIFICATIONS TO THIS FILE MAY MEAN IT NO LONGER ACCURATELY REFLECTS
-// KHRONOS STANDARDS. THE UNMODIFIED, NORMATIVE VERSIONS OF KHRONOS
-// SPECIFICATIONS AND HEADER INFORMATION ARE LOCATED AT
-//    https://www.khronos.org/registry/
-//
-// THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "opcode.h"
 
@@ -32,6 +20,7 @@
 #include <cstdlib>
 
 #include "instruction.h"
+#include "macro.h"
 #include "spirv-tools/libspirv.h"
 #include "spirv_constant.h"
 #include "spirv_endian.h"
@@ -40,15 +29,11 @@ namespace {
 
 // Descriptions of each opcode.  Each entry describes the format of the
 // instruction that follows a particular opcode.
-//
-// Most fields are initialized statically by including an automatically
-// generated file.
-// The operandTypes fields are initialized during spvOpcodeInitialize().
-//
-// TODO(dneto): Some of the macros are quite unreadable.  We could make
-// good use of constexpr functions, but some compilers don't support that yet.
-const spv_opcode_desc_t opcodeTableEntries[] = {
-#include "core.insts.inc"
+const spv_opcode_desc_t opcodeTableEntries_1_0[] = {
+#include "core.insts-1.0.inc"
+};
+const spv_opcode_desc_t opcodeTableEntries_1_1[] = {
+#include "core.insts-1.1.inc"
 };
 
 }  // anonymous namespace
@@ -92,21 +77,33 @@ void spvOpcodeSplit(const uint32_t word, uint16_t* pWordCount,
   }
 }
 
-// Evaluates to the number of elements of array A.
-// If we could use constexpr, then we could make this a template function.
-// If the source arrays were std::array, then we could have used
-// std::array::size.
-#define ARRAY_SIZE(A) (static_cast<uint32_t>(sizeof(A) / sizeof(A[0])))
-
-spv_result_t spvOpcodeTableGet(spv_opcode_table* pInstTable) {
+spv_result_t spvOpcodeTableGet(spv_opcode_table* pInstTable,
+                               spv_target_env env) {
   if (!pInstTable) return SPV_ERROR_INVALID_POINTER;
 
-  static const spv_opcode_table_t table = {ARRAY_SIZE(opcodeTableEntries),
-                                           opcodeTableEntries};
+  static const spv_opcode_table_t table_1_0 = {
+      ARRAY_SIZE(opcodeTableEntries_1_0), opcodeTableEntries_1_0};
+  static const spv_opcode_table_t table_1_1 = {
+      ARRAY_SIZE(opcodeTableEntries_1_1), opcodeTableEntries_1_1};
 
-  *pInstTable = &table;
-
-  return SPV_SUCCESS;
+  switch (env) {
+    case SPV_ENV_UNIVERSAL_1_0:
+    case SPV_ENV_VULKAN_1_0:
+    case SPV_ENV_OPENCL_2_1:
+    case SPV_ENV_OPENGL_4_0:
+    case SPV_ENV_OPENGL_4_1:
+    case SPV_ENV_OPENGL_4_2:
+    case SPV_ENV_OPENGL_4_3:
+    case SPV_ENV_OPENGL_4_5:
+      *pInstTable = &table_1_0;
+      return SPV_SUCCESS;
+    case SPV_ENV_UNIVERSAL_1_1:
+    case SPV_ENV_OPENCL_2_2:
+      *pInstTable = &table_1_1;
+      return SPV_SUCCESS;
+  }
+  assert(0 && "Unknown spv_target_env in spvOpcodeTableGet()");
+  return SPV_ERROR_INVALID_TABLE;
 }
 
 spv_result_t spvOpcodeTableNameLookup(const spv_opcode_table table,
@@ -150,10 +147,6 @@ spv_result_t spvOpcodeTableValueLookup(const spv_opcode_table table,
   return SPV_ERROR_INVALID_LOOKUP;
 }
 
-int32_t spvOpcodeRequiresCapabilities(spv_opcode_desc entry) {
-  return entry->capabilities != 0;
-}
-
 void spvInstructionCopy(const uint32_t* words, const SpvOp opcode,
                         const uint16_t wordCount, const spv_endianness_t endian,
                         spv_instruction_t* pInst) {
@@ -172,10 +165,11 @@ void spvInstructionCopy(const uint32_t* words, const SpvOp opcode,
 }
 
 const char* spvOpcodeString(const SpvOp opcode) {
-  for (uint32_t i = 0;
-       i < sizeof(opcodeTableEntries) / sizeof(spv_opcode_desc_t); ++i) {
-    if (opcodeTableEntries[i].opcode == opcode)
-      return opcodeTableEntries[i].name;
+  // Use the latest SPIR-V version, which should be backward-compatible with all
+  // previous ones.
+  for (uint32_t i = 0; i < ARRAY_SIZE(opcodeTableEntries_1_1); ++i) {
+    if (opcodeTableEntries_1_1[i].opcode == opcode)
+      return opcodeTableEntries_1_1[i].name;
   }
   assert(0 && "Unreachable!");
   return "unknown";
@@ -211,6 +205,10 @@ int32_t spvOpcodeIsConstant(const SpvOp opcode) {
   }
 }
 
+bool spvOpcodeIsConstantOrUndef(const SpvOp opcode) {
+  return opcode == SpvOpUndef || spvOpcodeIsConstant(opcode);
+}
+
 int32_t spvOpcodeIsComposite(const SpvOp opcode) {
   switch (opcode) {
     case SpvOpTypeVector:
@@ -223,14 +221,14 @@ int32_t spvOpcodeIsComposite(const SpvOp opcode) {
   }
 }
 
-int32_t spvOpcodeIsPointer(const SpvOp opcode) {
+int32_t spvOpcodeReturnsLogicalPointer(const SpvOp opcode) {
   switch (opcode) {
     case SpvOpVariable:
     case SpvOpAccessChain:
-    case SpvOpPtrAccessChain:
     case SpvOpInBoundsAccessChain:
-    case SpvOpInBoundsPtrAccessChain:
     case SpvOpFunctionParameter:
+    case SpvOpImageTexelPointer:
+    case SpvOpCopyObject:
       return true;
     default:
       return false;

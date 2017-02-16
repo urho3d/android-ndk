@@ -12,6 +12,7 @@ LOCAL_EXPORT_C_INCLUDES:=$(GLSLANG_LOCAL_PATH)
 LOCAL_SRC_FILES:= \
 	SPIRV/GlslangToSpv.cpp \
 	SPIRV/InReadableOrder.cpp \
+	SPIRV/Logger.cpp \
 	SPIRV/SPVRemapper.cpp \
 	SPIRV/SpvBuilder.cpp \
 	SPIRV/disassemble.cpp \
@@ -46,8 +47,11 @@ LOCAL_MODULE:=HLSL
 LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti
 LOCAL_SRC_FILES:= \
 		hlsl/hlslGrammar.cpp \
+		hlsl/hlslOpMap.cpp \
+		hlsl/hlslParseables.cpp \
 		hlsl/hlslParseHelper.cpp \
-		hlsl/hlslScanContext.cpp
+		hlsl/hlslScanContext.cpp \
+		hlsl/hlslTokenStream.cpp
 LOCAL_C_INCLUDES:=$(GLSLANG_LOCAL_PATH) \
 	$(GLSLANG_LOCAL_PATH)/hlsl
 include $(BUILD_STATIC_LIBRARY)
@@ -74,8 +78,10 @@ LOCAL_SRC_FILES:= \
 		glslang/MachineIndependent/limits.cpp \
 		glslang/MachineIndependent/linkValidate.cpp \
 		glslang/MachineIndependent/parseConst.cpp \
+		glslang/MachineIndependent/ParseContextBase.cpp \
 		glslang/MachineIndependent/ParseHelper.cpp \
 		glslang/MachineIndependent/PoolAlloc.cpp \
+		glslang/MachineIndependent/propagateNoContraction.cpp \
 		glslang/MachineIndependent/reflection.cpp \
 		glslang/MachineIndependent/RemoveTree.cpp \
 		glslang/MachineIndependent/Scan.cpp \
@@ -100,34 +106,63 @@ include $(BUILD_STATIC_LIBRARY)
 SPVTOOLS_LOCAL_PATH := $(THIRD_PARTY_PATH)/spirv-tools
 LOCAL_PATH := $(SPVTOOLS_LOCAL_PATH)
 SPVTOOLS_OUT_PATH=$(abspath $(TARGET_OUT))
+SPVHEADERS_LOCAL_PATH := $(THIRD_PARTY_PATH)/spirv-tools/external/spirv-headers
+
+# Locations of grammar files.
+SPV_CORE10_GRAMMAR=$(SPVHEADERS_LOCAL_PATH)/include/spirv/1.0/spirv.core.grammar.json
+SPV_CORE11_GRAMMAR=$(SPVHEADERS_LOCAL_PATH)/include/spirv/1.1/spirv.core.grammar.json
+SPV_GLSL_GRAMMAR=$(SPVHEADERS_LOCAL_PATH)/include/spirv/1.0/extinst.glsl.std.450.grammar.json
+# OpenCL grammar has not yet been published to SPIRV-Headers
+SPV_OPENCL_GRAMMAR=$(SPVTOOLS_LOCAL_PATH)/source/extinst-1.0.opencl.std.grammar.json
 
 define gen_spvtools_grammar_tables
-$(call generate-file-dir,$(1)/core.insts.inc)
-$(1)/core.insts.inc $(1)/operand.kinds.inc $(1)/glsl.std.450.insts.inc $(1)/opencl.std.insts.inc: \
+$(call generate-file-dir,$(1)/core.insts-1.0.inc)
+$(1)/core.insts-1.0.inc $(1)/operand.kinds-1.0.inc $(1)/glsl.std.450.insts-1.0.inc $(1)/opencl.std.insts-1.0.inc: \
         $(SPVTOOLS_LOCAL_PATH)/utils/generate_grammar_tables.py \
-        $(SPVTOOLS_LOCAL_PATH)/source/spirv.core.grammar.json \
-        $(SPVTOOLS_LOCAL_PATH)/source/extinst.glsl.std.450.grammar.json \
-        $(SPVTOOLS_LOCAL_PATH)/source/extinst.opencl.std.grammar.json
+        $(SPV_CORE10_GRAMMAR) \
+        $(SPV_GLSL_GRAMMAR) \
+        $(SPV_OPENCL_GRAMMAR)
 		@$(HOST_PYTHON) $(SPVTOOLS_LOCAL_PATH)/utils/generate_grammar_tables.py \
-		                --spirv-core-grammar=$(SPVTOOLS_LOCAL_PATH)/source/spirv.core.grammar.json \
-		                --extinst-glsl-grammar=$(SPVTOOLS_LOCAL_PATH)/source/extinst.glsl.std.450.grammar.json \
-		                --extinst-opencl-grammar=$(SPVTOOLS_LOCAL_PATH)/source/extinst.opencl.std.grammar.json \
-		                --core-insts-output=$(1)/core.insts.inc \
-		                --glsl-insts-output=$(1)/glsl.std.450.insts.inc \
-		                --opencl-insts-output=$(1)/opencl.std.insts.inc \
-		                --operand-kinds-output=$(1)/operand.kinds.inc
-		@echo "[$(TARGET_ARCH_ABI)] Grammar        : instructions & operands <= grammar JSON files"
-$(SPVTOOLS_LOCAL_PATH)/source/opcode.cpp: $(1)/core.insts.inc
-$(SPVTOOLS_LOCAL_PATH)/source/operand.cpp: $(1)/operand.kinds.inc
-$(SPVTOOLS_LOCAL_PATH)/source/ext_inst.cpp: $(1)/glsl.std.450.insts.inc $(1)/opencl.std.insts.inc
+		                --spirv-core-grammar=$(SPV_CORE10_GRAMMAR) \
+		                --extinst-glsl-grammar=$(SPV_GLSL_GRAMMAR) \
+		                --extinst-opencl-grammar=$(SPV_OPENCL_GRAMMAR) \
+		                --core-insts-output=$(1)/core.insts-1.0.inc \
+		                --glsl-insts-output=$(1)/glsl.std.450.insts-1.0.inc \
+		                --opencl-insts-output=$(1)/opencl.std.insts-1.0.inc \
+		                --operand-kinds-output=$(1)/operand.kinds-1.0.inc
+		@echo "[$(TARGET_ARCH_ABI)] Grammar v1.0   : instructions & operands <= grammar JSON files"
+$(1)/core.insts-1.1.inc $(1)/operand.kinds-1.1.inc: \
+        $(SPVTOOLS_LOCAL_PATH)/utils/generate_grammar_tables.py \
+        $(SPV_CORE11_GRAMMAR)
+		@$(HOST_PYTHON) $(SPVTOOLS_LOCAL_PATH)/utils/generate_grammar_tables.py \
+		                --spirv-core-grammar=$(SPV_CORE11_GRAMMAR) \
+		                --core-insts-output=$(1)/core.insts-1.1.inc \
+		                --operand-kinds-output=$(1)/operand.kinds-1.1.inc
+		@echo "[$(TARGET_ARCH_ABI)] Grammar v1.1   : instructions & operands <= grammar JSON files"
+$(SPVTOOLS_LOCAL_PATH)/source/opcode.cpp: $(1)/core.insts-1.0.inc $(1)/core.insts-1.1.inc
+$(SPVTOOLS_LOCAL_PATH)/source/operand.cpp: $(1)/operand.kinds-1.0.inc $(1)/operand.kinds-1.1.inc
+$(SPVTOOLS_LOCAL_PATH)/source/ext_inst.cpp: $(1)/glsl.std.450.insts-1.0.inc $(1)/opencl.std.insts-1.0.inc
 endef
 $(eval $(call gen_spvtools_grammar_tables,$(SPVTOOLS_OUT_PATH)))
+
+define gen_spvtools_build_version_inc
+$(call generate-file-dir,$(1)/dummy_filename)
+$(1)/build-version.inc: \
+        $(SPVTOOLS_LOCAL_PATH)/utils/update_build_version.py \
+        $(SPVTOOLS_LOCAL_PATH)/CHANGES
+		@$(HOST_PYTHON) $(SPVTOOLS_LOCAL_PATH)/utils/update_build_version.py \
+		                $(SPVTOOLS_LOCAL_PATH) $(1)/build-version.inc
+		@echo "[$(TARGET_ARCH_ABI)] Generate       : build-version.inc <= CHANGES"
+$(SPVTOOLS_LOCAL_PATH)/source/software_version.cpp: $(1)/build-version.inc
+endef
+$(eval $(call gen_spvtools_build_version_inc,$(SPVTOOLS_OUT_PATH)))
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := SPIRV-Tools
 LOCAL_C_INCLUDES := \
 		$(SPVTOOLS_LOCAL_PATH)/include \
 		$(SPVTOOLS_LOCAL_PATH)/source \
+		$(SPVTOOLS_LOCAL_PATH)/external/spirv-headers/include \
 		$(SPVTOOLS_OUT_PATH)
 LOCAL_EXPORT_C_INCLUDES := \
 		$(SPVTOOLS_LOCAL_PATH)/include
@@ -139,19 +174,25 @@ LOCAL_SRC_FILES:= \
 		source/disassemble.cpp \
 		source/ext_inst.cpp \
 		source/instruction.cpp \
+		source/name_mapper.cpp \
 		source/opcode.cpp \
 		source/operand.cpp \
 		source/print.cpp \
+		source/software_version.cpp \
 		source/spirv_endian.cpp \
 		source/spirv_target_env.cpp \
 		source/table.cpp \
 		source/text.cpp \
 		source/text_handler.cpp \
+		source/util/parse_number.cpp \
+		source/val/BasicBlock.cpp \
+		source/val/Construct.cpp \
+		source/val/Function.cpp \
+		source/val/Instruction.cpp \
+		source/val/ValidationState.cpp \
 		source/validate.cpp \
 		source/validate_cfg.cpp \
 		source/validate_id.cpp \
 		source/validate_instruction.cpp \
-		source/validate_layout.cpp \
-		source/validate_ssa.cpp \
-		source/validate_types.cpp
+		source/validate_layout.cpp
 include $(BUILD_STATIC_LIBRARY)

@@ -15,8 +15,6 @@
 #include "libshaderc_util/compiler.h"
 
 #include <cstdint>
-#include <fstream>
-#include <iostream>
 #include <tuple>
 
 #include "libshaderc_util/format.h"
@@ -24,10 +22,9 @@
 #include "libshaderc_util/message.h"
 #include "libshaderc_util/resources.h"
 #include "libshaderc_util/shader_stage.h"
+#include "libshaderc_util/spirv_tools_wrapper.h"
 #include "libshaderc_util/string_piece.h"
 #include "libshaderc_util/version_profile.h"
-
-#include "spirv-tools/libspirv.h"
 
 #include "SPIRV/GlslangToSpv.h"
 
@@ -67,43 +64,6 @@ std::pair<int, string_piece> DecodeLineDirective(string_piece directive) {
   directive = directive.strip("\" \n");
   return std::make_pair(line, directive);
 }
-
-// Writes the message contained in the diagnostic parameter to *dest. Assumes
-// the diagnostic message is reported for a binary location.
-void OutputSpvToolsDiagnostic(spv_diagnostic diagnostic, std::string* dest) {
-  assert(!diagnostic->isTextSource);
-
-  std::ostringstream os;
-  os << diagnostic->position.index << ": " << diagnostic->error;
-  *dest = os.str();
-}
-
-// Disassembles the given binary. Returns SPV_SUCCESS and writes the
-// disassembled text to *text_or_error if successful. Otherwise, writes the
-// error message to *text_or_error.
-spv_result_t DisassembleBinary(const std::vector<uint32_t>& binary,
-                               std::string* text_or_error) {
-  auto spvtools_context = spvContextCreate(SPV_ENV_UNIVERSAL_1_0);
-  spv_text disassembled_text = nullptr;
-  spv_diagnostic spvtools_diagnostic = nullptr;
-
-  spv_result_t result =
-      spvBinaryToText(spvtools_context, binary.data(), binary.size(),
-                      SPV_BINARY_TO_TEXT_OPTION_INDENT, &disassembled_text,
-                      &spvtools_diagnostic);
-  if (result == SPV_SUCCESS) {
-    text_or_error->assign(disassembled_text->str, disassembled_text->length);
-  } else {
-    OutputSpvToolsDiagnostic(spvtools_diagnostic, text_or_error);
-  }
-
-  spvDiagnosticDestroy(spvtools_diagnostic);
-  spvTextDestroy(disassembled_text);
-  spvContextDestroy(spvtools_context);
-
-  return result;
-}
-
 }  // anonymous namespace
 
 namespace shaderc_util {
@@ -127,7 +87,7 @@ std::tuple<bool, std::vector<uint32_t>, size_t> Compiler::Compile(
   std::vector<uint32_t>& compilation_output_data = std::get<1>(result_tuple);
   size_t& compilation_output_data_size_in_bytes = std::get<2>(result_tuple);
 
-  auto token = initializer->Acquire(GetMessageRules());
+  auto token = initializer->Acquire();
   EShLanguage used_shader_stage = forced_shader_stage;
   const std::string macro_definitions =
       shaderc_util::format(predefined_macros_, "#define ", " ", "\n");
@@ -224,7 +184,7 @@ std::tuple<bool, std::vector<uint32_t>, size_t> Compiler::Compile(
   glslang::GlslangToSpv(*program.getIntermediate(used_shader_stage), spirv);
   if (output_type == OutputType::SpirvAssemblyText) {
     std::string text_or_error;
-    if (DisassembleBinary(spirv, &text_or_error) != SPV_SUCCESS) {
+    if (!SpirvToolsDisassemble(spirv, &text_or_error)) {
       *error_stream << "shaderc: internal error: compilation succeeded but "
                        "failed to disassemble: "
                     << text_or_error << "\n";

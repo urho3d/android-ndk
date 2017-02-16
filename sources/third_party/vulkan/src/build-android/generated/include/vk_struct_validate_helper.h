@@ -8,24 +8,17 @@
  * Copyright (c) 2015-2016 LunarG, Inc.
  * Copyright (c) 2015-2016 Google Inc.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Materials"),
- * to deal in the Materials without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Materials, and to permit persons to whom the
- * Materials is furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Materials.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- *
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE MATERIALS OR THE
- * USE OR OTHER DEALINGS IN THE MATERIALS
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
  * Author: Tobin Ehlis <tobin@lunarg.com>
@@ -34,13 +27,16 @@
 #include <vulkan/vulkan.h>
 #include <vk_enum_string_helper.h>
 #include <stdint.h>
-#include <inttypes.h>
+#include <cinttypes>
 #include <stdio.h>
 #include <stdlib.h>
 #include "vk_enum_validate_helper.h"
 
 // Function Prototypes
 uint32_t vk_validate_vkallocationcallbacks(const VkAllocationCallbacks* pStruct);
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+uint32_t vk_validate_vkandroidsurfacecreateinfokhr(const VkAndroidSurfaceCreateInfoKHR* pStruct);
+#endif //VK_USE_PLATFORM_ANDROID_KHR
 uint32_t vk_validate_vkapplicationinfo(const VkApplicationInfo* pStruct);
 uint32_t vk_validate_vkattachmentdescription(const VkAttachmentDescription* pStruct);
 uint32_t vk_validate_vkattachmentreference(const VkAttachmentReference* pStruct);
@@ -62,7 +58,13 @@ uint32_t vk_validate_vkcommandpoolcreateinfo(const VkCommandPoolCreateInfo* pStr
 uint32_t vk_validate_vkcomponentmapping(const VkComponentMapping* pStruct);
 uint32_t vk_validate_vkcomputepipelinecreateinfo(const VkComputePipelineCreateInfo* pStruct);
 uint32_t vk_validate_vkcopydescriptorset(const VkCopyDescriptorSet* pStruct);
+uint32_t vk_validate_vkdebugmarkermarkerinfoext(const VkDebugMarkerMarkerInfoEXT* pStruct);
+uint32_t vk_validate_vkdebugmarkerobjectnameinfoext(const VkDebugMarkerObjectNameInfoEXT* pStruct);
+uint32_t vk_validate_vkdebugmarkerobjecttaginfoext(const VkDebugMarkerObjectTagInfoEXT* pStruct);
 uint32_t vk_validate_vkdebugreportcallbackcreateinfoext(const VkDebugReportCallbackCreateInfoEXT* pStruct);
+uint32_t vk_validate_vkdedicatedallocationbuffercreateinfonv(const VkDedicatedAllocationBufferCreateInfoNV* pStruct);
+uint32_t vk_validate_vkdedicatedallocationimagecreateinfonv(const VkDedicatedAllocationImageCreateInfoNV* pStruct);
+uint32_t vk_validate_vkdedicatedallocationmemoryallocateinfonv(const VkDedicatedAllocationMemoryAllocateInfoNV* pStruct);
 uint32_t vk_validate_vkdescriptorbufferinfo(const VkDescriptorBufferInfo* pStruct);
 uint32_t vk_validate_vkdescriptorimageinfo(const VkDescriptorImageInfo* pStruct);
 uint32_t vk_validate_vkdescriptorpoolcreateinfo(const VkDescriptorPoolCreateInfo* pStruct);
@@ -84,9 +86,15 @@ uint32_t vk_validate_vkdisplaysurfacecreateinfokhr(const VkDisplaySurfaceCreateI
 uint32_t vk_validate_vkdrawindexedindirectcommand(const VkDrawIndexedIndirectCommand* pStruct);
 uint32_t vk_validate_vkdrawindirectcommand(const VkDrawIndirectCommand* pStruct);
 uint32_t vk_validate_vkeventcreateinfo(const VkEventCreateInfo* pStruct);
+uint32_t vk_validate_vkexportmemoryallocateinfonv(const VkExportMemoryAllocateInfoNV* pStruct);
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+uint32_t vk_validate_vkexportmemorywin32handleinfonv(const VkExportMemoryWin32HandleInfoNV* pStruct);
+#endif //VK_USE_PLATFORM_WIN32_KHR
 uint32_t vk_validate_vkextensionproperties(const VkExtensionProperties* pStruct);
 uint32_t vk_validate_vkextent2d(const VkExtent2D* pStruct);
 uint32_t vk_validate_vkextent3d(const VkExtent3D* pStruct);
+uint32_t vk_validate_vkexternalimageformatpropertiesnv(const VkExternalImageFormatPropertiesNV* pStruct);
+uint32_t vk_validate_vkexternalmemoryimagecreateinfonv(const VkExternalMemoryImageCreateInfoNV* pStruct);
 uint32_t vk_validate_vkfencecreateinfo(const VkFenceCreateInfo* pStruct);
 uint32_t vk_validate_vkformatproperties(const VkFormatProperties* pStruct);
 uint32_t vk_validate_vkframebuffercreateinfo(const VkFramebufferCreateInfo* pStruct);
@@ -101,6 +109,9 @@ uint32_t vk_validate_vkimagesubresource(const VkImageSubresource* pStruct);
 uint32_t vk_validate_vkimagesubresourcelayers(const VkImageSubresourceLayers* pStruct);
 uint32_t vk_validate_vkimagesubresourcerange(const VkImageSubresourceRange* pStruct);
 uint32_t vk_validate_vkimageviewcreateinfo(const VkImageViewCreateInfo* pStruct);
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+uint32_t vk_validate_vkimportmemorywin32handleinfonv(const VkImportMemoryWin32HandleInfoNV* pStruct);
+#endif //VK_USE_PLATFORM_WIN32_KHR
 uint32_t vk_validate_vkinstancecreateinfo(const VkInstanceCreateInfo* pStruct);
 uint32_t vk_validate_vklayerproperties(const VkLayerProperties* pStruct);
 uint32_t vk_validate_vkmappedmemoryrange(const VkMappedMemoryRange* pStruct);
@@ -109,6 +120,9 @@ uint32_t vk_validate_vkmemorybarrier(const VkMemoryBarrier* pStruct);
 uint32_t vk_validate_vkmemoryheap(const VkMemoryHeap* pStruct);
 uint32_t vk_validate_vkmemoryrequirements(const VkMemoryRequirements* pStruct);
 uint32_t vk_validate_vkmemorytype(const VkMemoryType* pStruct);
+#ifdef VK_USE_PLATFORM_MIR_KHR
+uint32_t vk_validate_vkmirsurfacecreateinfokhr(const VkMirSurfaceCreateInfoKHR* pStruct);
+#endif //VK_USE_PLATFORM_MIR_KHR
 uint32_t vk_validate_vkoffset2d(const VkOffset2D* pStruct);
 uint32_t vk_validate_vkoffset3d(const VkOffset3D* pStruct);
 uint32_t vk_validate_vkphysicaldevicefeatures(const VkPhysicalDeviceFeatures* pStruct);
@@ -125,6 +139,7 @@ uint32_t vk_validate_vkpipelineinputassemblystatecreateinfo(const VkPipelineInpu
 uint32_t vk_validate_vkpipelinelayoutcreateinfo(const VkPipelineLayoutCreateInfo* pStruct);
 uint32_t vk_validate_vkpipelinemultisamplestatecreateinfo(const VkPipelineMultisampleStateCreateInfo* pStruct);
 uint32_t vk_validate_vkpipelinerasterizationstatecreateinfo(const VkPipelineRasterizationStateCreateInfo* pStruct);
+uint32_t vk_validate_vkpipelinerasterizationstaterasterizationorderamd(const VkPipelineRasterizationStateRasterizationOrderAMD* pStruct);
 uint32_t vk_validate_vkpipelineshaderstagecreateinfo(const VkPipelineShaderStageCreateInfo* pStruct);
 uint32_t vk_validate_vkpipelinetessellationstatecreateinfo(const VkPipelineTessellationStateCreateInfo* pStruct);
 uint32_t vk_validate_vkpipelinevertexinputstatecreateinfo(const VkPipelineVertexInputStateCreateInfo* pStruct);
@@ -159,16 +174,36 @@ uint32_t vk_validate_vkswapchaincreateinfokhr(const VkSwapchainCreateInfoKHR* pS
 uint32_t vk_validate_vkvertexinputattributedescription(const VkVertexInputAttributeDescription* pStruct);
 uint32_t vk_validate_vkvertexinputbindingdescription(const VkVertexInputBindingDescription* pStruct);
 uint32_t vk_validate_vkviewport(const VkViewport* pStruct);
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+uint32_t vk_validate_vkwaylandsurfacecreateinfokhr(const VkWaylandSurfaceCreateInfoKHR* pStruct);
+#endif //VK_USE_PLATFORM_WAYLAND_KHR
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+uint32_t vk_validate_vkwin32keyedmutexacquirereleaseinfonv(const VkWin32KeyedMutexAcquireReleaseInfoNV* pStruct);
+#endif //VK_USE_PLATFORM_WIN32_KHR
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+uint32_t vk_validate_vkwin32surfacecreateinfokhr(const VkWin32SurfaceCreateInfoKHR* pStruct);
+#endif //VK_USE_PLATFORM_WIN32_KHR
 uint32_t vk_validate_vkwritedescriptorset(const VkWriteDescriptorSet* pStruct);
 #ifdef VK_USE_PLATFORM_XCB_KHR
 uint32_t vk_validate_vkxcbsurfacecreateinfokhr(const VkXcbSurfaceCreateInfoKHR* pStruct);
 #endif //VK_USE_PLATFORM_XCB_KHR
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+uint32_t vk_validate_vkxlibsurfacecreateinfokhr(const VkXlibSurfaceCreateInfoKHR* pStruct);
+#endif //VK_USE_PLATFORM_XLIB_KHR
 
 
 uint32_t vk_validate_vkallocationcallbacks(const VkAllocationCallbacks* pStruct)
 {
     return 1;
 }
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+uint32_t vk_validate_vkandroidsurfacecreateinfokhr(const VkAndroidSurfaceCreateInfoKHR* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+#endif //VK_USE_PLATFORM_ANDROID_KHR
 uint32_t vk_validate_vkapplicationinfo(const VkApplicationInfo* pStruct)
 {
     if (!validate_VkStructureType(pStruct->sType))
@@ -331,7 +366,47 @@ uint32_t vk_validate_vkcopydescriptorset(const VkCopyDescriptorSet* pStruct)
         return 0;
     return 1;
 }
+uint32_t vk_validate_vkdebugmarkermarkerinfoext(const VkDebugMarkerMarkerInfoEXT* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+uint32_t vk_validate_vkdebugmarkerobjectnameinfoext(const VkDebugMarkerObjectNameInfoEXT* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    if (!validate_VkDebugReportObjectTypeEXT(pStruct->objectType))
+        return 0;
+    return 1;
+}
+uint32_t vk_validate_vkdebugmarkerobjecttaginfoext(const VkDebugMarkerObjectTagInfoEXT* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    if (!validate_VkDebugReportObjectTypeEXT(pStruct->objectType))
+        return 0;
+    return 1;
+}
 uint32_t vk_validate_vkdebugreportcallbackcreateinfoext(const VkDebugReportCallbackCreateInfoEXT* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+uint32_t vk_validate_vkdedicatedallocationbuffercreateinfonv(const VkDedicatedAllocationBufferCreateInfoNV* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+uint32_t vk_validate_vkdedicatedallocationimagecreateinfonv(const VkDedicatedAllocationImageCreateInfoNV* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+uint32_t vk_validate_vkdedicatedallocationmemoryallocateinfonv(const VkDedicatedAllocationMemoryAllocateInfoNV* pStruct)
 {
     if (!validate_VkStructureType(pStruct->sType))
         return 0;
@@ -489,6 +564,20 @@ uint32_t vk_validate_vkeventcreateinfo(const VkEventCreateInfo* pStruct)
         return 0;
     return 1;
 }
+uint32_t vk_validate_vkexportmemoryallocateinfonv(const VkExportMemoryAllocateInfoNV* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+uint32_t vk_validate_vkexportmemorywin32handleinfonv(const VkExportMemoryWin32HandleInfoNV* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+#endif //VK_USE_PLATFORM_WIN32_KHR
 uint32_t vk_validate_vkextensionproperties(const VkExtensionProperties* pStruct)
 {
     return 1;
@@ -499,6 +588,18 @@ uint32_t vk_validate_vkextent2d(const VkExtent2D* pStruct)
 }
 uint32_t vk_validate_vkextent3d(const VkExtent3D* pStruct)
 {
+    return 1;
+}
+uint32_t vk_validate_vkexternalimageformatpropertiesnv(const VkExternalImageFormatPropertiesNV* pStruct)
+{
+    if (!vk_validate_vkimageformatproperties((const VkImageFormatProperties*)&pStruct->imageFormatProperties))
+        return 0;
+    return 1;
+}
+uint32_t vk_validate_vkexternalmemoryimagecreateinfonv(const VkExternalMemoryImageCreateInfoNV* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
     return 1;
 }
 uint32_t vk_validate_vkfencecreateinfo(const VkFenceCreateInfo* pStruct)
@@ -647,6 +748,14 @@ uint32_t vk_validate_vkimageviewcreateinfo(const VkImageViewCreateInfo* pStruct)
         return 0;
     return 1;
 }
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+uint32_t vk_validate_vkimportmemorywin32handleinfonv(const VkImportMemoryWin32HandleInfoNV* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+#endif //VK_USE_PLATFORM_WIN32_KHR
 uint32_t vk_validate_vkinstancecreateinfo(const VkInstanceCreateInfo* pStruct)
 {
     if (!validate_VkStructureType(pStruct->sType))
@@ -689,6 +798,14 @@ uint32_t vk_validate_vkmemorytype(const VkMemoryType* pStruct)
 {
     return 1;
 }
+#ifdef VK_USE_PLATFORM_MIR_KHR
+uint32_t vk_validate_vkmirsurfacecreateinfokhr(const VkMirSurfaceCreateInfoKHR* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+#endif //VK_USE_PLATFORM_MIR_KHR
 uint32_t vk_validate_vkoffset2d(const VkOffset2D* pStruct)
 {
     return 1;
@@ -808,6 +925,14 @@ uint32_t vk_validate_vkpipelinerasterizationstatecreateinfo(const VkPipelineRast
     if (!validate_VkPolygonMode(pStruct->polygonMode))
         return 0;
     if (!validate_VkFrontFace(pStruct->frontFace))
+        return 0;
+    return 1;
+}
+uint32_t vk_validate_vkpipelinerasterizationstaterasterizationorderamd(const VkPipelineRasterizationStateRasterizationOrderAMD* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    if (!validate_VkRasterizationOrderAMD(pStruct->rasterizationOrder))
         return 0;
     return 1;
 }
@@ -1085,6 +1210,30 @@ uint32_t vk_validate_vkviewport(const VkViewport* pStruct)
 {
     return 1;
 }
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+uint32_t vk_validate_vkwaylandsurfacecreateinfokhr(const VkWaylandSurfaceCreateInfoKHR* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+#endif //VK_USE_PLATFORM_WAYLAND_KHR
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+uint32_t vk_validate_vkwin32keyedmutexacquirereleaseinfonv(const VkWin32KeyedMutexAcquireReleaseInfoNV* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+#endif //VK_USE_PLATFORM_WIN32_KHR
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+uint32_t vk_validate_vkwin32surfacecreateinfokhr(const VkWin32SurfaceCreateInfoKHR* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+#endif //VK_USE_PLATFORM_WIN32_KHR
 uint32_t vk_validate_vkwritedescriptorset(const VkWriteDescriptorSet* pStruct)
 {
     if (!validate_VkStructureType(pStruct->sType))
@@ -1105,3 +1254,11 @@ uint32_t vk_validate_vkxcbsurfacecreateinfokhr(const VkXcbSurfaceCreateInfoKHR* 
     return 1;
 }
 #endif //VK_USE_PLATFORM_XCB_KHR
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+uint32_t vk_validate_vkxlibsurfacecreateinfokhr(const VkXlibSurfaceCreateInfoKHR* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
+        return 0;
+    return 1;
+}
+#endif //VK_USE_PLATFORM_XLIB_KHR

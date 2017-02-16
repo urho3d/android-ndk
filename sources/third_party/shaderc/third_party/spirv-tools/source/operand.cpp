@@ -1,53 +1,61 @@
 // Copyright (c) 2015-2016 The Khronos Group Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and/or associated documentation files (the
-// "Materials"), to deal in the Materials without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Materials, and to
-// permit persons to whom the Materials are furnished to do so, subject to
-// the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Materials.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// MODIFICATIONS TO THIS FILE MAY MEAN IT NO LONGER ACCURATELY REFLECTS
-// KHRONOS STANDARDS. THE UNMODIFIED, NORMATIVE VERSIONS OF KHRONOS
-// SPECIFICATIONS AND HEADER INFORMATION ARE LOCATED AT
-//    https://www.khronos.org/registry/
-//
-// THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "operand.h"
 
 #include <assert.h>
 #include <string.h>
 
-// Evaluates to the number of elements of array A.
-// If we could use constexpr, then we could make this a template function.
-// If the source arrays were std::array, then we could have used
-// std::array::size.
-#define ARRAY_SIZE(A) (static_cast<uint32_t>(sizeof(A) / sizeof(A[0])))
+#include "macro.h"
 
 // Pull in operand info tables automatically generated from JSON grammar.
-#include "operand.kinds.inc"
+namespace v1_0 {
+#include "operand.kinds-1.0.inc"
+}  // namespace v1_0
+namespace v1_1 {
+#include "operand.kinds-1.1.inc"
+}  // namespace v1_1
 
-spv_result_t spvOperandTableGet(spv_operand_table* pOperandTable) {
+spv_result_t spvOperandTableGet(spv_operand_table* pOperandTable,
+                                spv_target_env env) {
   if (!pOperandTable) return SPV_ERROR_INVALID_POINTER;
 
-  static const spv_operand_table_t table = {
-      ARRAY_SIZE(pygen_variable_OperandInfoTable),
-      pygen_variable_OperandInfoTable};
+  static const spv_operand_table_t table_1_0 = {
+      ARRAY_SIZE(v1_0::pygen_variable_OperandInfoTable),
+      v1_0::pygen_variable_OperandInfoTable};
+  static const spv_operand_table_t table_1_1 = {
+      ARRAY_SIZE(v1_1::pygen_variable_OperandInfoTable),
+      v1_1::pygen_variable_OperandInfoTable};
 
-  *pOperandTable = &table;
-
-  return SPV_SUCCESS;
+  switch (env) {
+    case SPV_ENV_UNIVERSAL_1_0:
+    case SPV_ENV_VULKAN_1_0:
+    case SPV_ENV_OPENCL_2_1:
+    case SPV_ENV_OPENGL_4_0:
+    case SPV_ENV_OPENGL_4_1:
+    case SPV_ENV_OPENGL_4_2:
+    case SPV_ENV_OPENGL_4_3:
+    case SPV_ENV_OPENGL_4_5:
+      *pOperandTable = &table_1_0;
+      return SPV_SUCCESS;
+    case SPV_ENV_UNIVERSAL_1_1:
+    case SPV_ENV_OPENCL_2_2:
+      *pOperandTable = &table_1_1;
+      return SPV_SUCCESS;
+  }
+  assert(0 && "Unknown spv_target_env in spvOperandTableGet()");
+  return SPV_ERROR_INVALID_TABLE;
 }
 
 #undef ARRAY_SIZE
@@ -61,16 +69,14 @@ spv_result_t spvOperandTableNameLookup(const spv_operand_table table,
   if (!name || !pEntry) return SPV_ERROR_INVALID_POINTER;
 
   for (uint64_t typeIndex = 0; typeIndex < table->count; ++typeIndex) {
-    if (type == table->types[typeIndex].type) {
-      for (uint64_t operandIndex = 0;
-           operandIndex < table->types[typeIndex].count; ++operandIndex) {
-        if (nameLength ==
-                strlen(table->types[typeIndex].entries[operandIndex].name) &&
-            !strncmp(table->types[typeIndex].entries[operandIndex].name, name,
-                     nameLength)) {
-          *pEntry = &table->types[typeIndex].entries[operandIndex];
-          return SPV_SUCCESS;
-        }
+    const auto& group = table->types[typeIndex];
+    if (type != group.type) continue;
+    for (uint64_t index = 0; index < group.count; ++index) {
+      const auto& entry = group.entries[index];
+      if (nameLength == strlen(entry.name) &&
+          !strncmp(entry.name, name, nameLength)) {
+        *pEntry = &entry;
+        return SPV_SUCCESS;
       }
     }
   }
@@ -86,13 +92,13 @@ spv_result_t spvOperandTableValueLookup(const spv_operand_table table,
   if (!pEntry) return SPV_ERROR_INVALID_POINTER;
 
   for (uint64_t typeIndex = 0; typeIndex < table->count; ++typeIndex) {
-    if (type == table->types[typeIndex].type) {
-      for (uint64_t operandIndex = 0;
-           operandIndex < table->types[typeIndex].count; ++operandIndex) {
-        if (value == table->types[typeIndex].entries[operandIndex].value) {
-          *pEntry = &table->types[typeIndex].entries[operandIndex];
-          return SPV_SUCCESS;
-        }
+    const auto& group = table->types[typeIndex];
+    if (type != group.type) continue;
+    for (uint64_t index = 0; index < group.count; ++index) {
+      const auto& entry = group.entries[index];
+      if (value == entry.value) {
+        *pEntry = &entry;
+        return SPV_SUCCESS;
       }
     }
   }
@@ -217,7 +223,7 @@ void spvPrependOperandTypesForMask(const spv_operand_table operandTable,
                                    spv_operand_pattern_t* pattern) {
   // Scan from highest bits to lowest bits because we will prepend in LIFO
   // fashion, and we need the operands for lower order bits to appear first.
-  for (uint32_t candidate_bit = (1 << 31); candidate_bit; candidate_bit >>= 1) {
+  for (uint32_t candidate_bit = (1u << 31u); candidate_bit; candidate_bit >>= 1) {
     if (candidate_bit & mask) {
       spv_operand_desc entry = nullptr;
       if (SPV_SUCCESS == spvOperandTableValueLookup(operandTable, type,
@@ -309,5 +315,4 @@ bool spvIsIdType(spv_operand_type_t type) {
     default:
       return false;
   }
-  return false;
 }

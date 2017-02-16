@@ -67,7 +67,7 @@ extern char* asctime(const struct tm* a);
 extern char* asctime_r(const struct tm* a, char* buf);
 
 /* Return the difference between TIME1 and TIME0.  */
-extern double difftime (time_t __time1, time_t __time0) __NDK_FPABI__;
+extern double difftime (time_t __time1, time_t __time0);
 extern time_t mktime (struct tm *a);
 
 extern struct tm*  localtime(const time_t *t);
@@ -115,6 +115,10 @@ extern int  timer_delete(timer_t);
 extern int  timer_settime(timer_t timerid, int flags, const struct itimerspec *value, struct itimerspec *ovalue);
 extern int  timer_gettime(timer_t timerid, struct itimerspec *value);
 extern int  timer_getoverrun(timer_t  timerid);
+
+/* Non-standard extensions that are in the BSDs and glibc. */
+extern time_t timelocal(struct tm*);
+extern time_t timegm(struct tm*);
 
 __END_DECLS
 

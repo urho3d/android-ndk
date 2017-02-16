@@ -16,6 +16,7 @@
 #
 """Packages the platform's LLVM for the NDK."""
 import os
+import shutil
 import site
 import subprocess
 import sys
@@ -40,10 +41,8 @@ def main(args):
     host = args.host
     package_dir = args.dist_dir
 
-    # TODO(danalbert): Fix 64-bit Windows LLVM.
-    # This wrongly packages 32-bit Windows LLVM for 64-bit as well, but the
-    # real bug here is that we don't have a 64-bit Windows LLVM.
-    # http://b/22414702
+    # The 32-bit Windows Clang is a part of the 64-bit Clang package in
+    # prebuilts/clang.
     os_name = host
     if os_name == 'windows64':
         os_name = 'windows'
@@ -57,6 +56,24 @@ def main(args):
         host = 'windows'
     elif host == 'windows64':
         host = 'windows-x86_64'
+
+    if host == 'windows':
+        # We need to replace clang.exe with clang_32.exe. Copy clang into a
+        # temporary directory for rearranging.
+        build_path = os.path.join(args.out_dir, 'clang/windows')
+        if os.path.exists(build_path):
+            shutil.rmtree(build_path)
+        install_path = os.path.join(build_path, LLVM_VERSION)
+        os.makedirs(build_path)
+        shutil.copytree(os.path.join(prebuilt_path, LLVM_VERSION),
+                        install_path)
+        os.rename(os.path.join(install_path, 'bin/clang_32.exe'),
+                  os.path.join(install_path, 'bin/clang.exe'))
+        # clang++.exe is not a symlink in the Windows package. Need to copy to
+        # there as well.
+        shutil.copy2(os.path.join(install_path, 'bin/clang.exe'),
+                     os.path.join(install_path, 'bin/clang++.exe'))
+        prebuilt_path = build_path
 
     package_name = 'llvm-{}.zip'.format(host)
     package_path = os.path.join(package_dir, package_name)

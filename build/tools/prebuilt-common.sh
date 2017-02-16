@@ -1148,44 +1148,6 @@ parse_toolchain_name ()
 
     GCC_VERSION=`expr -- "$TOOLCHAIN" : '.*-\([0-9x\.]*\)'`
     log "Using GCC version: $GCC_VERSION"
-
-    # Determine --host value when building gdbserver
-
-    case "$TOOLCHAIN" in
-    arm-*)
-        GDBSERVER_HOST=arm-eabi-linux
-        GDBSERVER_CFLAGS="-fno-short-enums"
-        GDBSERVER_LDFLAGS=
-        ;;
-    aarch64-*)
-        GDBSERVER_HOST=aarch64-eabi-linux
-        GDBSERVER_CFLAGS="-fno-short-enums -DUAPI_HEADERS"
-        GDBSERVER_LDFLAGS=
-        ;;
-    x86-*)
-        GDBSERVER_HOST=i686-linux-android
-        GDBSERVER_CFLAGS=
-        GDBSERVER_LDFLAGS=
-        ;;
-    x86_64-*)
-        GDBSERVER_HOST=x86_64-linux-android
-        GDBSERVER_CFLAGS=-DUAPI_HEADERS
-        GDBSERVER_LDFLAGS=
-        ;;
-    mipsel-*)
-        GDBSERVER_HOST=mipsel-linux-android
-        GDBSERVER_CFLAGS=
-        GDBSERVER_LDFLAGS=
-        ;;
-    mips64el-*)
-        GDBSERVER_HOST=mips64el-linux-android
-        GDBSERVER_CFLAGS=-DUAPI_HEADERS
-        GDBSERVER_LDFLAGS=
-        ;;
-    *)
-        echo "Unknown TOOLCHAIN=$TOOLCHAIN"
-        exit
-    esac
 }
 
 # Return the host "tag" used to identify prebuilt host binaries.

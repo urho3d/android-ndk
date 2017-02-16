@@ -1,39 +1,29 @@
 // Copyright (c) 2015-2016 The Khronos Group Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and/or associated documentation files (the
-// "Materials"), to deal in the Materials without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Materials, and to
-// permit persons to whom the Materials are furnished to do so, subject to
-// the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Materials.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// MODIFICATIONS TO THIS FILE MAY MEAN IT NO LONGER ACCURATELY REFLECTS
-// KHRONOS STANDARDS. THE UNMODIFIED, NORMATIVE VERSIONS OF KHRONOS
-// SPECIFICATIONS AND HEADER INFORMATION ARE LOCATED AT
-//    https://www.khronos.org/registry/
-//
-// THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 // Source code for logical layout validation as described in section 2.4
 
-#include "spirv-tools/libspirv.h"
-#include "validate_passes.h"
+#include "validate.h"
+
+#include <cassert>
 
 #include "diagnostic.h"
 #include "opcode.h"
 #include "operand.h"
-
-#include <cassert>
+#include "spirv-tools/libspirv.h"
+#include "val/Function.h"
+#include "val/ValidationState.h"
 
 using libspirv::ValidationState_t;
 using libspirv::kLayoutMemoryModel;
@@ -42,17 +32,16 @@ using libspirv::kLayoutFunctionDefinitions;
 using libspirv::FunctionDecl;
 
 namespace {
-
 // Module scoped instructions are processed by determining if the opcode
 // is part of the current layout section. If it is not then the next sections is
 // checked.
 spv_result_t ModuleScopedInstructions(ValidationState_t& _,
                                       const spv_parsed_instruction_t* inst,
                                       SpvOp opcode) {
-  while (_.isOpcodeInCurrentLayoutSection(opcode) == false) {
-    _.progressToNextLayoutSectionOrder();
+  while (_.IsOpcodeInCurrentLayoutSection(opcode) == false) {
+    _.ProgressToNextLayoutSectionOrder();
 
-    switch (_.getLayoutSection()) {
+    switch (_.current_layout_section()) {
       case kLayoutMemoryModel:
         if (opcode != SpvOpMemoryModel) {
           return _.diag(SPV_ERROR_INVALID_LAYOUT)
@@ -79,21 +68,25 @@ spv_result_t ModuleScopedInstructions(ValidationState_t& _,
 spv_result_t FunctionScopedInstructions(ValidationState_t& _,
                                         const spv_parsed_instruction_t* inst,
                                         SpvOp opcode) {
-  if (_.isOpcodeInCurrentLayoutSection(opcode)) {
+  if (_.IsOpcodeInCurrentLayoutSection(opcode)) {
     switch (opcode) {
-      case SpvOpFunction:
+      case SpvOpFunction: {
         if (_.in_function_body()) {
           return _.diag(SPV_ERROR_INVALID_LAYOUT)
                  << "Cannot declare a function in a function body";
         }
-        spvCheckReturn(_.get_functions().RegisterFunction(
-            inst->result_id, inst->type_id,
-            inst->words[inst->operands[2].offset],
-            inst->words[inst->operands[3].offset]));
-        if (_.getLayoutSection() == kLayoutFunctionDefinitions)
-          spvCheckReturn(_.get_functions().RegisterSetFunctionDeclType(
-              FunctionDecl::kFunctionDeclDefinition));
-        break;
+        auto control_mask = static_cast<SpvFunctionControlMask>(
+            inst->words[inst->operands[2].offset]);
+        if (auto error =
+                _.RegisterFunction(inst->result_id, inst->type_id, control_mask,
+                                   inst->words[inst->operands[3].offset]))
+          return error;
+        if (_.current_layout_section() == kLayoutFunctionDefinitions) {
+          if (auto error = _.current_function().RegisterSetFunctionDeclType(
+                  FunctionDecl::kFunctionDeclDefinition))
+            return error;
+        }
+      } break;
 
       case SpvOpFunctionParameter:
         if (_.in_function_body() == false) {
@@ -101,13 +94,14 @@ spv_result_t FunctionScopedInstructions(ValidationState_t& _,
                                                      "instructions must be in "
                                                      "a function body";
         }
-        if (_.get_functions().get_block_count() != 0) {
+        if (_.current_function().block_count() != 0) {
           return _.diag(SPV_ERROR_INVALID_LAYOUT)
-                 << "Function parameters must only appear immediately after the "
-                    "function definition";
+                 << "Function parameters must only appear immediately after "
+                    "the function definition";
         }
-        spvCheckReturn(_.get_functions().RegisterFunctionParameter(
-            inst->result_id, inst->type_id));
+        if (auto error = _.current_function().RegisterFunctionParameter(
+                inst->result_id, inst->type_id))
+          return error;
         break;
 
       case SpvOpFunctionEnd:
@@ -119,17 +113,18 @@ spv_result_t FunctionScopedInstructions(ValidationState_t& _,
           return _.diag(SPV_ERROR_INVALID_LAYOUT)
                  << "Function end cannot be called in blocks";
         }
-        if (_.get_functions().get_block_count() == 0 &&
-            _.getLayoutSection() == kLayoutFunctionDefinitions) {
+        if (_.current_function().block_count() == 0 &&
+            _.current_layout_section() == kLayoutFunctionDefinitions) {
           return _.diag(SPV_ERROR_INVALID_LAYOUT) << "Function declarations "
                                                      "must appear before "
                                                      "function definitions.";
         }
-        spvCheckReturn(_.get_functions().RegisterFunctionEnd());
-        if (_.getLayoutSection() == kLayoutFunctionDeclarations) {
-          spvCheckReturn(_.get_functions().RegisterSetFunctionDeclType(
-              FunctionDecl::kFunctionDeclDeclaration));
+        if (_.current_layout_section() == kLayoutFunctionDeclarations) {
+          if (auto error = _.current_function().RegisterSetFunctionDeclType(
+                  FunctionDecl::kFunctionDeclDeclaration))
+            return error;
         }
+        if (auto error = _.RegisterFunctionEnd()) return error;
         break;
 
       case SpvOpLine:
@@ -147,15 +142,17 @@ spv_result_t FunctionScopedInstructions(ValidationState_t& _,
           return _.diag(SPV_ERROR_INVALID_LAYOUT)
                  << "A block must end with a branch instruction.";
         }
-        if (_.getLayoutSection() == kLayoutFunctionDeclarations) {
-          _.progressToNextLayoutSectionOrder();
-          spvCheckReturn(_.get_functions().RegisterSetFunctionDeclType(
-              FunctionDecl::kFunctionDeclDefinition));
+        if (_.current_layout_section() == kLayoutFunctionDeclarations) {
+          _.ProgressToNextLayoutSectionOrder();
+          if (auto error = _.current_function().RegisterSetFunctionDeclType(
+                  FunctionDecl::kFunctionDeclDefinition))
+            return error;
         }
         break;
 
       default:
-        if (_.getLayoutSection() == kLayoutFunctionDeclarations) {
+        if (_.current_layout_section() == kLayoutFunctionDeclarations &&
+            _.in_function_body()) {
           return _.diag(SPV_ERROR_INVALID_LAYOUT)
                  << "A function must begin with a label";
         } else {
@@ -173,7 +170,7 @@ spv_result_t FunctionScopedInstructions(ValidationState_t& _,
   }
   return SPV_SUCCESS;
 }
-}
+}  /// namespace
 
 namespace libspirv {
 // TODO(umar): Check linkage capabilities for function declarations
@@ -184,7 +181,7 @@ spv_result_t ModuleLayoutPass(ValidationState_t& _,
                               const spv_parsed_instruction_t* inst) {
   const SpvOp opcode = static_cast<SpvOp>(inst->opcode);
 
-  switch (_.getLayoutSection()) {
+  switch (_.current_layout_section()) {
     case kLayoutCapabilities:
     case kLayoutExtensions:
     case kLayoutExtInstImport:
@@ -195,13 +192,15 @@ spv_result_t ModuleLayoutPass(ValidationState_t& _,
     case kLayoutDebug2:
     case kLayoutAnnotations:
     case kLayoutTypes:
-      spvCheckReturn(ModuleScopedInstructions(_, inst, opcode));
+      if (auto error = ModuleScopedInstructions(_, inst, opcode)) return error;
       break;
     case kLayoutFunctionDeclarations:
     case kLayoutFunctionDefinitions:
-      spvCheckReturn(FunctionScopedInstructions(_, inst, opcode));
+      if (auto error = FunctionScopedInstructions(_, inst, opcode)) {
+        return error;
+      }
       break;
-  }  // switch(getLayoutSection())
+  }
   return SPV_SUCCESS;
 }
-}
+}  /// namespace libspirv

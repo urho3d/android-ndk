@@ -1,31 +1,28 @@
 // Copyright (c) 2015-2016 The Khronos Group Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and/or associated documentation files (the
-// "Materials"), to deal in the Materials without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Materials, and to
-// permit persons to whom the Materials are furnished to do so, subject to
-// the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Materials.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// MODIFICATIONS TO THIS FILE MAY MEAN IT NO LONGER ACCURATELY REFLECTS
-// KHRONOS STANDARDS. THE UNMODIFIED, NORMATIVE VERSIONS OF KHRONOS
-// SPECIFICATIONS AND HEADER INFORMATION ARE LOCATED AT
-//    https://www.khronos.org/registry/
-//
-// THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "validate.h"
-#include "validate_passes.h"
+
+#include <cassert>
+#include <cstdio>
+
+#include <algorithm>
+#include <functional>
+#include <iterator>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include "binary.h"
 #include "diagnostic.h"
@@ -35,15 +32,9 @@
 #include "spirv-tools/libspirv.h"
 #include "spirv_constant.h"
 #include "spirv_endian.h"
-
-#include <algorithm>
-#include <cassert>
-#include <cstdio>
-#include <functional>
-#include <iterator>
-#include <sstream>
-#include <string>
-#include <vector>
+#include "val/Construct.h"
+#include "val/Function.h"
+#include "val/ValidationState.h"
 
 using std::function;
 using std::ostream_iterator;
@@ -56,23 +47,22 @@ using std::vector;
 using libspirv::CfgPass;
 using libspirv::InstructionPass;
 using libspirv::ModuleLayoutPass;
-using libspirv::SsaPass;
+using libspirv::IdPass;
 using libspirv::ValidationState_t;
 
-spv_result_t spvValidateIDs(
-    const spv_instruction_t* pInsts, const uint64_t count,
-    const spv_opcode_table opcodeTable, const spv_operand_table operandTable,
-    const spv_ext_inst_table extInstTable, const ValidationState_t& state,
-    spv_position position, spv_diagnostic* pDiagnostic) {
-  auto undefd = state.usedefs().FindUsesWithoutDefs();
-  for (auto id : undefd) {
-    DIAGNOSTIC << "Undefined ID: " << id;
-  }
+spv_result_t spvValidateIDs(const spv_instruction_t* pInsts,
+                            const uint64_t count,
+                            const spv_opcode_table opcodeTable,
+                            const spv_operand_table operandTable,
+                            const spv_ext_inst_table extInstTable,
+                            const ValidationState_t& state,
+                            spv_position position) {
   position->index = SPV_INDEX_INSTRUCTION;
-  spvCheckReturn(spvValidateInstructionIDs(pInsts, count, opcodeTable,
-                                           operandTable, extInstTable, state,
-                                           position, pDiagnostic));
-  return undefd.empty() ? SPV_SUCCESS : SPV_ERROR_INVALID_ID;
+  if (auto error =
+          spvValidateInstructionIDs(pInsts, count, opcodeTable, operandTable,
+                                    extInstTable, state, position))
+    return error;
+  return SPV_SUCCESS;
 }
 
 namespace {
@@ -104,13 +94,13 @@ void DebugInstructionPass(ValidationState_t& _,
       const uint32_t target = *(inst->words + inst->operands[0].offset);
       const char* str =
           reinterpret_cast<const char*>(inst->words + inst->operands[1].offset);
-      _.assignNameToId(target, str);
+      _.AssignNameToId(target, str);
     } break;
     case SpvOpMemberName: {
       const uint32_t target = *(inst->words + inst->operands[0].offset);
       const char* str =
           reinterpret_cast<const char*>(inst->words + inst->operands[2].offset);
-      _.assignNameToId(target, str);
+      _.AssignNameToId(target, str);
     } break;
     case SpvOpSourceContinued:
     case SpvOpSource:
@@ -124,79 +114,130 @@ void DebugInstructionPass(ValidationState_t& _,
   }
 }
 
-// Collects use-def info about an instruction's IDs.
-void ProcessIds(ValidationState_t& _, const spv_parsed_instruction_t& inst) {
-  if (inst.result_id) {
-    _.usedefs().AddDef(
-        {inst.result_id, inst.type_id, static_cast<SpvOp>(inst.opcode),
-         std::vector<uint32_t>(inst.words, inst.words + inst.num_words)});
-  }
-  for (auto op = inst.operands; op != inst.operands + inst.num_operands; ++op) {
-    if (spvIsIdType(op->type)) _.usedefs().AddUse(inst.words[op->offset]);
-  }
-}
-
 spv_result_t ProcessInstruction(void* user_data,
                                 const spv_parsed_instruction_t* inst) {
   ValidationState_t& _ = *(reinterpret_cast<ValidationState_t*>(user_data));
-  _.incrementInstructionCount();
+  _.increment_instruction_count();
   if (static_cast<SpvOp>(inst->opcode) == SpvOpEntryPoint)
     _.entry_points().push_back(inst->words[2]);
 
   DebugInstructionPass(_, inst);
   // TODO(umar): Perform data rules pass
-  ProcessIds(_, *inst);
-  spvCheckReturn(ModuleLayoutPass(_, inst));
-  spvCheckReturn(CfgPass(_, inst));
-  spvCheckReturn(SsaPass(_, inst));
-  spvCheckReturn(InstructionPass(_, inst));
+  if (auto error = IdPass(_, inst)) return error;
+  if (auto error = ModuleLayoutPass(_, inst)) return error;
+  if (auto error = CfgPass(_, inst)) return error;
+  if (auto error = InstructionPass(_, inst)) return error;
 
   return SPV_SUCCESS;
 }
 
+void printDot(const ValidationState_t& _, const libspirv::BasicBlock& other) {
+  string block_string;
+  if (other.successors()->empty()) {
+    block_string += "end ";
+  } else {
+    for (auto block : *other.successors()) {
+      block_string += _.getIdOrName(block->id()) + " ";
+    }
+  }
+  printf("%10s -> {%s\b}\n", _.getIdOrName(other.id()).c_str(),
+         block_string.c_str());
+}
+
+void PrintBlocks(ValidationState_t& _, libspirv::Function func) {
+  assert(func.first_block());
+
+  printf("%10s -> %s\n", _.getIdOrName(func.id()).c_str(),
+         _.getIdOrName(func.first_block()->id()).c_str());
+  for (const auto& block : func.ordered_blocks()) {
+    printDot(_, *block);
+  }
+}
+
+#ifdef __clang__
+#define UNUSED(func) [[gnu::unused]] func
+#elif defined(__GNUC__)
+#define UNUSED(func)            \
+  func __attribute__((unused)); \
+  func
+#elif defined(_MSC_VER)
+#define UNUSED(func) func
+#endif
+
+UNUSED(void PrintDotGraph(ValidationState_t& _, libspirv::Function func)) {
+  if (func.first_block()) {
+    string func_name(_.getIdOrName(func.id()));
+    printf("digraph %s {\n", func_name.c_str());
+    PrintBlocks(_, func);
+    printf("}\n");
+  }
+}
 }  // anonymous namespace
 
 spv_result_t spvValidate(const spv_const_context context,
                          const spv_const_binary binary,
                          spv_diagnostic* pDiagnostic) {
-  if (!pDiagnostic) return SPV_ERROR_INVALID_DIAGNOSTIC;
+  return spvValidateBinary(context, binary->code, binary->wordCount,
+                           pDiagnostic);
+}
+spv_result_t spvValidateBinary(const spv_const_context context,
+                               const uint32_t* words, const size_t num_words,
+                               spv_diagnostic* pDiagnostic) {
+  spv_context_t hijack_context = *context;
+
+  spv_const_binary binary = new spv_const_binary_t{words, num_words};
+  if (pDiagnostic) {
+    *pDiagnostic = nullptr;
+    libspirv::UseDiagnosticAsMessageConsumer(&hijack_context, pDiagnostic);
+  }
 
   spv_endianness_t endian;
   spv_position_t position = {};
   if (spvBinaryEndianness(binary, &endian)) {
-    DIAGNOSTIC << "Invalid SPIR-V magic number.";
-    return SPV_ERROR_INVALID_BINARY;
+    return libspirv::DiagnosticStream(position, hijack_context.consumer,
+                                      SPV_ERROR_INVALID_BINARY)
+           << "Invalid SPIR-V magic number.";
   }
 
   spv_header_t header;
   if (spvBinaryHeaderGet(binary, endian, &header)) {
-    DIAGNOSTIC << "Invalid SPIR-V header.";
-    return SPV_ERROR_INVALID_BINARY;
+    return libspirv::DiagnosticStream(position, hijack_context.consumer,
+                                      SPV_ERROR_INVALID_BINARY)
+           << "Invalid SPIR-V header.";
   }
 
   // NOTE: Parse the module and perform inline validation checks. These
   // checks do not require the the knowledge of the whole module.
-  ValidationState_t vstate(pDiagnostic, context);
-  spvCheckReturn(spvBinaryParse(context, &vstate, binary->code,
-                                binary->wordCount, setHeader,
-                                ProcessInstruction, pDiagnostic));
+  ValidationState_t vstate(&hijack_context);
+  if (auto error = spvBinaryParse(&hijack_context, &vstate, words, num_words,
+                                  setHeader, ProcessInstruction, pDiagnostic))
+    return error;
+
+  if (vstate.in_function_body())
+    return vstate.diag(SPV_ERROR_INVALID_LAYOUT)
+           << "Missing OpFunctionEnd at end of module.";
 
   // TODO(umar): Add validation checks which require the parsing of the entire
   // module. Use the information from the ProcessInstruction pass to make the
   // checks.
-
-  if (vstate.unresolvedForwardIdCount() > 0) {
+  if (vstate.unresolved_forward_id_count() > 0) {
     stringstream ss;
-    vector<uint32_t> ids = vstate.unresolvedForwardIds();
+    vector<uint32_t> ids = vstate.UnresolvedForwardIds();
 
     transform(begin(ids), end(ids), ostream_iterator<string>(ss, " "),
-              bind(&ValidationState_t::getIdName, vstate, _1));
+              bind(&ValidationState_t::getIdName, std::ref(vstate), _1));
 
     auto id_str = ss.str();
     return vstate.diag(SPV_ERROR_INVALID_ID)
            << "The following forward referenced IDs have not be defined:\n"
            << id_str.substr(0, id_str.size() - 1);
   }
+
+  // CFG checks are performed after the binary has been parsed
+  // and the CFGPass has collected information about the control flow
+  if (auto error = PerformCfgChecks(vstate)) return error;
+  if (auto error = UpdateIdUse(vstate)) return error;
+  if (auto error = CheckIdDefinitionDominateUse(vstate)) return error;
 
   // NOTE: Copy each instruction for easier processing
   std::vector<spv_instruction_t> instructions;
@@ -214,10 +255,8 @@ spv_result_t spvValidate(const spv_const_context context,
   }
 
   position.index = SPV_INDEX_INSTRUCTION;
-  spvCheckReturn(spvValidateIDs(instructions.data(), instructions.size(),
-                                context->opcode_table, context->operand_table,
-                                context->ext_inst_table, vstate, &position,
-                                pDiagnostic));
-
-  return SPV_SUCCESS;
+  return spvValidateIDs(instructions.data(), instructions.size(),
+                        hijack_context.opcode_table,
+                        hijack_context.operand_table,
+                        hijack_context.ext_inst_table, vstate, &position);
 }

@@ -34,10 +34,6 @@
 //POSSIBILITY OF SUCH DAMAGE.
 
 //
-// Author: John Kessenich, LunarG
-//
-
-//
 // "Builder" is an interface to fully build SPIR-V IR.   Allocate one of
 // these to build (a thread safe) internal SPIR-V representation (IR),
 // and then dump it as a binary stream according to the SPIR-V specification.
@@ -49,20 +45,22 @@
 #ifndef SpvBuilder_H
 #define SpvBuilder_H
 
+#include "Logger.h"
 #include "spirv.hpp"
 #include "spvIR.h"
 
 #include <algorithm>
-#include <memory>
-#include <stack>
 #include <map>
+#include <memory>
 #include <set>
+#include <sstream>
+#include <stack>
 
 namespace spv {
 
 class Builder {
 public:
-    Builder(unsigned int userNumber);
+    Builder(unsigned int userNumber, SpvBuildLogger* logger);
     virtual ~Builder();
 
     static const int maxMatrixSize = 4;
@@ -72,7 +70,8 @@ public:
         source = lang;
         sourceVersion = version;
     }
-    void addSourceExtension(const char* ext) { extensions.push_back(ext); }
+    void addSourceExtension(const char* ext) { sourceExtensions.push_back(ext); }
+    void addExtensions(const char* ext) { extensions.push_back(ext); }
     Id import(const char*);
     void setMemoryModel(spv::AddressingModel addr, spv::MemoryModel mem)
     {
@@ -147,8 +146,10 @@ public:
     bool isSampledImageType(Id typeId) const { return getTypeClass(typeId) == OpTypeSampledImage; }
 
     bool isConstantOpCode(Op opcode) const;
+    bool isSpecConstantOpCode(Op opcode) const;
     bool isConstant(Id resultId) const { return isConstantOpCode(getOpCode(resultId)); }
     bool isConstantScalar(Id resultId) const { return getOpCode(resultId) == OpConstant; }
+    bool isSpecConstant(Id resultId) const { return isSpecConstantOpCode(getOpCode(resultId)); }
     unsigned int getConstantScalar(Id resultId) const { return module.getInstruction(resultId)->getImmediateOperand(0); }
     StorageClass getStorageClass(Id resultId) const { return getTypeStorageClass(getTypeId(resultId)); }
 
@@ -186,6 +187,8 @@ public:
     Id makeBoolConstant(bool b, bool specConstant = false);
     Id makeIntConstant(int i, bool specConstant = false)         { return makeIntConstant(makeIntType(32),  (unsigned)i, specConstant); }
     Id makeUintConstant(unsigned u, bool specConstant = false)   { return makeIntConstant(makeUintType(32),           u, specConstant); }
+    Id makeInt64Constant(long long i, bool specConstant = false)            { return makeInt64Constant(makeIntType(64),  (unsigned long long)i, specConstant); }
+    Id makeUint64Constant(unsigned long long u, bool specConstant = false)  { return makeInt64Constant(makeUintType(64),                     u, specConstant); }
     Id makeFloatConstant(float f, bool specConstant = false);
     Id makeDoubleConstant(double d, bool specConstant = false);
 
@@ -207,7 +210,7 @@ public:
 
     // Make the entry-point function. The returned pointer is only valid
     // for the lifetime of this builder.
-    Function* makeEntrypoint(const char*);
+    Function* makeEntryPoint(const char*);
 
     // Make a shader-style function, and create its entry block if entry is non-zero.
     // Return the function, pass back the entry.
@@ -319,7 +322,7 @@ public:
         Id gradX;
         Id gradY;
         Id sample;
-        Id comp;
+        Id component;
         Id texelOut;
         Id lodClamp;
     };
@@ -395,7 +398,12 @@ public:
     void endSwitch(std::vector<Block*>& segmentBB);
 
     struct LoopBlocks {
+        LoopBlocks(Block& head, Block& body, Block& merge, Block& continue_target) :
+            head(head), body(body), merge(merge), continue_target(continue_target) { }
         Block &head, &body, &merge, &continue_target;
+    private:
+        LoopBlocks();
+        LoopBlocks& operator=(const LoopBlocks&);
     };
 
     // Start a new loop and prepare the builder to generate code for it.  Until
@@ -459,7 +467,7 @@ public:
 
     //
     // the SPIR-V builder maintains a single active chain that
-    // the following methods operated on
+    // the following methods operate on
     //
 
     // for external save and restore
@@ -531,6 +539,7 @@ public:
 
  protected:
     Id makeIntConstant(Id typeId, unsigned value, bool specConstant);
+    Id makeInt64Constant(Id typeId, unsigned long long value, bool specConstant);
     Id findScalarConstant(Op typeClass, Op opcode, Id typeId, unsigned value) const;
     Id findScalarConstant(Op typeClass, Op opcode, Id typeId, unsigned v1, unsigned v2) const;
     Id findCompositeConstant(Op typeClass, std::vector<Id>& comps) const;
@@ -544,6 +553,7 @@ public:
     SourceLanguage source;
     int sourceVersion;
     std::vector<const char*> extensions;
+    std::vector<const char*> sourceExtensions;
     AddressingModel addressModel;
     MemoryModel memoryModel;
     std::set<spv::Capability> capabilities;
@@ -575,13 +585,10 @@ public:
 
     // Our loop stack.
     std::stack<LoopBlocks> loops;
+
+    // The stream for outputing warnings and errors.
+    SpvBuildLogger* logger;
 };  // end Builder class
-
-// Use for non-fatal notes about what's not complete
-void TbdFunctionality(const char*);
-
-// Use for fatal missing functionality
-void MissingFunctionality(const char*);
 
 };  // end spv namespace
 

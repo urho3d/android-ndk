@@ -50,6 +50,11 @@ long long            strtoll_l(const char *nptr, char **endptr, int base, locale
 unsigned long long   strtoull_l(const char *nptr, char **endptr, int base, locale_t loc);
 long double          strtold_l(const char *nptr, char **endptr, locale_t loc);
 
+#if __ISO_C_VISIBLE >= 2011 || __cplusplus >= 201103L
+int at_quick_exit(void (*)(void));
+void quick_exit(int) __noreturn;
+#endif
+
 #ifdef __cplusplus
 }  // extern "C"
 #endif

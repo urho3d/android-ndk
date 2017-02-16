@@ -70,6 +70,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/system_properties.h>
+#include <unistd.h>
 
 static  pthread_once_t     g_once;
 static  int                g_inited;

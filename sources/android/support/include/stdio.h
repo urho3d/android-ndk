@@ -37,7 +37,9 @@
 // This is to avoid a compiler error when the putc() macro definition
 // in <stdio.h> follows a putc() function definition which is apparently
 // not compatible with it.
-#define _POSIX_THREADS 1
+#if !defined(_POSIX_THREADS)
+#define _POSIX_THREADS 200809L
+#endif
 #include_next <stdio.h>
 
 #include <stdarg.h>

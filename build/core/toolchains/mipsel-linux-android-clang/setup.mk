@@ -48,7 +48,6 @@ TARGET_CFLAGS := \
     -gcc-toolchain $(call host-path,$(TOOLCHAIN_ROOT)) \
     -target $(LLVM_TRIPLE) \
     -fpic \
-    -finline-functions \
     -ffunction-sections \
     -funwind-tables \
     -fstack-protector-strong \

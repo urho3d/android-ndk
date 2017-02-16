@@ -1,35 +1,23 @@
 // Copyright (c) 2015-2016 The Khronos Group Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and/or associated documentation files (the
-// "Materials"), to deal in the Materials without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Materials, and to
-// permit persons to whom the Materials are furnished to do so, subject to
-// the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Materials.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// MODIFICATIONS TO THIS FILE MAY MEAN IT NO LONGER ACCURATELY REFLECTS
-// KHRONOS STANDARDS. THE UNMODIFIED, NORMATIVE VERSIONS OF KHRONOS
-// SPECIFICATIONS AND HEADER INFORMATION ARE LOCATED AT
-//    https://www.khronos.org/registry/
-//
-// THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #ifndef LIBSPIRV_OPCODE_H_
 #define LIBSPIRV_OPCODE_H_
 
 #include "instruction.h"
 #include "spirv-tools/libspirv.h"
-#include "spirv/spirv.h"
+#include "spirv/1.1/spirv.h"
 #include "table.h"
 
 // Returns the name of a registered SPIR-V generator as a null-terminated
@@ -58,10 +46,6 @@ spv_result_t spvOpcodeTableValueLookup(const spv_opcode_table table,
                                        const SpvOp opcode,
                                        spv_opcode_desc* entry);
 
-// Determines if the opcode has capability requirements. Returns zero if false,
-// non-zero otherwise. This function does not check if the given entry is valid.
-int32_t spvOpcodeRequiresCapabilities(spv_opcode_desc opcode);
-
 // Copies an instruction's word and fixes the endianness to host native. The
 // source instruction's stream/opcode/endianness is in the words/opcode/endian
 // parameter. The word_count parameter specifies the number of words to copy.
@@ -81,13 +65,16 @@ int32_t spvOpcodeIsScalarType(const SpvOp opcode);
 // otherwise.
 int32_t spvOpcodeIsConstant(const SpvOp opcode);
 
+// Returns true if the given opcode is a constant or undef.
+bool spvOpcodeIsConstantOrUndef(const SpvOp opcode);
+
 // Determines if the given opcode is a composite type. Returns zero if false,
 // non-zero otherwise.
 int32_t spvOpcodeIsComposite(const SpvOp opcode);
 
-// Determines if the given opcode results in a pointer. Returns zero if false,
-// non-zero otherwise.
-int32_t spvOpcodeIsPointer(const SpvOp opcode);
+// Determines if the given opcode results in a pointer when using the logical
+// addressing model. Returns zero if false, non-zero otherwise.
+int32_t spvOpcodeReturnsLogicalPointer(const SpvOp opcode);
 
 // Determines if the given opcode generates a type. Returns zero if false,
 // non-zero otherwise.

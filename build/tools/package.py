@@ -27,6 +27,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import textwrap
 import zipfile
 
 site.addsitedir(os.path.join(os.path.dirname(__file__), '../..'))
@@ -43,11 +44,11 @@ ANDROID_TOP = os.path.realpath(os.path.join(THIS_DIR, '../../..'))
 def expand_packages(package, host, arches):
     """Expands package definition tuple into list of full package names.
 
-    >>> expand_packages('gcc-{arch}-{host}', 'linux', ['arm64', 'x86_64'])
-    ['gcc-arm64-linux-x86_64', 'gcc-x86_64-linux-x86_64']
+    >>> expand_packages('gcc-{toolchain}-{host}', 'linux', ['arm', 'x86_64'])
+    ['gcc-arm-linux-androideabi-4.9-x86_64', 'gcc-x86_64-linux-x86_64']
 
-    >>> expand_packages('gcclibs-{arch}', 'linux', ['arm64', 'x86_64'])
-    ['gcclibs-arm64', 'gcclibs-x86_64']
+    >>> expand_packages('gdbserver-{arch}', 'linux', ['arm64', 'x86_64'])
+    ['gdbserver-arm64', 'gdbserver-x86_64']
 
     >>> expand_packages('llvm-{host}', 'linux', ['arm'])
     ['llvm-linux-x86_64']
@@ -84,7 +85,7 @@ def get_all_packages(host, arches):
     packages = [
         ('cpufeatures', 'sources/android/cpufeatures'),
         ('gabixx', 'sources/cxx-stl/gabi++'),
-        ('gcc-{arch}-{host}', 'toolchains/{toolchain}-4.9/prebuilt/{host}'),
+        ('gcc-{toolchain}-{host}', 'toolchains/{toolchain}-4.9/prebuilt/{host}'),
         ('gdbserver-{arch}', 'prebuilt/android-{arch}/gdbserver'),
         ('shader-tools-{host}', 'shader-tools/{host}'),
         ('gnustl-4.9', 'sources/cxx-stl/gnu-libstdc++/4.9'),
@@ -99,6 +100,7 @@ def get_all_packages(host, arches):
         ('ndk_helper', 'sources/android/ndk_helper'),
         ('python-packages', 'python-packages'),
         ('shaderc', 'sources/third_party/shaderc'),
+        ('simpleperf', 'simpleperf'),
         ('stlport', 'sources/cxx-stl/stlport'),
         ('system-stl', 'sources/cxx-stl/system'),
         ('vulkan', 'sources/third_party/vulkan'),
@@ -241,6 +243,8 @@ def make_source_properties(out_dir, build_number):
         version = '{}.{}.{}'.format(config.major, config.hotfix, build_number)
         if config.beta > 0:
             version += '-beta{}'.format(config.beta)
+        if config.canary:
+            version += '-canary'
         source_properties.writelines([
             'Pkg.Desc = Android NDK\n',
             'Pkg.Revision = {}\n'.format(version)
@@ -250,6 +254,16 @@ def make_source_properties(out_dir, build_number):
 def copy_changelog(out_dir):
     changelog_path = build_support.ndk_path('CHANGELOG.md')
     shutil.copy2(changelog_path, out_dir)
+
+
+CANARY_TEXT = textwrap.dedent("""\
+    This is a canary build of the Android NDK. It's updated almost every day.
+
+    Canary builds are designed for early adopters and can be prone to breakage.
+    Sometimes they can break completely. To aid development and testing, this
+    distribution can be installed side-by-side with your existing, stable NDK
+    release.
+    """)
 
 
 def make_package(build_number, package_dir, packages, host, out_dir, temp_dir):
@@ -264,6 +278,11 @@ def make_package(build_number, package_dir, packages, host, out_dir, temp_dir):
     make_shortcuts(extract_dir, host)
     make_source_properties(extract_dir, build_number)
     copy_changelog(extract_dir)
+
+    if config.canary:
+        canary_path = os.path.join(extract_dir, 'README.canary')
+        with open(canary_path, 'w') as canary_file:
+            canary_file.write(CANARY_TEXT)
 
     host_tag = build_support.host_to_tag(host)
     # The release tooling really wants us to only name packages with the build

@@ -46,11 +46,11 @@ def get_gcc_prebuilt_path(host):
     return prebuilt_path
 
 
-def package_gcc(package_dir, host_tag, arch, version):
-    toolchain_name = build_support.arch_to_toolchain(arch) + '-' + version
+def package_gcc(package_dir, host_tag, toolchain, version):
+    toolchain_name = toolchain + '-' + version
     prebuilt_path = get_gcc_prebuilt_path(host_tag)
 
-    package_name = 'gcc-{}-{}.zip'.format(arch, host_tag)
+    package_name = 'gcc-{}-{}.zip'.format(toolchain, host_tag)
     package_path = os.path.join(package_dir, package_name)
     if os.path.exists(package_path):
         os.unlink(package_path)
@@ -66,9 +66,10 @@ def main(args):
     if args.arch is not None:
         arches = [args.arch]
 
+    toolchains = sorted(set([build_support.arch_to_toolchain(arch) for arch in arches]))
     host_tag = build_support.host_to_tag(args.host)
-    for arch in arches:
-        package_gcc(args.dist_dir, host_tag, arch, GCC_VERSION)
+    for toolchain in toolchains:
+        package_gcc(args.dist_dir, host_tag, toolchain, GCC_VERSION)
 
 
 if __name__ == '__main__':

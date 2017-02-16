@@ -13,126 +13,129 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-LOCAL_PATH := $(abspath $(call my-dir))
-MY_PATH := $(LOCAL_PATH)
-SRC_DIR := $(LOCAL_PATH)/../../
-LAYER_DIR := $(LOCAL_PATH)/../generated
+LOCAL_PATH := $(call my-dir)
+SRC_DIR := ../..
+LAYER_DIR := ../generated
+
+# specific for NDK build
+SHADERC_DIR := $(SRC_DIR)/../shaderc
+GLSLANG_DIR := $(SHADERC_DIR)/glslang
+SPIRV_TOOLS_DIR := $(SHADERC_DIR)/spirv-tools
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := layer_utils
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_config.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_extension_utils.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_utils.cpp
-LOCAL_C_INCLUDES += $(SRC_DIR)/include \
-                    ${SRC_DIR}/layers \
-                    $(SRC_DIR)/loader
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_config.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_extension_utils.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_utils.cpp
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/layers \
+                    $(LOCAL_PATH)/$(SRC_DIR)/loader
+LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES
 include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_core_validation
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/core_validation/core_validation.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
-LOCAL_C_INCLUDES += $(SRC_DIR)/include \
-                    ${SRC_DIR}/layers \
-                    $(MY_PATH)/../generated/include \
-                    $(SRC_DIR)/loader \
-                    $(SRC_DIR)/../glslang
-LOCAL_STATIC_LIBRARIES += layer_utils
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
-LOCAL_LDLIBS    := -llog
-include $(BUILD_SHARED_LIBRARY)
-
-include $(CLEAR_VARS)
-LOCAL_MODULE := VkLayer_device_limits
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/device_limits/device_limits.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
-LOCAL_C_INCLUDES += $(SRC_DIR)/include \
-                    ${SRC_DIR}/layers \
-                    $(MY_PATH)/../generated/include \
-                    $(SRC_DIR)/loader
-LOCAL_STATIC_LIBRARIES += layer_utils
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/core_validation.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/descriptor_sets.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/vk_safe_struct.cpp
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/layers \
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/loader
+LOCAL_STATIC_LIBRARIES += layer_utils glslang SPIRV-Tools
+LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_image
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/image/image.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
-LOCAL_C_INCLUDES += $(SRC_DIR)/include \
-                    ${SRC_DIR}/layers \
-                    $(MY_PATH)/../generated/include \
-                    $(SRC_DIR)/loader
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/image.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/layers \
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_parameter_validation
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/parameter_validation/parameter_validation.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
-LOCAL_C_INCLUDES += $(SRC_DIR)/include \
-                    $(MY_PATH)/../generated/include \
-                    $(SRC_DIR)/layers \
-                    $(SRC_DIR)/loader
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/parameter_validation.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/include \
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/layers \
+                    $(LOCAL_PATH)/$(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_object_tracker
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/object_tracker/object_tracker.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
-LOCAL_C_INCLUDES += $(SRC_DIR)/include \
-                    $(SRC_DIR)/layers \
-                    $(MY_PATH)/../generated/include \
-                    $(SRC_DIR)/loader
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/object_tracker.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/layers \
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_threading
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/threading/threading.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
-LOCAL_C_INCLUDES += $(SRC_DIR)/include \
-                    $(SRC_DIR)/layers \
-                    $(MY_PATH)/../generated/include \
-                    $(SRC_DIR)/loader
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/threading.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/layers \
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_unique_objects
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/unique_objects/unique_objects.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/unique_objects/vk_safe_struct.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
-LOCAL_C_INCLUDES += $(SRC_DIR)/include \
-                    $(SRC_DIR)/layers \
-                    $(MY_PATH)/../generated/include \
-                    $(SRC_DIR)/loader
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/unique_objects.cpp
+LOCAL_SRC_FILES += $(LAYER_DIR)/include/vk_safe_struct.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/layers \
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := VkLayer_swapchain
-LOCAL_SRC_FILES += $(LAYER_DIR)/layer-src/swapchain/swapchain.cpp
-LOCAL_SRC_FILES += $(LAYER_DIR)/common/vk_layer_table.cpp
-LOCAL_C_INCLUDES += $(SRC_DIR)/include \
-                    ${SRC_DIR}/layers \
-                    $(MY_PATH)/../generated/include \
-                    $(SRC_DIR)/loader
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/swapchain.cpp
+LOCAL_SRC_FILES += $(SRC_DIR)/layers/vk_layer_table.cpp
+LOCAL_C_INCLUDES += $(LOCAL_PATH)/$(SRC_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/layers \
+                    $(LOCAL_PATH)/$(LAYER_DIR)/include \
+                    $(LOCAL_PATH)/$(SRC_DIR)/loader
 LOCAL_STATIC_LIBRARIES += layer_utils
-LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR
+LOCAL_CPPFLAGS += -std=c++11 -Wall -Werror -Wno-unused-function -Wno-unused-const-variable -mxgot
+LOCAL_CPPFLAGS += -DVK_USE_PLATFORM_ANDROID_KHR -DVK_PROTOTYPES
 LOCAL_LDLIBS    := -llog
 include $(BUILD_SHARED_LIBRARY)
 
+$(call import-module,android/native_app_glue)
 $(call import-module,third_party/googletest)
+$(call import-module,third_party/shaderc)
+

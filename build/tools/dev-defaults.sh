@@ -292,7 +292,7 @@ get_default_gdb_version_for_gcc ()
 #
 # $1: toolchain with version number (e.g. 'arm-linux-androideabi-4.8')
 #
-get_default_gdbserver_version_for_gcc ()
+get_default_gdbserver_version ()
 {
     echo "$DEFAULT_GDB_VERSION"
 }

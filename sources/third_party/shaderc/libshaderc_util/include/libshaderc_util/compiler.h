@@ -37,9 +37,7 @@ namespace shaderc_util {
 //                  remove this class.
 class GlslInitializer {
  public:
-  GlslInitializer() : last_messages_(EShMsgDefault) {
-    glslang::InitializeProcess();
-  }
+  GlslInitializer() { glslang::InitializeProcess(); }
 
   ~GlslInitializer() { glslang::FinalizeProcess(); }
 
@@ -70,17 +68,8 @@ class GlslInitializer {
 
   // Obtains exclusive access to the glslang state. The state remains
   // exclusive until the Initialization Token has been destroyed.
-  // Re-initializes glsl state iff the previous messages and the current
-  // messages are incompatible.
-  InitializationToken Acquire(EShMessages new_messages) {
+  InitializationToken Acquire() {
     state_lock_.lock();
-
-    if ((last_messages_ ^ new_messages) &
-        (EShMsgVulkanRules | EShMsgSpvRules)) {
-      glslang::FinalizeProcess();
-      glslang::InitializeProcess();
-    }
-    last_messages_ = new_messages;
     return InitializationToken(this);
   }
 
@@ -89,7 +78,6 @@ class GlslInitializer {
 
   friend class InitializationToken;
 
-  EShMessages last_messages_;
   mutex state_lock_;
 };
 
@@ -110,7 +98,6 @@ class Compiler {
         suppress_warnings_(false),
         generate_debug_info_(false),
         message_rules_(GetDefaultRules()) {}
-
 
   // Requests that the compiler place debug information into the object code,
   // such as identifier names and line numbers.
@@ -184,7 +171,8 @@ class Compiler {
       GlslInitializer* initializer) const;
 
   static EShMessages GetDefaultRules() {
-    return static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules);
+    return static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules |
+                                    EShMsgCascadingErrors);
   }
 
  protected:
@@ -263,7 +251,6 @@ class Compiler {
   EProfile default_profile_;
   // When true, use the default version and profile from eponymous data members.
   bool force_version_profile_;
-
 
   // Macro definitions that must be available to reference in the shader source.
   MacroDictionary predefined_macros_;

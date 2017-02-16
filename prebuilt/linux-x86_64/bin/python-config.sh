@@ -31,7 +31,7 @@ installed_prefix ()
     echo $RESULT
 }
 
-prefix_build="/usr/local/google/buildbot/src/android/ndk-r12-release/out/build/buildhost/linux-x86_64/install/host-tools"
+prefix_build="/usr/local/google/buildbot/src/android/ndk-r13-release/out/build/buildhost/linux-x86_64/install/host-tools"
 prefix_real=$(installed_prefix "$0")
 
 exec_prefix_build="${prefix}"

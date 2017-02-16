@@ -8,24 +8,17 @@
  * Copyright (c) 2015-2016 LunarG, Inc.
  * Copyright (c) 2015-2016 Google Inc.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Materials"),
- * to deal in the Materials without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Materials, and to permit persons to whom the
- * Materials is furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Materials.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- *
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE MATERIALS OR THE
- * USE OR OTHER DEALINGS IN THE MATERIALS
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
  * Author: Tobin Ehlis <tobin@lunarg.com>
@@ -51,31 +44,31 @@ vkallocationcallbacks_struct_wrapper::~vkallocationcallbacks_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkallocationcallbacks_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkAllocationCallbacks = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkAllocationCallbacks = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkallocationcallbacks_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %spUserData = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pUserData));
-    printf("%*s    %spfnAllocation = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pfnAllocation));
-    printf("%*s    %spfnReallocation = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pfnReallocation));
-    printf("%*s    %spfnFree = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pfnFree));
-    printf("%*s    %spfnInternalAllocation = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pfnInternalAllocation));
-    printf("%*s    %spfnInternalFree = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pfnInternalFree));
+    printf("%*s    %spUserData = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pUserData));
+    printf("%*s    %spfnAllocation = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pfnAllocation));
+    printf("%*s    %spfnReallocation = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pfnReallocation));
+    printf("%*s    %spfnFree = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pfnFree));
+    printf("%*s    %spfnInternalAllocation = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pfnInternalAllocation));
+    printf("%*s    %spfnInternalFree = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pfnInternalFree));
 }
 
 // Output all struct elements, each on their own line
 void vkallocationcallbacks_struct_wrapper::display_txt()
 {
-    printf("%*sVkAllocationCallbacks struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkAllocationCallbacks struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkallocationcallbacks_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkAllocationCallbacks struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkAllocationCallbacks struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -96,29 +89,29 @@ vkandroidsurfacecreateinfokhr_struct_wrapper::~vkandroidsurfacecreateinfokhr_str
 // Output 'structname = struct_address' on a single line
 void vkandroidsurfacecreateinfokhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkAndroidSurfaceCreateInfoKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkAndroidSurfaceCreateInfoKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkandroidsurfacecreateinfokhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %swindow = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.window));
+    printf("%*s    %swindow = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.window));
 }
 
 // Output all struct elements, each on their own line
 void vkandroidsurfacecreateinfokhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkAndroidSurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkAndroidSurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkandroidsurfacecreateinfokhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkAndroidSurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkAndroidSurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -142,17 +135,17 @@ vkapplicationinfo_struct_wrapper::~vkapplicationinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkapplicationinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkApplicationInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkApplicationInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkapplicationinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
-    printf("%*s    %spApplicationName = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pApplicationName));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spApplicationName = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pApplicationName));
     printf("%*s    %sapplicationVersion = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.applicationVersion));
-    printf("%*s    %spEngineName = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pEngineName));
+    printf("%*s    %spEngineName = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pEngineName));
     printf("%*s    %sengineVersion = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.engineVersion));
     printf("%*s    %sapiVersion = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.apiVersion));
 }
@@ -160,14 +153,14 @@ void vkapplicationinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkapplicationinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkApplicationInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkApplicationInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkapplicationinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkApplicationInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkApplicationInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -191,7 +184,7 @@ vkattachmentdescription_struct_wrapper::~vkattachmentdescription_struct_wrapper(
 // Output 'structname = struct_address' on a single line
 void vkattachmentdescription_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkAttachmentDescription = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkAttachmentDescription = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -211,14 +204,14 @@ void vkattachmentdescription_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkattachmentdescription_struct_wrapper::display_txt()
 {
-    printf("%*sVkAttachmentDescription struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkAttachmentDescription struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkattachmentdescription_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkAttachmentDescription struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkAttachmentDescription struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -239,7 +232,7 @@ vkattachmentreference_struct_wrapper::~vkattachmentreference_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkattachmentreference_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkAttachmentReference = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkAttachmentReference = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -252,14 +245,14 @@ void vkattachmentreference_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkattachmentreference_struct_wrapper::display_txt()
 {
-    printf("%*sVkAttachmentReference struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkAttachmentReference struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkattachmentreference_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkAttachmentReference struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkAttachmentReference struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -280,48 +273,48 @@ vkbindsparseinfo_struct_wrapper::~vkbindsparseinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkbindsparseinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkBindSparseInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkBindSparseInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkbindsparseinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %swaitSemaphoreCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.waitSemaphoreCount));
     uint32_t i;
     for (i = 0; i<waitSemaphoreCount; i++) {
-        printf("%*s    %spWaitSemaphores[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pWaitSemaphores)[i]);
+        printf("%*s    %spWaitSemaphores[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pWaitSemaphores)[i]);
     }
     printf("%*s    %sbufferBindCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.bufferBindCount));
     for (i = 0; i<bufferBindCount; i++) {
-        printf("%*s    %spBufferBinds[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pBufferBinds)[i]);
+        printf("%*s    %spBufferBinds[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pBufferBinds)[i]);
     }
     printf("%*s    %simageOpaqueBindCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.imageOpaqueBindCount));
     for (i = 0; i<imageOpaqueBindCount; i++) {
-        printf("%*s    %spImageOpaqueBinds[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pImageOpaqueBinds)[i]);
+        printf("%*s    %spImageOpaqueBinds[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pImageOpaqueBinds)[i]);
     }
     printf("%*s    %simageBindCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.imageBindCount));
     for (i = 0; i<imageBindCount; i++) {
-        printf("%*s    %spImageBinds[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pImageBinds)[i]);
+        printf("%*s    %spImageBinds[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pImageBinds)[i]);
     }
     printf("%*s    %ssignalSemaphoreCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.signalSemaphoreCount));
     for (i = 0; i<signalSemaphoreCount; i++) {
-        printf("%*s    %spSignalSemaphores[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pSignalSemaphores)[i]);
+        printf("%*s    %spSignalSemaphores[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pSignalSemaphores)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkbindsparseinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkBindSparseInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkBindSparseInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkbindsparseinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkBindSparseInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkBindSparseInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<imageBindCount; i++) {
@@ -361,7 +354,7 @@ vkbuffercopy_struct_wrapper::~vkbuffercopy_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkbuffercopy_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkBufferCopy = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkBufferCopy = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -375,14 +368,14 @@ void vkbuffercopy_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkbuffercopy_struct_wrapper::display_txt()
 {
-    printf("%*sVkBufferCopy struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkBufferCopy struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkbuffercopy_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkBufferCopy struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkBufferCopy struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -403,14 +396,14 @@ vkbuffercreateinfo_struct_wrapper::~vkbuffercreateinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkbuffercreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkBufferCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkBufferCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkbuffercreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %ssize = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.size));
     printf("%*s    %susage = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.usage));
@@ -425,14 +418,14 @@ void vkbuffercreateinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkbuffercreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkBufferCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkBufferCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkbuffercreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkBufferCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkBufferCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -456,7 +449,7 @@ vkbufferimagecopy_struct_wrapper::~vkbufferimagecopy_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkbufferimagecopy_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkBufferImageCopy = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkBufferImageCopy = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -465,22 +458,22 @@ void vkbufferimagecopy_struct_wrapper::display_struct_members()
     printf("%*s    %sbufferOffset = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.bufferOffset));
     printf("%*s    %sbufferRowLength = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.bufferRowLength));
     printf("%*s    %sbufferImageHeight = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.bufferImageHeight));
-    printf("%*s    %simageSubresource = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageSubresource));
-    printf("%*s    %simageOffset = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageOffset));
-    printf("%*s    %simageExtent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageExtent));
+    printf("%*s    %simageSubresource = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageSubresource));
+    printf("%*s    %simageOffset = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageOffset));
+    printf("%*s    %simageExtent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageExtent));
 }
 
 // Output all struct elements, each on their own line
 void vkbufferimagecopy_struct_wrapper::display_txt()
 {
-    printf("%*sVkBufferImageCopy struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkBufferImageCopy struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkbufferimagecopy_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkBufferImageCopy struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkBufferImageCopy struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.imageExtent) {
         vkextent3d_struct_wrapper class0(&m_struct.imageExtent);
@@ -516,19 +509,19 @@ vkbuffermemorybarrier_struct_wrapper::~vkbuffermemorybarrier_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkbuffermemorybarrier_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkBufferMemoryBarrier = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkBufferMemoryBarrier = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkbuffermemorybarrier_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %ssrcAccessMask = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.srcAccessMask));
     printf("%*s    %sdstAccessMask = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.dstAccessMask));
     printf("%*s    %ssrcQueueFamilyIndex = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.srcQueueFamilyIndex));
     printf("%*s    %sdstQueueFamilyIndex = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.dstQueueFamilyIndex));
-    printf("%*s    %sbuffer = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.buffer));
+    printf("%*s    %sbuffer = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.buffer));
     printf("%*s    %soffset = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.offset));
     printf("%*s    %ssize = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.size));
 }
@@ -536,14 +529,14 @@ void vkbuffermemorybarrier_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkbuffermemorybarrier_struct_wrapper::display_txt()
 {
-    printf("%*sVkBufferMemoryBarrier struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkBufferMemoryBarrier struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkbuffermemorybarrier_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkBufferMemoryBarrier struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkBufferMemoryBarrier struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -567,16 +560,16 @@ vkbufferviewcreateinfo_struct_wrapper::~vkbufferviewcreateinfo_struct_wrapper() 
 // Output 'structname = struct_address' on a single line
 void vkbufferviewcreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkBufferViewCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkBufferViewCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkbufferviewcreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %sbuffer = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.buffer));
+    printf("%*s    %sbuffer = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.buffer));
     printf("%*s    %sformat = %s\n", m_indent, "", &m_dummy_prefix, string_VkFormat(m_struct.format));
     printf("%*s    %soffset = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.offset));
     printf("%*s    %srange = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.range));
@@ -585,14 +578,14 @@ void vkbufferviewcreateinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkbufferviewcreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkBufferViewCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkBufferViewCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkbufferviewcreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkBufferViewCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkBufferViewCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -616,7 +609,7 @@ vkclearattachment_struct_wrapper::~vkclearattachment_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkclearattachment_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkClearAttachment = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkClearAttachment = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -624,20 +617,20 @@ void vkclearattachment_struct_wrapper::display_struct_members()
 {
     printf("%*s    %saspectMask = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.aspectMask));
     printf("%*s    %scolorAttachment = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.colorAttachment));
-    printf("%*s    %sclearValue = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.clearValue));
+    printf("%*s    %sclearValue = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.clearValue));
 }
 
 // Output all struct elements, each on their own line
 void vkclearattachment_struct_wrapper::display_txt()
 {
-    printf("%*sVkClearAttachment struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkClearAttachment struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkclearattachment_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkClearAttachment struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkClearAttachment struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.clearValue) {
         vkclearvalue_struct_wrapper class0(&m_struct.clearValue);
@@ -663,7 +656,7 @@ vkclearcolorvalue_struct_wrapper::~vkclearcolorvalue_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkclearcolorvalue_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkClearColorValue = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkClearColorValue = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -684,14 +677,14 @@ void vkclearcolorvalue_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkclearcolorvalue_struct_wrapper::display_txt()
 {
-    printf("%*sVkClearColorValue struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkClearColorValue struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkclearcolorvalue_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkClearColorValue struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkClearColorValue struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -712,7 +705,7 @@ vkcleardepthstencilvalue_struct_wrapper::~vkcleardepthstencilvalue_struct_wrappe
 // Output 'structname = struct_address' on a single line
 void vkcleardepthstencilvalue_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkClearDepthStencilValue = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkClearDepthStencilValue = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -725,14 +718,14 @@ void vkcleardepthstencilvalue_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkcleardepthstencilvalue_struct_wrapper::display_txt()
 {
-    printf("%*sVkClearDepthStencilValue struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkClearDepthStencilValue struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkcleardepthstencilvalue_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkClearDepthStencilValue struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkClearDepthStencilValue struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -753,13 +746,13 @@ vkclearrect_struct_wrapper::~vkclearrect_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkclearrect_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkClearRect = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkClearRect = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkclearrect_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %srect = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.rect));
+    printf("%*s    %srect = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.rect));
     printf("%*s    %sbaseArrayLayer = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.baseArrayLayer));
     printf("%*s    %slayerCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.layerCount));
 }
@@ -767,14 +760,14 @@ void vkclearrect_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkclearrect_struct_wrapper::display_txt()
 {
-    printf("%*sVkClearRect struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkClearRect struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkclearrect_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkClearRect struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkClearRect struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.rect) {
         vkrect2d_struct_wrapper class0(&m_struct.rect);
@@ -800,27 +793,27 @@ vkclearvalue_struct_wrapper::~vkclearvalue_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkclearvalue_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkClearValue = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkClearValue = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkclearvalue_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %scolor = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.color));
-    printf("%*s    %sdepthStencil = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.depthStencil));
+    printf("%*s    %scolor = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.color));
+    printf("%*s    %sdepthStencil = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.depthStencil));
 }
 
 // Output all struct elements, each on their own line
 void vkclearvalue_struct_wrapper::display_txt()
 {
-    printf("%*sVkClearValue struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkClearValue struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkclearvalue_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkClearValue struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkClearValue struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.depthStencil) {
         vkcleardepthstencilvalue_struct_wrapper class0(&m_struct.depthStencil);
@@ -851,15 +844,15 @@ vkcommandbufferallocateinfo_struct_wrapper::~vkcommandbufferallocateinfo_struct_
 // Output 'structname = struct_address' on a single line
 void vkcommandbufferallocateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkCommandBufferAllocateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkCommandBufferAllocateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkcommandbufferallocateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
-    printf("%*s    %scommandPool = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.commandPool));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %scommandPool = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.commandPool));
     printf("%*s    %slevel = %s\n", m_indent, "", &m_dummy_prefix, string_VkCommandBufferLevel(m_struct.level));
     printf("%*s    %scommandBufferCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.commandBufferCount));
 }
@@ -867,14 +860,14 @@ void vkcommandbufferallocateinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkcommandbufferallocateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkCommandBufferAllocateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkCommandBufferAllocateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkcommandbufferallocateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkCommandBufferAllocateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkCommandBufferAllocateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -898,29 +891,29 @@ vkcommandbufferbegininfo_struct_wrapper::~vkcommandbufferbegininfo_struct_wrappe
 // Output 'structname = struct_address' on a single line
 void vkcommandbufferbegininfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkCommandBufferBeginInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkCommandBufferBeginInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkcommandbufferbegininfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %spInheritanceInfo = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pInheritanceInfo));
+    printf("%*s    %spInheritanceInfo = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pInheritanceInfo));
 }
 
 // Output all struct elements, each on their own line
 void vkcommandbufferbegininfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkCommandBufferBeginInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkCommandBufferBeginInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkcommandbufferbegininfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkCommandBufferBeginInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkCommandBufferBeginInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pInheritanceInfo) {
         vkcommandbufferinheritanceinfo_struct_wrapper class0(m_struct.pInheritanceInfo);
@@ -949,17 +942,17 @@ vkcommandbufferinheritanceinfo_struct_wrapper::~vkcommandbufferinheritanceinfo_s
 // Output 'structname = struct_address' on a single line
 void vkcommandbufferinheritanceinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkCommandBufferInheritanceInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkCommandBufferInheritanceInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkcommandbufferinheritanceinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
-    printf("%*s    %srenderPass = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.renderPass));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %srenderPass = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.renderPass));
     printf("%*s    %ssubpass = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.subpass));
-    printf("%*s    %sframebuffer = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.framebuffer));
+    printf("%*s    %sframebuffer = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.framebuffer));
     printf("%*s    %socclusionQueryEnable = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.occlusionQueryEnable) ? "TRUE" : "FALSE");
     printf("%*s    %squeryFlags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.queryFlags));
     printf("%*s    %spipelineStatistics = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.pipelineStatistics));
@@ -968,14 +961,14 @@ void vkcommandbufferinheritanceinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkcommandbufferinheritanceinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkCommandBufferInheritanceInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkCommandBufferInheritanceInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkcommandbufferinheritanceinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkCommandBufferInheritanceInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkCommandBufferInheritanceInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -999,14 +992,14 @@ vkcommandpoolcreateinfo_struct_wrapper::~vkcommandpoolcreateinfo_struct_wrapper(
 // Output 'structname = struct_address' on a single line
 void vkcommandpoolcreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkCommandPoolCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkCommandPoolCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkcommandpoolcreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %squeueFamilyIndex = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.queueFamilyIndex));
 }
@@ -1014,14 +1007,14 @@ void vkcommandpoolcreateinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkcommandpoolcreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkCommandPoolCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkCommandPoolCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkcommandpoolcreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkCommandPoolCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkCommandPoolCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -1045,7 +1038,7 @@ vkcomponentmapping_struct_wrapper::~vkcomponentmapping_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkcomponentmapping_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkComponentMapping = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkComponentMapping = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -1060,14 +1053,14 @@ void vkcomponentmapping_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkcomponentmapping_struct_wrapper::display_txt()
 {
-    printf("%*sVkComponentMapping struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkComponentMapping struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkcomponentmapping_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkComponentMapping struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkComponentMapping struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -1088,32 +1081,32 @@ vkcomputepipelinecreateinfo_struct_wrapper::~vkcomputepipelinecreateinfo_struct_
 // Output 'structname = struct_address' on a single line
 void vkcomputepipelinecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkComputePipelineCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkComputePipelineCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkcomputepipelinecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %sstage = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.stage));
-    printf("%*s    %slayout = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.layout));
-    printf("%*s    %sbasePipelineHandle = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.basePipelineHandle));
+    printf("%*s    %sstage = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.stage));
+    printf("%*s    %slayout = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.layout));
+    printf("%*s    %sbasePipelineHandle = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.basePipelineHandle));
     printf("%*s    %sbasePipelineIndex = %i\n", m_indent, "", &m_dummy_prefix, (m_struct.basePipelineIndex));
 }
 
 // Output all struct elements, each on their own line
 void vkcomputepipelinecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkComputePipelineCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkComputePipelineCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkcomputepipelinecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkComputePipelineCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkComputePipelineCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.stage) {
         vkpipelineshaderstagecreateinfo_struct_wrapper class0(&m_struct.stage);
@@ -1142,18 +1135,18 @@ vkcopydescriptorset_struct_wrapper::~vkcopydescriptorset_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkcopydescriptorset_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkCopyDescriptorSet = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkCopyDescriptorSet = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkcopydescriptorset_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
-    printf("%*s    %ssrcSet = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.srcSet));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %ssrcSet = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.srcSet));
     printf("%*s    %ssrcBinding = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.srcBinding));
     printf("%*s    %ssrcArrayElement = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.srcArrayElement));
-    printf("%*s    %sdstSet = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.dstSet));
+    printf("%*s    %sdstSet = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.dstSet));
     printf("%*s    %sdstBinding = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.dstBinding));
     printf("%*s    %sdstArrayElement = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.dstArrayElement));
     printf("%*s    %sdescriptorCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.descriptorCount));
@@ -1162,14 +1155,159 @@ void vkcopydescriptorset_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkcopydescriptorset_struct_wrapper::display_txt()
 {
-    printf("%*sVkCopyDescriptorSet struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkCopyDescriptorSet struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkcopydescriptorset_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkCopyDescriptorSet struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkCopyDescriptorSet struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
+}
+
+
+// vkdebugmarkermarkerinfoext_struct_wrapper class definition
+vkdebugmarkermarkerinfoext_struct_wrapper::vkdebugmarkermarkerinfoext_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkdebugmarkermarkerinfoext_struct_wrapper::vkdebugmarkermarkerinfoext_struct_wrapper(VkDebugMarkerMarkerInfoEXT* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkdebugmarkermarkerinfoext_struct_wrapper::vkdebugmarkermarkerinfoext_struct_wrapper(const VkDebugMarkerMarkerInfoEXT* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkdebugmarkermarkerinfoext_struct_wrapper::~vkdebugmarkermarkerinfoext_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkdebugmarkermarkerinfoext_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkDebugMarkerMarkerInfoEXT = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkdebugmarkermarkerinfoext_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spMarkerName = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pMarkerName));
+    uint32_t i;
+    for (i = 0; i<4; i++) {
+        printf("%*s    %scolor[%u] = %f\n", m_indent, "", &m_dummy_prefix, i, (m_struct.color)[i]);
+    }
+}
+
+// Output all struct elements, each on their own line
+void vkdebugmarkermarkerinfoext_struct_wrapper::display_txt()
+{
+    printf("%*sVkDebugMarkerMarkerInfoEXT struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkdebugmarkermarkerinfoext_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkDebugMarkerMarkerInfoEXT struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
+}
+
+
+// vkdebugmarkerobjectnameinfoext_struct_wrapper class definition
+vkdebugmarkerobjectnameinfoext_struct_wrapper::vkdebugmarkerobjectnameinfoext_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkdebugmarkerobjectnameinfoext_struct_wrapper::vkdebugmarkerobjectnameinfoext_struct_wrapper(VkDebugMarkerObjectNameInfoEXT* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkdebugmarkerobjectnameinfoext_struct_wrapper::vkdebugmarkerobjectnameinfoext_struct_wrapper(const VkDebugMarkerObjectNameInfoEXT* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkdebugmarkerobjectnameinfoext_struct_wrapper::~vkdebugmarkerobjectnameinfoext_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkdebugmarkerobjectnameinfoext_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkDebugMarkerObjectNameInfoEXT = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkdebugmarkerobjectnameinfoext_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %sobjectType = %s\n", m_indent, "", &m_dummy_prefix, string_VkDebugReportObjectTypeEXT(m_struct.objectType));
+    printf("%*s    %sobject = %" PRId64 "\n", m_indent, "", &m_dummy_prefix, (m_struct.object));
+    printf("%*s    %spObjectName = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pObjectName));
+}
+
+// Output all struct elements, each on their own line
+void vkdebugmarkerobjectnameinfoext_struct_wrapper::display_txt()
+{
+    printf("%*sVkDebugMarkerObjectNameInfoEXT struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkdebugmarkerobjectnameinfoext_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkDebugMarkerObjectNameInfoEXT struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
+}
+
+
+// vkdebugmarkerobjecttaginfoext_struct_wrapper class definition
+vkdebugmarkerobjecttaginfoext_struct_wrapper::vkdebugmarkerobjecttaginfoext_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkdebugmarkerobjecttaginfoext_struct_wrapper::vkdebugmarkerobjecttaginfoext_struct_wrapper(VkDebugMarkerObjectTagInfoEXT* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkdebugmarkerobjecttaginfoext_struct_wrapper::vkdebugmarkerobjecttaginfoext_struct_wrapper(const VkDebugMarkerObjectTagInfoEXT* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkdebugmarkerobjecttaginfoext_struct_wrapper::~vkdebugmarkerobjecttaginfoext_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkdebugmarkerobjecttaginfoext_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkDebugMarkerObjectTagInfoEXT = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkdebugmarkerobjecttaginfoext_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %sobjectType = %s\n", m_indent, "", &m_dummy_prefix, string_VkDebugReportObjectTypeEXT(m_struct.objectType));
+    printf("%*s    %sobject = %" PRId64 "\n", m_indent, "", &m_dummy_prefix, (m_struct.object));
+    printf("%*s    %stagName = %" PRId64 "\n", m_indent, "", &m_dummy_prefix, (m_struct.tagName));
+    printf("%*s    %stagSize = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.tagSize));
+    printf("%*s    %spTag = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pTag));
+}
+
+// Output all struct elements, each on their own line
+void vkdebugmarkerobjecttaginfoext_struct_wrapper::display_txt()
+{
+    printf("%*sVkDebugMarkerObjectTagInfoEXT struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkdebugmarkerobjecttaginfoext_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkDebugMarkerObjectTagInfoEXT struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -1193,30 +1331,166 @@ vkdebugreportcallbackcreateinfoext_struct_wrapper::~vkdebugreportcallbackcreatei
 // Output 'structname = struct_address' on a single line
 void vkdebugreportcallbackcreateinfoext_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDebugReportCallbackCreateInfoEXT = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDebugReportCallbackCreateInfoEXT = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdebugreportcallbackcreateinfoext_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %spfnCallback = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pfnCallback));
-    printf("%*s    %spUserData = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pUserData));
+    printf("%*s    %spfnCallback = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pfnCallback));
+    printf("%*s    %spUserData = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pUserData));
 }
 
 // Output all struct elements, each on their own line
 void vkdebugreportcallbackcreateinfoext_struct_wrapper::display_txt()
 {
-    printf("%*sVkDebugReportCallbackCreateInfoEXT struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDebugReportCallbackCreateInfoEXT struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdebugreportcallbackcreateinfoext_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDebugReportCallbackCreateInfoEXT struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDebugReportCallbackCreateInfoEXT struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
+}
+
+
+// vkdedicatedallocationbuffercreateinfonv_struct_wrapper class definition
+vkdedicatedallocationbuffercreateinfonv_struct_wrapper::vkdedicatedallocationbuffercreateinfonv_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkdedicatedallocationbuffercreateinfonv_struct_wrapper::vkdedicatedallocationbuffercreateinfonv_struct_wrapper(VkDedicatedAllocationBufferCreateInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkdedicatedallocationbuffercreateinfonv_struct_wrapper::vkdedicatedallocationbuffercreateinfonv_struct_wrapper(const VkDedicatedAllocationBufferCreateInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkdedicatedallocationbuffercreateinfonv_struct_wrapper::~vkdedicatedallocationbuffercreateinfonv_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkdedicatedallocationbuffercreateinfonv_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkDedicatedAllocationBufferCreateInfoNV = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkdedicatedallocationbuffercreateinfonv_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %sdedicatedAllocation = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.dedicatedAllocation) ? "TRUE" : "FALSE");
+}
+
+// Output all struct elements, each on their own line
+void vkdedicatedallocationbuffercreateinfonv_struct_wrapper::display_txt()
+{
+    printf("%*sVkDedicatedAllocationBufferCreateInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkdedicatedallocationbuffercreateinfonv_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkDedicatedAllocationBufferCreateInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
+}
+
+
+// vkdedicatedallocationimagecreateinfonv_struct_wrapper class definition
+vkdedicatedallocationimagecreateinfonv_struct_wrapper::vkdedicatedallocationimagecreateinfonv_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkdedicatedallocationimagecreateinfonv_struct_wrapper::vkdedicatedallocationimagecreateinfonv_struct_wrapper(VkDedicatedAllocationImageCreateInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkdedicatedallocationimagecreateinfonv_struct_wrapper::vkdedicatedallocationimagecreateinfonv_struct_wrapper(const VkDedicatedAllocationImageCreateInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkdedicatedallocationimagecreateinfonv_struct_wrapper::~vkdedicatedallocationimagecreateinfonv_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkdedicatedallocationimagecreateinfonv_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkDedicatedAllocationImageCreateInfoNV = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkdedicatedallocationimagecreateinfonv_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %sdedicatedAllocation = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.dedicatedAllocation) ? "TRUE" : "FALSE");
+}
+
+// Output all struct elements, each on their own line
+void vkdedicatedallocationimagecreateinfonv_struct_wrapper::display_txt()
+{
+    printf("%*sVkDedicatedAllocationImageCreateInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkdedicatedallocationimagecreateinfonv_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkDedicatedAllocationImageCreateInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
+}
+
+
+// vkdedicatedallocationmemoryallocateinfonv_struct_wrapper class definition
+vkdedicatedallocationmemoryallocateinfonv_struct_wrapper::vkdedicatedallocationmemoryallocateinfonv_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkdedicatedallocationmemoryallocateinfonv_struct_wrapper::vkdedicatedallocationmemoryallocateinfonv_struct_wrapper(VkDedicatedAllocationMemoryAllocateInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkdedicatedallocationmemoryallocateinfonv_struct_wrapper::vkdedicatedallocationmemoryallocateinfonv_struct_wrapper(const VkDedicatedAllocationMemoryAllocateInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkdedicatedallocationmemoryallocateinfonv_struct_wrapper::~vkdedicatedallocationmemoryallocateinfonv_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkdedicatedallocationmemoryallocateinfonv_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkDedicatedAllocationMemoryAllocateInfoNV = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkdedicatedallocationmemoryallocateinfonv_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %simage = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.image));
+    printf("%*s    %sbuffer = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.buffer));
+}
+
+// Output all struct elements, each on their own line
+void vkdedicatedallocationmemoryallocateinfonv_struct_wrapper::display_txt()
+{
+    printf("%*sVkDedicatedAllocationMemoryAllocateInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkdedicatedallocationmemoryallocateinfonv_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkDedicatedAllocationMemoryAllocateInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -1240,13 +1514,13 @@ vkdescriptorbufferinfo_struct_wrapper::~vkdescriptorbufferinfo_struct_wrapper() 
 // Output 'structname = struct_address' on a single line
 void vkdescriptorbufferinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDescriptorBufferInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDescriptorBufferInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdescriptorbufferinfo_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %sbuffer = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.buffer));
+    printf("%*s    %sbuffer = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.buffer));
     printf("%*s    %soffset = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.offset));
     printf("%*s    %srange = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.range));
 }
@@ -1254,14 +1528,14 @@ void vkdescriptorbufferinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkdescriptorbufferinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkDescriptorBufferInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorBufferInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdescriptorbufferinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDescriptorBufferInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorBufferInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -1282,28 +1556,28 @@ vkdescriptorimageinfo_struct_wrapper::~vkdescriptorimageinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkdescriptorimageinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDescriptorImageInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDescriptorImageInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdescriptorimageinfo_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %ssampler = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.sampler));
-    printf("%*s    %simageView = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.imageView));
+    printf("%*s    %ssampler = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.sampler));
+    printf("%*s    %simageView = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.imageView));
     printf("%*s    %simageLayout = %s\n", m_indent, "", &m_dummy_prefix, string_VkImageLayout(m_struct.imageLayout));
 }
 
 // Output all struct elements, each on their own line
 void vkdescriptorimageinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkDescriptorImageInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorImageInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdescriptorimageinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDescriptorImageInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorImageInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -1324,34 +1598,34 @@ vkdescriptorpoolcreateinfo_struct_wrapper::~vkdescriptorpoolcreateinfo_struct_wr
 // Output 'structname = struct_address' on a single line
 void vkdescriptorpoolcreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDescriptorPoolCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDescriptorPoolCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdescriptorpoolcreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %smaxSets = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.maxSets));
     printf("%*s    %spoolSizeCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.poolSizeCount));
     uint32_t i;
     for (i = 0; i<poolSizeCount; i++) {
-        printf("%*s    %spPoolSizes[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pPoolSizes)[i]);
+        printf("%*s    %spPoolSizes[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pPoolSizes)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkdescriptorpoolcreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkDescriptorPoolCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorPoolCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdescriptorpoolcreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDescriptorPoolCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorPoolCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<poolSizeCount; i++) {
@@ -1381,7 +1655,7 @@ vkdescriptorpoolsize_struct_wrapper::~vkdescriptorpoolsize_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkdescriptorpoolsize_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDescriptorPoolSize = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDescriptorPoolSize = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -1394,14 +1668,14 @@ void vkdescriptorpoolsize_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkdescriptorpoolsize_struct_wrapper::display_txt()
 {
-    printf("%*sVkDescriptorPoolSize struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorPoolSize struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdescriptorpoolsize_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDescriptorPoolSize struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorPoolSize struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -1422,33 +1696,33 @@ vkdescriptorsetallocateinfo_struct_wrapper::~vkdescriptorsetallocateinfo_struct_
 // Output 'structname = struct_address' on a single line
 void vkdescriptorsetallocateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDescriptorSetAllocateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDescriptorSetAllocateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdescriptorsetallocateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
-    printf("%*s    %sdescriptorPool = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.descriptorPool));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %sdescriptorPool = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.descriptorPool));
     printf("%*s    %sdescriptorSetCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.descriptorSetCount));
     uint32_t i;
     for (i = 0; i<descriptorSetCount; i++) {
-        printf("%*s    %spSetLayouts[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pSetLayouts)[i]);
+        printf("%*s    %spSetLayouts[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pSetLayouts)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkdescriptorsetallocateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkDescriptorSetAllocateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorSetAllocateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdescriptorsetallocateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDescriptorSetAllocateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorSetAllocateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -1472,7 +1746,7 @@ vkdescriptorsetlayoutbinding_struct_wrapper::~vkdescriptorsetlayoutbinding_struc
 // Output 'structname = struct_address' on a single line
 void vkdescriptorsetlayoutbinding_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDescriptorSetLayoutBinding = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDescriptorSetLayoutBinding = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -1484,21 +1758,21 @@ void vkdescriptorsetlayoutbinding_struct_wrapper::display_struct_members()
     printf("%*s    %sstageFlags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.stageFlags));
     uint32_t i;
     for (i = 0; i<descriptorCount; i++) {
-        printf("%*s    %spImmutableSamplers[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pImmutableSamplers)[i]);
+        printf("%*s    %spImmutableSamplers[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pImmutableSamplers)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkdescriptorsetlayoutbinding_struct_wrapper::display_txt()
 {
-    printf("%*sVkDescriptorSetLayoutBinding struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorSetLayoutBinding struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdescriptorsetlayoutbinding_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDescriptorSetLayoutBinding struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorSetLayoutBinding struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -1519,33 +1793,33 @@ vkdescriptorsetlayoutcreateinfo_struct_wrapper::~vkdescriptorsetlayoutcreateinfo
 // Output 'structname = struct_address' on a single line
 void vkdescriptorsetlayoutcreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDescriptorSetLayoutCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDescriptorSetLayoutCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdescriptorsetlayoutcreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %sbindingCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.bindingCount));
     uint32_t i;
     for (i = 0; i<bindingCount; i++) {
-        printf("%*s    %spBindings[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pBindings)[i]);
+        printf("%*s    %spBindings[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pBindings)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkdescriptorsetlayoutcreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkDescriptorSetLayoutCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorSetLayoutCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdescriptorsetlayoutcreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDescriptorSetLayoutCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDescriptorSetLayoutCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<bindingCount; i++) {
@@ -1575,19 +1849,19 @@ vkdevicecreateinfo_struct_wrapper::~vkdevicecreateinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkdevicecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDeviceCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDeviceCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdevicecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %squeueCreateInfoCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.queueCreateInfoCount));
     uint32_t i;
     for (i = 0; i<queueCreateInfoCount; i++) {
-        printf("%*s    %spQueueCreateInfos[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pQueueCreateInfos)[i]);
+        printf("%*s    %spQueueCreateInfos[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pQueueCreateInfos)[i]);
     }
     printf("%*s    %senabledLayerCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.enabledLayerCount));
     for (i = 0; i<enabledLayerCount; i++) {
@@ -1597,20 +1871,20 @@ void vkdevicecreateinfo_struct_wrapper::display_struct_members()
     for (i = 0; i<enabledExtensionCount; i++) {
         printf("%*s    %sppEnabledExtensionNames = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.ppEnabledExtensionNames)[0]);
     }
-    printf("%*s    %spEnabledFeatures = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pEnabledFeatures));
+    printf("%*s    %spEnabledFeatures = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pEnabledFeatures));
 }
 
 // Output all struct elements, each on their own line
 void vkdevicecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkDeviceCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDeviceCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdevicecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDeviceCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDeviceCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pEnabledFeatures) {
         vkphysicaldevicefeatures_struct_wrapper class0(m_struct.pEnabledFeatures);
@@ -1645,14 +1919,14 @@ vkdevicequeuecreateinfo_struct_wrapper::~vkdevicequeuecreateinfo_struct_wrapper(
 // Output 'structname = struct_address' on a single line
 void vkdevicequeuecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDeviceQueueCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDeviceQueueCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdevicequeuecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %squeueFamilyIndex = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.queueFamilyIndex));
     printf("%*s    %squeueCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.queueCount));
@@ -1665,14 +1939,14 @@ void vkdevicequeuecreateinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkdevicequeuecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkDeviceQueueCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDeviceQueueCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdevicequeuecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDeviceQueueCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDeviceQueueCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -1696,7 +1970,7 @@ vkdispatchindirectcommand_struct_wrapper::~vkdispatchindirectcommand_struct_wrap
 // Output 'structname = struct_address' on a single line
 void vkdispatchindirectcommand_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDispatchIndirectCommand = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDispatchIndirectCommand = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -1710,14 +1984,14 @@ void vkdispatchindirectcommand_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkdispatchindirectcommand_struct_wrapper::display_txt()
 {
-    printf("%*sVkDispatchIndirectCommand struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDispatchIndirectCommand struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdispatchindirectcommand_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDispatchIndirectCommand struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDispatchIndirectCommand struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -1738,29 +2012,29 @@ vkdisplaymodecreateinfokhr_struct_wrapper::~vkdisplaymodecreateinfokhr_struct_wr
 // Output 'structname = struct_address' on a single line
 void vkdisplaymodecreateinfokhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDisplayModeCreateInfoKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDisplayModeCreateInfoKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdisplaymodecreateinfokhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %sparameters = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.parameters));
+    printf("%*s    %sparameters = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.parameters));
 }
 
 // Output all struct elements, each on their own line
 void vkdisplaymodecreateinfokhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkDisplayModeCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayModeCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdisplaymodecreateinfokhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDisplayModeCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayModeCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.parameters) {
         vkdisplaymodeparameterskhr_struct_wrapper class0(&m_struct.parameters);
@@ -1789,27 +2063,27 @@ vkdisplaymodeparameterskhr_struct_wrapper::~vkdisplaymodeparameterskhr_struct_wr
 // Output 'structname = struct_address' on a single line
 void vkdisplaymodeparameterskhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDisplayModeParametersKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDisplayModeParametersKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdisplaymodeparameterskhr_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %svisibleRegion = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.visibleRegion));
+    printf("%*s    %svisibleRegion = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.visibleRegion));
     printf("%*s    %srefreshRate = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.refreshRate));
 }
 
 // Output all struct elements, each on their own line
 void vkdisplaymodeparameterskhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkDisplayModeParametersKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayModeParametersKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdisplaymodeparameterskhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDisplayModeParametersKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayModeParametersKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.visibleRegion) {
         vkextent2d_struct_wrapper class0(&m_struct.visibleRegion);
@@ -1835,27 +2109,27 @@ vkdisplaymodepropertieskhr_struct_wrapper::~vkdisplaymodepropertieskhr_struct_wr
 // Output 'structname = struct_address' on a single line
 void vkdisplaymodepropertieskhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDisplayModePropertiesKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDisplayModePropertiesKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdisplaymodepropertieskhr_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %sdisplayMode = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.displayMode));
-    printf("%*s    %sparameters = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.parameters));
+    printf("%*s    %sdisplayMode = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.displayMode));
+    printf("%*s    %sparameters = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.parameters));
 }
 
 // Output all struct elements, each on their own line
 void vkdisplaymodepropertieskhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkDisplayModePropertiesKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayModePropertiesKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdisplaymodepropertieskhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDisplayModePropertiesKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayModePropertiesKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.parameters) {
         vkdisplaymodeparameterskhr_struct_wrapper class0(&m_struct.parameters);
@@ -1881,34 +2155,34 @@ vkdisplayplanecapabilitieskhr_struct_wrapper::~vkdisplayplanecapabilitieskhr_str
 // Output 'structname = struct_address' on a single line
 void vkdisplayplanecapabilitieskhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDisplayPlaneCapabilitiesKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDisplayPlaneCapabilitiesKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdisplayplanecapabilitieskhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssupportedAlpha = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.supportedAlpha));
-    printf("%*s    %sminSrcPosition = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.minSrcPosition));
-    printf("%*s    %smaxSrcPosition = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.maxSrcPosition));
-    printf("%*s    %sminSrcExtent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.minSrcExtent));
-    printf("%*s    %smaxSrcExtent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.maxSrcExtent));
-    printf("%*s    %sminDstPosition = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.minDstPosition));
-    printf("%*s    %smaxDstPosition = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.maxDstPosition));
-    printf("%*s    %sminDstExtent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.minDstExtent));
-    printf("%*s    %smaxDstExtent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.maxDstExtent));
+    printf("%*s    %sminSrcPosition = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.minSrcPosition));
+    printf("%*s    %smaxSrcPosition = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.maxSrcPosition));
+    printf("%*s    %sminSrcExtent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.minSrcExtent));
+    printf("%*s    %smaxSrcExtent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.maxSrcExtent));
+    printf("%*s    %sminDstPosition = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.minDstPosition));
+    printf("%*s    %smaxDstPosition = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.maxDstPosition));
+    printf("%*s    %sminDstExtent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.minDstExtent));
+    printf("%*s    %smaxDstExtent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.maxDstExtent));
 }
 
 // Output all struct elements, each on their own line
 void vkdisplayplanecapabilitieskhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkDisplayPlaneCapabilitiesKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayPlaneCapabilitiesKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdisplayplanecapabilitieskhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDisplayPlaneCapabilitiesKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayPlaneCapabilitiesKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.maxDstExtent) {
         vkextent2d_struct_wrapper class0(&m_struct.maxDstExtent);
@@ -1969,27 +2243,27 @@ vkdisplayplanepropertieskhr_struct_wrapper::~vkdisplayplanepropertieskhr_struct_
 // Output 'structname = struct_address' on a single line
 void vkdisplayplanepropertieskhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDisplayPlanePropertiesKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDisplayPlanePropertiesKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdisplayplanepropertieskhr_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %scurrentDisplay = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.currentDisplay));
+    printf("%*s    %scurrentDisplay = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.currentDisplay));
     printf("%*s    %scurrentStackIndex = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.currentStackIndex));
 }
 
 // Output all struct elements, each on their own line
 void vkdisplayplanepropertieskhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkDisplayPlanePropertiesKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayPlanePropertiesKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdisplayplanepropertieskhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDisplayPlanePropertiesKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayPlanePropertiesKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -2010,30 +2284,30 @@ vkdisplaypresentinfokhr_struct_wrapper::~vkdisplaypresentinfokhr_struct_wrapper(
 // Output 'structname = struct_address' on a single line
 void vkdisplaypresentinfokhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDisplayPresentInfoKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDisplayPresentInfoKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdisplaypresentinfokhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
-    printf("%*s    %ssrcRect = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.srcRect));
-    printf("%*s    %sdstRect = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.dstRect));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %ssrcRect = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.srcRect));
+    printf("%*s    %sdstRect = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.dstRect));
     printf("%*s    %spersistent = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.persistent) ? "TRUE" : "FALSE");
 }
 
 // Output all struct elements, each on their own line
 void vkdisplaypresentinfokhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkDisplayPresentInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayPresentInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdisplaypresentinfokhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDisplayPresentInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayPresentInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.dstRect) {
         vkrect2d_struct_wrapper class0(&m_struct.dstRect);
@@ -2067,16 +2341,16 @@ vkdisplaypropertieskhr_struct_wrapper::~vkdisplaypropertieskhr_struct_wrapper() 
 // Output 'structname = struct_address' on a single line
 void vkdisplaypropertieskhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDisplayPropertiesKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDisplayPropertiesKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdisplaypropertieskhr_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %sdisplay = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.display));
-    printf("%*s    %sdisplayName = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.displayName));
-    printf("%*s    %sphysicalDimensions = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.physicalDimensions));
-    printf("%*s    %sphysicalResolution = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.physicalResolution));
+    printf("%*s    %sdisplay = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.display));
+    printf("%*s    %sdisplayName = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.displayName));
+    printf("%*s    %sphysicalDimensions = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.physicalDimensions));
+    printf("%*s    %sphysicalResolution = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.physicalResolution));
     printf("%*s    %ssupportedTransforms = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.supportedTransforms));
     printf("%*s    %splaneReorderPossible = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.planeReorderPossible) ? "TRUE" : "FALSE");
     printf("%*s    %spersistentContent = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.persistentContent) ? "TRUE" : "FALSE");
@@ -2085,14 +2359,14 @@ void vkdisplaypropertieskhr_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkdisplaypropertieskhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkDisplayPropertiesKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayPropertiesKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdisplaypropertieskhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDisplayPropertiesKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplayPropertiesKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.physicalResolution) {
         vkextent2d_struct_wrapper class0(&m_struct.physicalResolution);
@@ -2123,35 +2397,35 @@ vkdisplaysurfacecreateinfokhr_struct_wrapper::~vkdisplaysurfacecreateinfokhr_str
 // Output 'structname = struct_address' on a single line
 void vkdisplaysurfacecreateinfokhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDisplaySurfaceCreateInfoKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDisplaySurfaceCreateInfoKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkdisplaysurfacecreateinfokhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %sdisplayMode = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.displayMode));
+    printf("%*s    %sdisplayMode = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.displayMode));
     printf("%*s    %splaneIndex = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.planeIndex));
     printf("%*s    %splaneStackIndex = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.planeStackIndex));
     printf("%*s    %stransform = %s\n", m_indent, "", &m_dummy_prefix, string_VkSurfaceTransformFlagBitsKHR(m_struct.transform));
     printf("%*s    %sglobalAlpha = %f\n", m_indent, "", &m_dummy_prefix, (m_struct.globalAlpha));
     printf("%*s    %salphaMode = %s\n", m_indent, "", &m_dummy_prefix, string_VkDisplayPlaneAlphaFlagBitsKHR(m_struct.alphaMode));
-    printf("%*s    %simageExtent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageExtent));
+    printf("%*s    %simageExtent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageExtent));
 }
 
 // Output all struct elements, each on their own line
 void vkdisplaysurfacecreateinfokhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkDisplaySurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplaySurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdisplaysurfacecreateinfokhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDisplaySurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDisplaySurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.imageExtent) {
         vkextent2d_struct_wrapper class0(&m_struct.imageExtent);
@@ -2180,7 +2454,7 @@ vkdrawindexedindirectcommand_struct_wrapper::~vkdrawindexedindirectcommand_struc
 // Output 'structname = struct_address' on a single line
 void vkdrawindexedindirectcommand_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDrawIndexedIndirectCommand = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDrawIndexedIndirectCommand = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -2196,14 +2470,14 @@ void vkdrawindexedindirectcommand_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkdrawindexedindirectcommand_struct_wrapper::display_txt()
 {
-    printf("%*sVkDrawIndexedIndirectCommand struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDrawIndexedIndirectCommand struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdrawindexedindirectcommand_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDrawIndexedIndirectCommand struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDrawIndexedIndirectCommand struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -2224,7 +2498,7 @@ vkdrawindirectcommand_struct_wrapper::~vkdrawindirectcommand_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkdrawindirectcommand_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkDrawIndirectCommand = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkDrawIndirectCommand = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -2239,14 +2513,14 @@ void vkdrawindirectcommand_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkdrawindirectcommand_struct_wrapper::display_txt()
 {
-    printf("%*sVkDrawIndirectCommand struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDrawIndirectCommand struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkdrawindirectcommand_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkDrawIndirectCommand struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkDrawIndirectCommand struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -2267,28 +2541,119 @@ vkeventcreateinfo_struct_wrapper::~vkeventcreateinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkeventcreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkEventCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkEventCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkeventcreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
 }
 
 // Output all struct elements, each on their own line
 void vkeventcreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkEventCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkEventCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkeventcreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkEventCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkEventCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
+}
+
+
+// vkexportmemoryallocateinfonv_struct_wrapper class definition
+vkexportmemoryallocateinfonv_struct_wrapper::vkexportmemoryallocateinfonv_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkexportmemoryallocateinfonv_struct_wrapper::vkexportmemoryallocateinfonv_struct_wrapper(VkExportMemoryAllocateInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkexportmemoryallocateinfonv_struct_wrapper::vkexportmemoryallocateinfonv_struct_wrapper(const VkExportMemoryAllocateInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkexportmemoryallocateinfonv_struct_wrapper::~vkexportmemoryallocateinfonv_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkexportmemoryallocateinfonv_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkExportMemoryAllocateInfoNV = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkexportmemoryallocateinfonv_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %shandleTypes = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.handleTypes));
+}
+
+// Output all struct elements, each on their own line
+void vkexportmemoryallocateinfonv_struct_wrapper::display_txt()
+{
+    printf("%*sVkExportMemoryAllocateInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkexportmemoryallocateinfonv_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkExportMemoryAllocateInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
+}
+
+
+// vkexportmemorywin32handleinfonv_struct_wrapper class definition
+vkexportmemorywin32handleinfonv_struct_wrapper::vkexportmemorywin32handleinfonv_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkexportmemorywin32handleinfonv_struct_wrapper::vkexportmemorywin32handleinfonv_struct_wrapper(VkExportMemoryWin32HandleInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkexportmemorywin32handleinfonv_struct_wrapper::vkexportmemorywin32handleinfonv_struct_wrapper(const VkExportMemoryWin32HandleInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkexportmemorywin32handleinfonv_struct_wrapper::~vkexportmemorywin32handleinfonv_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkexportmemorywin32handleinfonv_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkExportMemoryWin32HandleInfoNV = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkexportmemorywin32handleinfonv_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spAttributes = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pAttributes));
+    printf("%*s    %sdwAccess = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.dwAccess));
+}
+
+// Output all struct elements, each on their own line
+void vkexportmemorywin32handleinfonv_struct_wrapper::display_txt()
+{
+    printf("%*sVkExportMemoryWin32HandleInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkexportmemorywin32handleinfonv_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkExportMemoryWin32HandleInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -2312,7 +2677,7 @@ vkextensionproperties_struct_wrapper::~vkextensionproperties_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkextensionproperties_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkExtensionProperties = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkExtensionProperties = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -2328,14 +2693,14 @@ void vkextensionproperties_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkextensionproperties_struct_wrapper::display_txt()
 {
-    printf("%*sVkExtensionProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkExtensionProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkextensionproperties_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkExtensionProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkExtensionProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -2356,7 +2721,7 @@ vkextent2d_struct_wrapper::~vkextent2d_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkextent2d_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkExtent2D = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkExtent2D = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -2369,14 +2734,14 @@ void vkextent2d_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkextent2d_struct_wrapper::display_txt()
 {
-    printf("%*sVkExtent2D struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkExtent2D struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkextent2d_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkExtent2D struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkExtent2D struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -2397,7 +2762,7 @@ vkextent3d_struct_wrapper::~vkextent3d_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkextent3d_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkExtent3D = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkExtent3D = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -2411,15 +2776,108 @@ void vkextent3d_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkextent3d_struct_wrapper::display_txt()
 {
-    printf("%*sVkExtent3D struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkExtent3D struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkextent3d_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkExtent3D struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkExtent3D struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
+}
+
+
+// vkexternalimageformatpropertiesnv_struct_wrapper class definition
+vkexternalimageformatpropertiesnv_struct_wrapper::vkexternalimageformatpropertiesnv_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkexternalimageformatpropertiesnv_struct_wrapper::vkexternalimageformatpropertiesnv_struct_wrapper(VkExternalImageFormatPropertiesNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkexternalimageformatpropertiesnv_struct_wrapper::vkexternalimageformatpropertiesnv_struct_wrapper(const VkExternalImageFormatPropertiesNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkexternalimageformatpropertiesnv_struct_wrapper::~vkexternalimageformatpropertiesnv_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkexternalimageformatpropertiesnv_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkExternalImageFormatPropertiesNV = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkexternalimageformatpropertiesnv_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %simageFormatProperties = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageFormatProperties));
+    printf("%*s    %sexternalMemoryFeatures = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.externalMemoryFeatures));
+    printf("%*s    %sexportFromImportedHandleTypes = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.exportFromImportedHandleTypes));
+    printf("%*s    %scompatibleHandleTypes = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.compatibleHandleTypes));
+}
+
+// Output all struct elements, each on their own line
+void vkexternalimageformatpropertiesnv_struct_wrapper::display_txt()
+{
+    printf("%*sVkExternalImageFormatPropertiesNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkexternalimageformatpropertiesnv_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkExternalImageFormatPropertiesNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (&m_struct.imageFormatProperties) {
+        vkimageformatproperties_struct_wrapper class0(&m_struct.imageFormatProperties);
+        class0.set_indent(m_indent + 4);
+        class0.display_full_txt();
+    }
+}
+
+
+// vkexternalmemoryimagecreateinfonv_struct_wrapper class definition
+vkexternalmemoryimagecreateinfonv_struct_wrapper::vkexternalmemoryimagecreateinfonv_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkexternalmemoryimagecreateinfonv_struct_wrapper::vkexternalmemoryimagecreateinfonv_struct_wrapper(VkExternalMemoryImageCreateInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkexternalmemoryimagecreateinfonv_struct_wrapper::vkexternalmemoryimagecreateinfonv_struct_wrapper(const VkExternalMemoryImageCreateInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkexternalmemoryimagecreateinfonv_struct_wrapper::~vkexternalmemoryimagecreateinfonv_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkexternalmemoryimagecreateinfonv_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkExternalMemoryImageCreateInfoNV = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkexternalmemoryimagecreateinfonv_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %shandleTypes = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.handleTypes));
+}
+
+// Output all struct elements, each on their own line
+void vkexternalmemoryimagecreateinfonv_struct_wrapper::display_txt()
+{
+    printf("%*sVkExternalMemoryImageCreateInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkexternalmemoryimagecreateinfonv_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkExternalMemoryImageCreateInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
 }
 
 
@@ -2439,28 +2897,28 @@ vkfencecreateinfo_struct_wrapper::~vkfencecreateinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkfencecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkFenceCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkFenceCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkfencecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
 }
 
 // Output all struct elements, each on their own line
 void vkfencecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkFenceCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkFenceCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkfencecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkFenceCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkFenceCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -2484,7 +2942,7 @@ vkformatproperties_struct_wrapper::~vkformatproperties_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkformatproperties_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkFormatProperties = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkFormatProperties = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -2498,14 +2956,14 @@ void vkformatproperties_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkformatproperties_struct_wrapper::display_txt()
 {
-    printf("%*sVkFormatProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkFormatProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkformatproperties_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkFormatProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkFormatProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -2526,20 +2984,20 @@ vkframebuffercreateinfo_struct_wrapper::~vkframebuffercreateinfo_struct_wrapper(
 // Output 'structname = struct_address' on a single line
 void vkframebuffercreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkFramebufferCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkFramebufferCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkframebuffercreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %srenderPass = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.renderPass));
+    printf("%*s    %srenderPass = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.renderPass));
     printf("%*s    %sattachmentCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.attachmentCount));
     uint32_t i;
     for (i = 0; i<attachmentCount; i++) {
-        printf("%*s    %spAttachments[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pAttachments)[i]);
+        printf("%*s    %spAttachments[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pAttachments)[i]);
     }
     printf("%*s    %swidth = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.width));
     printf("%*s    %sheight = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.height));
@@ -2549,14 +3007,14 @@ void vkframebuffercreateinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkframebuffercreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkFramebufferCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkFramebufferCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkframebuffercreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkFramebufferCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkFramebufferCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -2580,47 +3038,47 @@ vkgraphicspipelinecreateinfo_struct_wrapper::~vkgraphicspipelinecreateinfo_struc
 // Output 'structname = struct_address' on a single line
 void vkgraphicspipelinecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkGraphicsPipelineCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkGraphicsPipelineCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkgraphicspipelinecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %sstageCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.stageCount));
     uint32_t i;
     for (i = 0; i<stageCount; i++) {
-        printf("%*s    %spStages[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pStages)[i]);
+        printf("%*s    %spStages[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pStages)[i]);
     }
-    printf("%*s    %spVertexInputState = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pVertexInputState));
-    printf("%*s    %spInputAssemblyState = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pInputAssemblyState));
-    printf("%*s    %spTessellationState = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pTessellationState));
-    printf("%*s    %spViewportState = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pViewportState));
-    printf("%*s    %spRasterizationState = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pRasterizationState));
-    printf("%*s    %spMultisampleState = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pMultisampleState));
-    printf("%*s    %spDepthStencilState = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pDepthStencilState));
-    printf("%*s    %spColorBlendState = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pColorBlendState));
-    printf("%*s    %spDynamicState = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pDynamicState));
-    printf("%*s    %slayout = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.layout));
-    printf("%*s    %srenderPass = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.renderPass));
+    printf("%*s    %spVertexInputState = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pVertexInputState));
+    printf("%*s    %spInputAssemblyState = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pInputAssemblyState));
+    printf("%*s    %spTessellationState = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pTessellationState));
+    printf("%*s    %spViewportState = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pViewportState));
+    printf("%*s    %spRasterizationState = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pRasterizationState));
+    printf("%*s    %spMultisampleState = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pMultisampleState));
+    printf("%*s    %spDepthStencilState = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pDepthStencilState));
+    printf("%*s    %spColorBlendState = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pColorBlendState));
+    printf("%*s    %spDynamicState = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pDynamicState));
+    printf("%*s    %slayout = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.layout));
+    printf("%*s    %srenderPass = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.renderPass));
     printf("%*s    %ssubpass = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.subpass));
-    printf("%*s    %sbasePipelineHandle = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.basePipelineHandle));
+    printf("%*s    %sbasePipelineHandle = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.basePipelineHandle));
     printf("%*s    %sbasePipelineIndex = %i\n", m_indent, "", &m_dummy_prefix, (m_struct.basePipelineIndex));
 }
 
 // Output all struct elements, each on their own line
 void vkgraphicspipelinecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkGraphicsPipelineCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkGraphicsPipelineCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkgraphicspipelinecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkGraphicsPipelineCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkGraphicsPipelineCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pDynamicState) {
         vkpipelinedynamicstatecreateinfo_struct_wrapper class0(m_struct.pDynamicState);
@@ -2695,34 +3153,34 @@ vkimageblit_struct_wrapper::~vkimageblit_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkimageblit_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkImageBlit = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkImageBlit = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkimageblit_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %ssrcSubresource = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.srcSubresource));
+    printf("%*s    %ssrcSubresource = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.srcSubresource));
     uint32_t i;
     for (i = 0; i<2; i++) {
-        printf("%*s    %ssrcOffsets[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)&(m_struct.srcOffsets)[i]);
+        printf("%*s    %ssrcOffsets[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)&(m_struct.srcOffsets)[i]);
     }
-    printf("%*s    %sdstSubresource = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.dstSubresource));
+    printf("%*s    %sdstSubresource = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.dstSubresource));
     for (i = 0; i<2; i++) {
-        printf("%*s    %sdstOffsets[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)&(m_struct.dstOffsets)[i]);
+        printf("%*s    %sdstOffsets[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)&(m_struct.dstOffsets)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkimageblit_struct_wrapper::display_txt()
 {
-    printf("%*sVkImageBlit struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageBlit struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkimageblit_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkImageBlit struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageBlit struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<2; i++) {
@@ -2764,30 +3222,30 @@ vkimagecopy_struct_wrapper::~vkimagecopy_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkimagecopy_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkImageCopy = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkImageCopy = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkimagecopy_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %ssrcSubresource = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.srcSubresource));
-    printf("%*s    %ssrcOffset = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.srcOffset));
-    printf("%*s    %sdstSubresource = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.dstSubresource));
-    printf("%*s    %sdstOffset = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.dstOffset));
-    printf("%*s    %sextent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.extent));
+    printf("%*s    %ssrcSubresource = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.srcSubresource));
+    printf("%*s    %ssrcOffset = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.srcOffset));
+    printf("%*s    %sdstSubresource = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.dstSubresource));
+    printf("%*s    %sdstOffset = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.dstOffset));
+    printf("%*s    %sextent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.extent));
 }
 
 // Output all struct elements, each on their own line
 void vkimagecopy_struct_wrapper::display_txt()
 {
-    printf("%*sVkImageCopy struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageCopy struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkimagecopy_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkImageCopy struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageCopy struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.extent) {
         vkextent3d_struct_wrapper class0(&m_struct.extent);
@@ -2833,18 +3291,18 @@ vkimagecreateinfo_struct_wrapper::~vkimagecreateinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkimagecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkImageCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkImageCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkimagecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %simageType = %s\n", m_indent, "", &m_dummy_prefix, string_VkImageType(m_struct.imageType));
     printf("%*s    %sformat = %s\n", m_indent, "", &m_dummy_prefix, string_VkFormat(m_struct.format));
-    printf("%*s    %sextent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.extent));
+    printf("%*s    %sextent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.extent));
     printf("%*s    %smipLevels = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.mipLevels));
     printf("%*s    %sarrayLayers = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.arrayLayers));
     printf("%*s    %ssamples = %s\n", m_indent, "", &m_dummy_prefix, string_VkSampleCountFlagBits(m_struct.samples));
@@ -2862,14 +3320,14 @@ void vkimagecreateinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkimagecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkImageCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkimagecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkImageCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.extent) {
         vkextent3d_struct_wrapper class0(&m_struct.extent);
@@ -2898,13 +3356,13 @@ vkimageformatproperties_struct_wrapper::~vkimageformatproperties_struct_wrapper(
 // Output 'structname = struct_address' on a single line
 void vkimageformatproperties_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkImageFormatProperties = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkImageFormatProperties = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkimageformatproperties_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %smaxExtent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.maxExtent));
+    printf("%*s    %smaxExtent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.maxExtent));
     printf("%*s    %smaxMipLevels = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.maxMipLevels));
     printf("%*s    %smaxArrayLayers = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.maxArrayLayers));
     printf("%*s    %ssampleCounts = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.sampleCounts));
@@ -2914,14 +3372,14 @@ void vkimageformatproperties_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkimageformatproperties_struct_wrapper::display_txt()
 {
-    printf("%*sVkImageFormatProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageFormatProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkimageformatproperties_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkImageFormatProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageFormatProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.maxExtent) {
         vkextent3d_struct_wrapper class0(&m_struct.maxExtent);
@@ -2947,35 +3405,35 @@ vkimagememorybarrier_struct_wrapper::~vkimagememorybarrier_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkimagememorybarrier_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkImageMemoryBarrier = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkImageMemoryBarrier = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkimagememorybarrier_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %ssrcAccessMask = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.srcAccessMask));
     printf("%*s    %sdstAccessMask = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.dstAccessMask));
     printf("%*s    %soldLayout = %s\n", m_indent, "", &m_dummy_prefix, string_VkImageLayout(m_struct.oldLayout));
     printf("%*s    %snewLayout = %s\n", m_indent, "", &m_dummy_prefix, string_VkImageLayout(m_struct.newLayout));
     printf("%*s    %ssrcQueueFamilyIndex = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.srcQueueFamilyIndex));
     printf("%*s    %sdstQueueFamilyIndex = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.dstQueueFamilyIndex));
-    printf("%*s    %simage = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.image));
-    printf("%*s    %ssubresourceRange = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.subresourceRange));
+    printf("%*s    %simage = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.image));
+    printf("%*s    %ssubresourceRange = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.subresourceRange));
 }
 
 // Output all struct elements, each on their own line
 void vkimagememorybarrier_struct_wrapper::display_txt()
 {
-    printf("%*sVkImageMemoryBarrier struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageMemoryBarrier struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkimagememorybarrier_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkImageMemoryBarrier struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageMemoryBarrier struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.subresourceRange) {
         vkimagesubresourcerange_struct_wrapper class0(&m_struct.subresourceRange);
@@ -3004,30 +3462,30 @@ vkimageresolve_struct_wrapper::~vkimageresolve_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkimageresolve_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkImageResolve = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkImageResolve = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkimageresolve_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %ssrcSubresource = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.srcSubresource));
-    printf("%*s    %ssrcOffset = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.srcOffset));
-    printf("%*s    %sdstSubresource = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.dstSubresource));
-    printf("%*s    %sdstOffset = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.dstOffset));
-    printf("%*s    %sextent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.extent));
+    printf("%*s    %ssrcSubresource = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.srcSubresource));
+    printf("%*s    %ssrcOffset = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.srcOffset));
+    printf("%*s    %sdstSubresource = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.dstSubresource));
+    printf("%*s    %sdstOffset = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.dstOffset));
+    printf("%*s    %sextent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.extent));
 }
 
 // Output all struct elements, each on their own line
 void vkimageresolve_struct_wrapper::display_txt()
 {
-    printf("%*sVkImageResolve struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageResolve struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkimageresolve_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkImageResolve struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageResolve struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.extent) {
         vkextent3d_struct_wrapper class0(&m_struct.extent);
@@ -3073,7 +3531,7 @@ vkimagesubresource_struct_wrapper::~vkimagesubresource_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkimagesubresource_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkImageSubresource = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkImageSubresource = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -3087,14 +3545,14 @@ void vkimagesubresource_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkimagesubresource_struct_wrapper::display_txt()
 {
-    printf("%*sVkImageSubresource struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageSubresource struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkimagesubresource_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkImageSubresource struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageSubresource struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -3115,7 +3573,7 @@ vkimagesubresourcelayers_struct_wrapper::~vkimagesubresourcelayers_struct_wrappe
 // Output 'structname = struct_address' on a single line
 void vkimagesubresourcelayers_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkImageSubresourceLayers = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkImageSubresourceLayers = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -3130,14 +3588,14 @@ void vkimagesubresourcelayers_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkimagesubresourcelayers_struct_wrapper::display_txt()
 {
-    printf("%*sVkImageSubresourceLayers struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageSubresourceLayers struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkimagesubresourcelayers_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkImageSubresourceLayers struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageSubresourceLayers struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -3158,7 +3616,7 @@ vkimagesubresourcerange_struct_wrapper::~vkimagesubresourcerange_struct_wrapper(
 // Output 'structname = struct_address' on a single line
 void vkimagesubresourcerange_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkImageSubresourceRange = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkImageSubresourceRange = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -3174,14 +3632,14 @@ void vkimagesubresourcerange_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkimagesubresourcerange_struct_wrapper::display_txt()
 {
-    printf("%*sVkImageSubresourceRange struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageSubresourceRange struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkimagesubresourcerange_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkImageSubresourceRange struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageSubresourceRange struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -3202,33 +3660,33 @@ vkimageviewcreateinfo_struct_wrapper::~vkimageviewcreateinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkimageviewcreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkImageViewCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkImageViewCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkimageviewcreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %simage = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.image));
+    printf("%*s    %simage = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.image));
     printf("%*s    %sviewType = %s\n", m_indent, "", &m_dummy_prefix, string_VkImageViewType(m_struct.viewType));
     printf("%*s    %sformat = %s\n", m_indent, "", &m_dummy_prefix, string_VkFormat(m_struct.format));
-    printf("%*s    %scomponents = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.components));
-    printf("%*s    %ssubresourceRange = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.subresourceRange));
+    printf("%*s    %scomponents = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.components));
+    printf("%*s    %ssubresourceRange = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.subresourceRange));
 }
 
 // Output all struct elements, each on their own line
 void vkimageviewcreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkImageViewCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageViewCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkimageviewcreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkImageViewCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkImageViewCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.subresourceRange) {
         vkimagesubresourcerange_struct_wrapper class0(&m_struct.subresourceRange);
@@ -3240,6 +3698,52 @@ void vkimageviewcreateinfo_struct_wrapper::display_full_txt()
         class1.set_indent(m_indent + 4);
         class1.display_full_txt();
     }
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
+}
+
+
+// vkimportmemorywin32handleinfonv_struct_wrapper class definition
+vkimportmemorywin32handleinfonv_struct_wrapper::vkimportmemorywin32handleinfonv_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkimportmemorywin32handleinfonv_struct_wrapper::vkimportmemorywin32handleinfonv_struct_wrapper(VkImportMemoryWin32HandleInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkimportmemorywin32handleinfonv_struct_wrapper::vkimportmemorywin32handleinfonv_struct_wrapper(const VkImportMemoryWin32HandleInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkimportmemorywin32handleinfonv_struct_wrapper::~vkimportmemorywin32handleinfonv_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkimportmemorywin32handleinfonv_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkImportMemoryWin32HandleInfoNV = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkimportmemorywin32handleinfonv_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %shandleType = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.handleType));
+    printf("%*s    %shandle = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.handle));
+}
+
+// Output all struct elements, each on their own line
+void vkimportmemorywin32handleinfonv_struct_wrapper::display_txt()
+{
+    printf("%*sVkImportMemoryWin32HandleInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkimportmemorywin32handleinfonv_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkImportMemoryWin32HandleInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
     }
@@ -3262,16 +3766,16 @@ vkinstancecreateinfo_struct_wrapper::~vkinstancecreateinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkinstancecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkInstanceCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkInstanceCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkinstancecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %spApplicationInfo = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pApplicationInfo));
+    printf("%*s    %spApplicationInfo = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pApplicationInfo));
     printf("%*s    %senabledLayerCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.enabledLayerCount));
     uint32_t i;
     for (i = 0; i<enabledLayerCount; i++) {
@@ -3286,14 +3790,14 @@ void vkinstancecreateinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkinstancecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkInstanceCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkInstanceCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkinstancecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkInstanceCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkInstanceCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pApplicationInfo) {
         vkapplicationinfo_struct_wrapper class0(m_struct.pApplicationInfo);
@@ -3322,7 +3826,7 @@ vklayerproperties_struct_wrapper::~vklayerproperties_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vklayerproperties_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkLayerProperties = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkLayerProperties = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -3342,14 +3846,14 @@ void vklayerproperties_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vklayerproperties_struct_wrapper::display_txt()
 {
-    printf("%*sVkLayerProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkLayerProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vklayerproperties_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkLayerProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkLayerProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -3370,15 +3874,15 @@ vkmappedmemoryrange_struct_wrapper::~vkmappedmemoryrange_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkmappedmemoryrange_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkMappedMemoryRange = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkMappedMemoryRange = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkmappedmemoryrange_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
-    printf("%*s    %smemory = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.memory));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %smemory = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.memory));
     printf("%*s    %soffset = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.offset));
     printf("%*s    %ssize = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.size));
 }
@@ -3386,14 +3890,14 @@ void vkmappedmemoryrange_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkmappedmemoryrange_struct_wrapper::display_txt()
 {
-    printf("%*sVkMappedMemoryRange struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMappedMemoryRange struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkmappedmemoryrange_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkMappedMemoryRange struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMappedMemoryRange struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -3417,14 +3921,14 @@ vkmemoryallocateinfo_struct_wrapper::~vkmemoryallocateinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkmemoryallocateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkMemoryAllocateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkMemoryAllocateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkmemoryallocateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sallocationSize = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.allocationSize));
     printf("%*s    %smemoryTypeIndex = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.memoryTypeIndex));
 }
@@ -3432,14 +3936,14 @@ void vkmemoryallocateinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkmemoryallocateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkMemoryAllocateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMemoryAllocateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkmemoryallocateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkMemoryAllocateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMemoryAllocateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -3463,14 +3967,14 @@ vkmemorybarrier_struct_wrapper::~vkmemorybarrier_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkmemorybarrier_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkMemoryBarrier = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkMemoryBarrier = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkmemorybarrier_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %ssrcAccessMask = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.srcAccessMask));
     printf("%*s    %sdstAccessMask = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.dstAccessMask));
 }
@@ -3478,14 +3982,14 @@ void vkmemorybarrier_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkmemorybarrier_struct_wrapper::display_txt()
 {
-    printf("%*sVkMemoryBarrier struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMemoryBarrier struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkmemorybarrier_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkMemoryBarrier struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMemoryBarrier struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -3509,7 +4013,7 @@ vkmemoryheap_struct_wrapper::~vkmemoryheap_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkmemoryheap_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkMemoryHeap = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkMemoryHeap = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -3522,14 +4026,14 @@ void vkmemoryheap_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkmemoryheap_struct_wrapper::display_txt()
 {
-    printf("%*sVkMemoryHeap struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMemoryHeap struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkmemoryheap_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkMemoryHeap struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMemoryHeap struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -3550,7 +4054,7 @@ vkmemoryrequirements_struct_wrapper::~vkmemoryrequirements_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkmemoryrequirements_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkMemoryRequirements = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkMemoryRequirements = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -3564,14 +4068,14 @@ void vkmemoryrequirements_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkmemoryrequirements_struct_wrapper::display_txt()
 {
-    printf("%*sVkMemoryRequirements struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMemoryRequirements struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkmemoryrequirements_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkMemoryRequirements struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMemoryRequirements struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -3592,7 +4096,7 @@ vkmemorytype_struct_wrapper::~vkmemorytype_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkmemorytype_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkMemoryType = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkMemoryType = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -3605,14 +4109,14 @@ void vkmemorytype_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkmemorytype_struct_wrapper::display_txt()
 {
-    printf("%*sVkMemoryType struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMemoryType struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkmemorytype_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkMemoryType struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMemoryType struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -3633,30 +4137,30 @@ vkmirsurfacecreateinfokhr_struct_wrapper::~vkmirsurfacecreateinfokhr_struct_wrap
 // Output 'structname = struct_address' on a single line
 void vkmirsurfacecreateinfokhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkMirSurfaceCreateInfoKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkMirSurfaceCreateInfoKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkmirsurfacecreateinfokhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %sconnection = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.connection));
-    printf("%*s    %smirSurface = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.mirSurface));
+    printf("%*s    %sconnection = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.connection));
+    printf("%*s    %smirSurface = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.mirSurface));
 }
 
 // Output all struct elements, each on their own line
 void vkmirsurfacecreateinfokhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkMirSurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMirSurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkmirsurfacecreateinfokhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkMirSurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkMirSurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -3680,7 +4184,7 @@ vkoffset2d_struct_wrapper::~vkoffset2d_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkoffset2d_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkOffset2D = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkOffset2D = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -3693,14 +4197,14 @@ void vkoffset2d_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkoffset2d_struct_wrapper::display_txt()
 {
-    printf("%*sVkOffset2D struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkOffset2D struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkoffset2d_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkOffset2D struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkOffset2D struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -3721,7 +4225,7 @@ vkoffset3d_struct_wrapper::~vkoffset3d_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkoffset3d_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkOffset3D = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkOffset3D = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -3735,14 +4239,14 @@ void vkoffset3d_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkoffset3d_struct_wrapper::display_txt()
 {
-    printf("%*sVkOffset3D struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkOffset3D struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkoffset3d_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkOffset3D struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkOffset3D struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -3763,7 +4267,7 @@ vkphysicaldevicefeatures_struct_wrapper::~vkphysicaldevicefeatures_struct_wrappe
 // Output 'structname = struct_address' on a single line
 void vkphysicaldevicefeatures_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPhysicalDeviceFeatures = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPhysicalDeviceFeatures = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -3829,14 +4333,14 @@ void vkphysicaldevicefeatures_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkphysicaldevicefeatures_struct_wrapper::display_txt()
 {
-    printf("%*sVkPhysicalDeviceFeatures struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPhysicalDeviceFeatures struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkphysicaldevicefeatures_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPhysicalDeviceFeatures struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPhysicalDeviceFeatures struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -3857,7 +4361,7 @@ vkphysicaldevicelimits_struct_wrapper::~vkphysicaldevicelimits_struct_wrapper() 
 // Output 'structname = struct_address' on a single line
 void vkphysicaldevicelimits_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPhysicalDeviceLimits = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPhysicalDeviceLimits = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -3987,14 +4491,14 @@ void vkphysicaldevicelimits_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkphysicaldevicelimits_struct_wrapper::display_txt()
 {
-    printf("%*sVkPhysicalDeviceLimits struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPhysicalDeviceLimits struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkphysicaldevicelimits_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPhysicalDeviceLimits struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPhysicalDeviceLimits struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -4015,7 +4519,7 @@ vkphysicaldevicememoryproperties_struct_wrapper::~vkphysicaldevicememoryproperti
 // Output 'structname = struct_address' on a single line
 void vkphysicaldevicememoryproperties_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPhysicalDeviceMemoryProperties = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPhysicalDeviceMemoryProperties = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -4024,25 +4528,25 @@ void vkphysicaldevicememoryproperties_struct_wrapper::display_struct_members()
     printf("%*s    %smemoryTypeCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.memoryTypeCount));
     uint32_t i;
     for (i = 0; i<VK_MAX_MEMORY_TYPES; i++) {
-        printf("%*s    %smemoryTypes[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)&(m_struct.memoryTypes)[i]);
+        printf("%*s    %smemoryTypes[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)&(m_struct.memoryTypes)[i]);
     }
     printf("%*s    %smemoryHeapCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.memoryHeapCount));
     for (i = 0; i<VK_MAX_MEMORY_HEAPS; i++) {
-        printf("%*s    %smemoryHeaps[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)&(m_struct.memoryHeaps)[i]);
+        printf("%*s    %smemoryHeaps[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)&(m_struct.memoryHeaps)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkphysicaldevicememoryproperties_struct_wrapper::display_txt()
 {
-    printf("%*sVkPhysicalDeviceMemoryProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPhysicalDeviceMemoryProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkphysicaldevicememoryproperties_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPhysicalDeviceMemoryProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPhysicalDeviceMemoryProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<VK_MAX_MEMORY_HEAPS; i++) {
@@ -4074,7 +4578,7 @@ vkphysicaldeviceproperties_struct_wrapper::~vkphysicaldeviceproperties_struct_wr
 // Output 'structname = struct_address' on a single line
 void vkphysicaldeviceproperties_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPhysicalDeviceProperties = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPhysicalDeviceProperties = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -4092,21 +4596,21 @@ void vkphysicaldeviceproperties_struct_wrapper::display_struct_members()
     for (i = 0; i<VK_UUID_SIZE; i++) {
         printf("%*s    %spipelineCacheUUID[%u] = %hu\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pipelineCacheUUID)[i]);
     }
-    printf("%*s    %slimits = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.limits));
-    printf("%*s    %ssparseProperties = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.sparseProperties));
+    printf("%*s    %slimits = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.limits));
+    printf("%*s    %ssparseProperties = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.sparseProperties));
 }
 
 // Output all struct elements, each on their own line
 void vkphysicaldeviceproperties_struct_wrapper::display_txt()
 {
-    printf("%*sVkPhysicalDeviceProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPhysicalDeviceProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkphysicaldeviceproperties_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPhysicalDeviceProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPhysicalDeviceProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.sparseProperties) {
         vkphysicaldevicesparseproperties_struct_wrapper class0(&m_struct.sparseProperties);
@@ -4137,7 +4641,7 @@ vkphysicaldevicesparseproperties_struct_wrapper::~vkphysicaldevicesparseproperti
 // Output 'structname = struct_address' on a single line
 void vkphysicaldevicesparseproperties_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPhysicalDeviceSparseProperties = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPhysicalDeviceSparseProperties = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -4153,14 +4657,14 @@ void vkphysicaldevicesparseproperties_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkphysicaldevicesparseproperties_struct_wrapper::display_txt()
 {
-    printf("%*sVkPhysicalDeviceSparseProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPhysicalDeviceSparseProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkphysicaldevicesparseproperties_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPhysicalDeviceSparseProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPhysicalDeviceSparseProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -4181,30 +4685,30 @@ vkpipelinecachecreateinfo_struct_wrapper::~vkpipelinecachecreateinfo_struct_wrap
 // Output 'structname = struct_address' on a single line
 void vkpipelinecachecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineCacheCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineCacheCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpipelinecachecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %sinitialDataSize = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.initialDataSize));
-    printf("%*s    %spInitialData = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pInitialData));
+    printf("%*s    %spInitialData = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pInitialData));
 }
 
 // Output all struct elements, each on their own line
 void vkpipelinecachecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineCacheCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineCacheCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelinecachecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineCacheCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineCacheCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -4228,7 +4732,7 @@ vkpipelinecolorblendattachmentstate_struct_wrapper::~vkpipelinecolorblendattachm
 // Output 'structname = struct_address' on a single line
 void vkpipelinecolorblendattachmentstate_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineColorBlendAttachmentState = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineColorBlendAttachmentState = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -4247,14 +4751,14 @@ void vkpipelinecolorblendattachmentstate_struct_wrapper::display_struct_members(
 // Output all struct elements, each on their own line
 void vkpipelinecolorblendattachmentstate_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineColorBlendAttachmentState struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineColorBlendAttachmentState struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelinecolorblendattachmentstate_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineColorBlendAttachmentState struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineColorBlendAttachmentState struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -4275,21 +4779,21 @@ vkpipelinecolorblendstatecreateinfo_struct_wrapper::~vkpipelinecolorblendstatecr
 // Output 'structname = struct_address' on a single line
 void vkpipelinecolorblendstatecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineColorBlendStateCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineColorBlendStateCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpipelinecolorblendstatecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %slogicOpEnable = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.logicOpEnable) ? "TRUE" : "FALSE");
     printf("%*s    %slogicOp = %s\n", m_indent, "", &m_dummy_prefix, string_VkLogicOp(m_struct.logicOp));
     printf("%*s    %sattachmentCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.attachmentCount));
     uint32_t i;
     for (i = 0; i<attachmentCount; i++) {
-        printf("%*s    %spAttachments[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pAttachments)[i]);
+        printf("%*s    %spAttachments[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pAttachments)[i]);
     }
     for (i = 0; i<4; i++) {
         printf("%*s    %sblendConstants[%u] = %f\n", m_indent, "", &m_dummy_prefix, i, (m_struct.blendConstants)[i]);
@@ -4299,14 +4803,14 @@ void vkpipelinecolorblendstatecreateinfo_struct_wrapper::display_struct_members(
 // Output all struct elements, each on their own line
 void vkpipelinecolorblendstatecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineColorBlendStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineColorBlendStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelinecolorblendstatecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineColorBlendStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineColorBlendStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<attachmentCount; i++) {
@@ -4336,22 +4840,22 @@ vkpipelinedepthstencilstatecreateinfo_struct_wrapper::~vkpipelinedepthstencilsta
 // Output 'structname = struct_address' on a single line
 void vkpipelinedepthstencilstatecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineDepthStencilStateCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineDepthStencilStateCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpipelinedepthstencilstatecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %sdepthTestEnable = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.depthTestEnable) ? "TRUE" : "FALSE");
     printf("%*s    %sdepthWriteEnable = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.depthWriteEnable) ? "TRUE" : "FALSE");
     printf("%*s    %sdepthCompareOp = %s\n", m_indent, "", &m_dummy_prefix, string_VkCompareOp(m_struct.depthCompareOp));
     printf("%*s    %sdepthBoundsTestEnable = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.depthBoundsTestEnable) ? "TRUE" : "FALSE");
     printf("%*s    %sstencilTestEnable = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.stencilTestEnable) ? "TRUE" : "FALSE");
-    printf("%*s    %sfront = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.front));
-    printf("%*s    %sback = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.back));
+    printf("%*s    %sfront = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.front));
+    printf("%*s    %sback = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.back));
     printf("%*s    %sminDepthBounds = %f\n", m_indent, "", &m_dummy_prefix, (m_struct.minDepthBounds));
     printf("%*s    %smaxDepthBounds = %f\n", m_indent, "", &m_dummy_prefix, (m_struct.maxDepthBounds));
 }
@@ -4359,14 +4863,14 @@ void vkpipelinedepthstencilstatecreateinfo_struct_wrapper::display_struct_member
 // Output all struct elements, each on their own line
 void vkpipelinedepthstencilstatecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineDepthStencilStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineDepthStencilStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelinedepthstencilstatecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineDepthStencilStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineDepthStencilStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.back) {
         vkstencilopstate_struct_wrapper class0(&m_struct.back);
@@ -4400,33 +4904,33 @@ vkpipelinedynamicstatecreateinfo_struct_wrapper::~vkpipelinedynamicstatecreatein
 // Output 'structname = struct_address' on a single line
 void vkpipelinedynamicstatecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineDynamicStateCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineDynamicStateCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpipelinedynamicstatecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %sdynamicStateCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.dynamicStateCount));
     uint32_t i;
     for (i = 0; i<dynamicStateCount; i++) {
-        printf("%*s    %spDynamicStates[%u] = %s\n", m_indent, "", &m_dummy_prefix, i, string_VkDynamicState(*m_struct.pDynamicStates)[i]);
+        printf("%*s    %spDynamicStates[%u] = 0x%s\n", m_indent, "", &m_dummy_prefix, i, string_VkDynamicState(*m_struct.pDynamicStates)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkpipelinedynamicstatecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineDynamicStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineDynamicStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelinedynamicstatecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineDynamicStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineDynamicStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -4450,14 +4954,14 @@ vkpipelineinputassemblystatecreateinfo_struct_wrapper::~vkpipelineinputassemblys
 // Output 'structname = struct_address' on a single line
 void vkpipelineinputassemblystatecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineInputAssemblyStateCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineInputAssemblyStateCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpipelineinputassemblystatecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %stopology = %s\n", m_indent, "", &m_dummy_prefix, string_VkPrimitiveTopology(m_struct.topology));
     printf("%*s    %sprimitiveRestartEnable = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.primitiveRestartEnable) ? "TRUE" : "FALSE");
@@ -4466,14 +4970,14 @@ void vkpipelineinputassemblystatecreateinfo_struct_wrapper::display_struct_membe
 // Output all struct elements, each on their own line
 void vkpipelineinputassemblystatecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineInputAssemblyStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineInputAssemblyStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelineinputassemblystatecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineInputAssemblyStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineInputAssemblyStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -4497,37 +5001,37 @@ vkpipelinelayoutcreateinfo_struct_wrapper::~vkpipelinelayoutcreateinfo_struct_wr
 // Output 'structname = struct_address' on a single line
 void vkpipelinelayoutcreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineLayoutCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineLayoutCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpipelinelayoutcreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %ssetLayoutCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.setLayoutCount));
     uint32_t i;
     for (i = 0; i<setLayoutCount; i++) {
-        printf("%*s    %spSetLayouts[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pSetLayouts)[i]);
+        printf("%*s    %spSetLayouts[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pSetLayouts)[i]);
     }
     printf("%*s    %spushConstantRangeCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.pushConstantRangeCount));
     for (i = 0; i<pushConstantRangeCount; i++) {
-        printf("%*s    %spPushConstantRanges[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pPushConstantRanges)[i]);
+        printf("%*s    %spPushConstantRanges[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pPushConstantRanges)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkpipelinelayoutcreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineLayoutCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineLayoutCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelinelayoutcreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineLayoutCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineLayoutCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<pushConstantRangeCount; i++) {
@@ -4557,14 +5061,14 @@ vkpipelinemultisamplestatecreateinfo_struct_wrapper::~vkpipelinemultisamplestate
 // Output 'structname = struct_address' on a single line
 void vkpipelinemultisamplestatecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineMultisampleStateCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineMultisampleStateCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpipelinemultisamplestatecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %srasterizationSamples = %s\n", m_indent, "", &m_dummy_prefix, string_VkSampleCountFlagBits(m_struct.rasterizationSamples));
     printf("%*s    %ssampleShadingEnable = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.sampleShadingEnable) ? "TRUE" : "FALSE");
@@ -4577,14 +5081,14 @@ void vkpipelinemultisamplestatecreateinfo_struct_wrapper::display_struct_members
 // Output all struct elements, each on their own line
 void vkpipelinemultisamplestatecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineMultisampleStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineMultisampleStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelinemultisamplestatecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineMultisampleStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineMultisampleStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -4608,14 +5112,14 @@ vkpipelinerasterizationstatecreateinfo_struct_wrapper::~vkpipelinerasterizations
 // Output 'structname = struct_address' on a single line
 void vkpipelinerasterizationstatecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineRasterizationStateCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineRasterizationStateCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpipelinerasterizationstatecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %sdepthClampEnable = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.depthClampEnable) ? "TRUE" : "FALSE");
     printf("%*s    %srasterizerDiscardEnable = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.rasterizerDiscardEnable) ? "TRUE" : "FALSE");
@@ -4632,14 +5136,59 @@ void vkpipelinerasterizationstatecreateinfo_struct_wrapper::display_struct_membe
 // Output all struct elements, each on their own line
 void vkpipelinerasterizationstatecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineRasterizationStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineRasterizationStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelinerasterizationstatecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineRasterizationStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineRasterizationStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
+}
+
+
+// vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper class definition
+vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper::vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper::vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper(VkPipelineRasterizationStateRasterizationOrderAMD* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper::vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper(const VkPipelineRasterizationStateRasterizationOrderAMD* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper::~vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkPipelineRasterizationStateRasterizationOrderAMD = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %srasterizationOrder = %s\n", m_indent, "", &m_dummy_prefix, string_VkRasterizationOrderAMD(m_struct.rasterizationOrder));
+}
+
+// Output all struct elements, each on their own line
+void vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper::display_txt()
+{
+    printf("%*sVkPipelineRasterizationStateRasterizationOrderAMD struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkPipelineRasterizationStateRasterizationOrderAMD struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -4663,32 +5212,32 @@ vkpipelineshaderstagecreateinfo_struct_wrapper::~vkpipelineshaderstagecreateinfo
 // Output 'structname = struct_address' on a single line
 void vkpipelineshaderstagecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineShaderStageCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineShaderStageCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpipelineshaderstagecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %sstage = %s\n", m_indent, "", &m_dummy_prefix, string_VkShaderStageFlagBits(m_struct.stage));
-    printf("%*s    %smodule = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.module));
-    printf("%*s    %spName = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pName));
-    printf("%*s    %spSpecializationInfo = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pSpecializationInfo));
+    printf("%*s    %smodule = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.module));
+    printf("%*s    %spName = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pName));
+    printf("%*s    %spSpecializationInfo = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pSpecializationInfo));
 }
 
 // Output all struct elements, each on their own line
 void vkpipelineshaderstagecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineShaderStageCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineShaderStageCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelineshaderstagecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineShaderStageCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineShaderStageCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pSpecializationInfo) {
         vkspecializationinfo_struct_wrapper class0(m_struct.pSpecializationInfo);
@@ -4717,14 +5266,14 @@ vkpipelinetessellationstatecreateinfo_struct_wrapper::~vkpipelinetessellationsta
 // Output 'structname = struct_address' on a single line
 void vkpipelinetessellationstatecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineTessellationStateCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineTessellationStateCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpipelinetessellationstatecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %spatchControlPoints = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.patchControlPoints));
 }
@@ -4732,14 +5281,14 @@ void vkpipelinetessellationstatecreateinfo_struct_wrapper::display_struct_member
 // Output all struct elements, each on their own line
 void vkpipelinetessellationstatecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineTessellationStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineTessellationStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelinetessellationstatecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineTessellationStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineTessellationStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -4763,37 +5312,37 @@ vkpipelinevertexinputstatecreateinfo_struct_wrapper::~vkpipelinevertexinputstate
 // Output 'structname = struct_address' on a single line
 void vkpipelinevertexinputstatecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineVertexInputStateCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineVertexInputStateCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpipelinevertexinputstatecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %svertexBindingDescriptionCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.vertexBindingDescriptionCount));
     uint32_t i;
     for (i = 0; i<vertexBindingDescriptionCount; i++) {
-        printf("%*s    %spVertexBindingDescriptions[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pVertexBindingDescriptions)[i]);
+        printf("%*s    %spVertexBindingDescriptions[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pVertexBindingDescriptions)[i]);
     }
     printf("%*s    %svertexAttributeDescriptionCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.vertexAttributeDescriptionCount));
     for (i = 0; i<vertexAttributeDescriptionCount; i++) {
-        printf("%*s    %spVertexAttributeDescriptions[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pVertexAttributeDescriptions)[i]);
+        printf("%*s    %spVertexAttributeDescriptions[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pVertexAttributeDescriptions)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkpipelinevertexinputstatecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineVertexInputStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineVertexInputStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelinevertexinputstatecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineVertexInputStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineVertexInputStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<vertexAttributeDescriptionCount; i++) {
@@ -4828,37 +5377,37 @@ vkpipelineviewportstatecreateinfo_struct_wrapper::~vkpipelineviewportstatecreate
 // Output 'structname = struct_address' on a single line
 void vkpipelineviewportstatecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPipelineViewportStateCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPipelineViewportStateCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpipelineviewportstatecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %sviewportCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.viewportCount));
     uint32_t i;
     for (i = 0; i<viewportCount; i++) {
-        printf("%*s    %spViewports[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pViewports)[i]);
+        printf("%*s    %spViewports[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pViewports)[i]);
     }
     printf("%*s    %sscissorCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.scissorCount));
     for (i = 0; i<scissorCount; i++) {
-        printf("%*s    %spScissors[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pScissors)[i]);
+        printf("%*s    %spScissors[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pScissors)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkpipelineviewportstatecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkPipelineViewportStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineViewportStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpipelineviewportstatecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPipelineViewportStateCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPipelineViewportStateCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<scissorCount; i++) {
@@ -4893,40 +5442,40 @@ vkpresentinfokhr_struct_wrapper::~vkpresentinfokhr_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkpresentinfokhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPresentInfoKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPresentInfoKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkpresentinfokhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %swaitSemaphoreCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.waitSemaphoreCount));
     uint32_t i;
     for (i = 0; i<waitSemaphoreCount; i++) {
-        printf("%*s    %spWaitSemaphores[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pWaitSemaphores)[i]);
+        printf("%*s    %spWaitSemaphores[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pWaitSemaphores)[i]);
     }
     printf("%*s    %sswapchainCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.swapchainCount));
     for (i = 0; i<swapchainCount; i++) {
-        printf("%*s    %spSwapchains[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pSwapchains)[i]);
+        printf("%*s    %spSwapchains[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pSwapchains)[i]);
     }
     for (i = 0; i<swapchainCount; i++) {
         printf("%*s    %spImageIndices[%u] = %u\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pImageIndices)[i]);
     }
-    printf("%*s    %spResults = %s\n", m_indent, "", &m_dummy_prefix, string_VkResult(*m_struct.pResults));
+    printf("%*s    %spResults = 0x%s\n", m_indent, "", &m_dummy_prefix, string_VkResult(*m_struct.pResults));
 }
 
 // Output all struct elements, each on their own line
 void vkpresentinfokhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkPresentInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPresentInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpresentinfokhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPresentInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPresentInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -4950,7 +5499,7 @@ vkpushconstantrange_struct_wrapper::~vkpushconstantrange_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkpushconstantrange_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkPushConstantRange = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkPushConstantRange = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -4964,14 +5513,14 @@ void vkpushconstantrange_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkpushconstantrange_struct_wrapper::display_txt()
 {
-    printf("%*sVkPushConstantRange struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPushConstantRange struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkpushconstantrange_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkPushConstantRange struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkPushConstantRange struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -4992,14 +5541,14 @@ vkquerypoolcreateinfo_struct_wrapper::~vkquerypoolcreateinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkquerypoolcreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkQueryPoolCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkQueryPoolCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkquerypoolcreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %squeryType = %s\n", m_indent, "", &m_dummy_prefix, string_VkQueryType(m_struct.queryType));
     printf("%*s    %squeryCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.queryCount));
@@ -5009,14 +5558,14 @@ void vkquerypoolcreateinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkquerypoolcreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkQueryPoolCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkQueryPoolCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkquerypoolcreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkQueryPoolCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkQueryPoolCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -5040,7 +5589,7 @@ vkqueuefamilyproperties_struct_wrapper::~vkqueuefamilyproperties_struct_wrapper(
 // Output 'structname = struct_address' on a single line
 void vkqueuefamilyproperties_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkQueueFamilyProperties = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkQueueFamilyProperties = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -5049,20 +5598,20 @@ void vkqueuefamilyproperties_struct_wrapper::display_struct_members()
     printf("%*s    %squeueFlags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.queueFlags));
     printf("%*s    %squeueCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.queueCount));
     printf("%*s    %stimestampValidBits = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.timestampValidBits));
-    printf("%*s    %sminImageTransferGranularity = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.minImageTransferGranularity));
+    printf("%*s    %sminImageTransferGranularity = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.minImageTransferGranularity));
 }
 
 // Output all struct elements, each on their own line
 void vkqueuefamilyproperties_struct_wrapper::display_txt()
 {
-    printf("%*sVkQueueFamilyProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkQueueFamilyProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkqueuefamilyproperties_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkQueueFamilyProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkQueueFamilyProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.minImageTransferGranularity) {
         vkextent3d_struct_wrapper class0(&m_struct.minImageTransferGranularity);
@@ -5088,27 +5637,27 @@ vkrect2d_struct_wrapper::~vkrect2d_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkrect2d_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkRect2D = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkRect2D = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkrect2d_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %soffset = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.offset));
-    printf("%*s    %sextent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.extent));
+    printf("%*s    %soffset = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.offset));
+    printf("%*s    %sextent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.extent));
 }
 
 // Output all struct elements, each on their own line
 void vkrect2d_struct_wrapper::display_txt()
 {
-    printf("%*sVkRect2D struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkRect2D struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkrect2d_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkRect2D struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkRect2D struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.extent) {
         vkextent2d_struct_wrapper class0(&m_struct.extent);
@@ -5139,35 +5688,35 @@ vkrenderpassbegininfo_struct_wrapper::~vkrenderpassbegininfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkrenderpassbegininfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkRenderPassBeginInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkRenderPassBeginInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkrenderpassbegininfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
-    printf("%*s    %srenderPass = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.renderPass));
-    printf("%*s    %sframebuffer = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.framebuffer));
-    printf("%*s    %srenderArea = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.renderArea));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %srenderPass = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.renderPass));
+    printf("%*s    %sframebuffer = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.framebuffer));
+    printf("%*s    %srenderArea = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.renderArea));
     printf("%*s    %sclearValueCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.clearValueCount));
     uint32_t i;
     for (i = 0; i<clearValueCount; i++) {
-        printf("%*s    %spClearValues[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pClearValues)[i]);
+        printf("%*s    %spClearValues[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pClearValues)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkrenderpassbegininfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkRenderPassBeginInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkRenderPassBeginInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkrenderpassbegininfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkRenderPassBeginInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkRenderPassBeginInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<clearValueCount; i++) {
@@ -5202,41 +5751,41 @@ vkrenderpasscreateinfo_struct_wrapper::~vkrenderpasscreateinfo_struct_wrapper() 
 // Output 'structname = struct_address' on a single line
 void vkrenderpasscreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkRenderPassCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkRenderPassCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkrenderpasscreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %sattachmentCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.attachmentCount));
     uint32_t i;
     for (i = 0; i<attachmentCount; i++) {
-        printf("%*s    %spAttachments[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pAttachments)[i]);
+        printf("%*s    %spAttachments[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pAttachments)[i]);
     }
     printf("%*s    %ssubpassCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.subpassCount));
     for (i = 0; i<subpassCount; i++) {
-        printf("%*s    %spSubpasses[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pSubpasses)[i]);
+        printf("%*s    %spSubpasses[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pSubpasses)[i]);
     }
     printf("%*s    %sdependencyCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.dependencyCount));
     for (i = 0; i<dependencyCount; i++) {
-        printf("%*s    %spDependencies[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pDependencies)[i]);
+        printf("%*s    %spDependencies[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pDependencies)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkrenderpasscreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkRenderPassCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkRenderPassCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkrenderpasscreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkRenderPassCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkRenderPassCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<dependencyCount; i++) {
@@ -5276,14 +5825,14 @@ vksamplercreateinfo_struct_wrapper::~vksamplercreateinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vksamplercreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSamplerCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSamplerCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vksamplercreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %smagFilter = %s\n", m_indent, "", &m_dummy_prefix, string_VkFilter(m_struct.magFilter));
     printf("%*s    %sminFilter = %s\n", m_indent, "", &m_dummy_prefix, string_VkFilter(m_struct.minFilter));
@@ -5305,14 +5854,14 @@ void vksamplercreateinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vksamplercreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkSamplerCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSamplerCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksamplercreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSamplerCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSamplerCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -5336,28 +5885,28 @@ vksemaphorecreateinfo_struct_wrapper::~vksemaphorecreateinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vksemaphorecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSemaphoreCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSemaphoreCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vksemaphorecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
 }
 
 // Output all struct elements, each on their own line
 void vksemaphorecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkSemaphoreCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSemaphoreCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksemaphorecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSemaphoreCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSemaphoreCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -5381,14 +5930,14 @@ vkshadermodulecreateinfo_struct_wrapper::~vkshadermodulecreateinfo_struct_wrappe
 // Output 'structname = struct_address' on a single line
 void vkshadermodulecreateinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkShaderModuleCreateInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkShaderModuleCreateInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkshadermodulecreateinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
     printf("%*s    %scodeSize = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.codeSize));
     printf("%*s    %spCode = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.pCode));
@@ -5397,14 +5946,14 @@ void vkshadermodulecreateinfo_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkshadermodulecreateinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkShaderModuleCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkShaderModuleCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkshadermodulecreateinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkShaderModuleCreateInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkShaderModuleCreateInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -5428,31 +5977,31 @@ vksparsebuffermemorybindinfo_struct_wrapper::~vksparsebuffermemorybindinfo_struc
 // Output 'structname = struct_address' on a single line
 void vksparsebuffermemorybindinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSparseBufferMemoryBindInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSparseBufferMemoryBindInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vksparsebuffermemorybindinfo_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %sbuffer = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.buffer));
+    printf("%*s    %sbuffer = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.buffer));
     printf("%*s    %sbindCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.bindCount));
     uint32_t i;
     for (i = 0; i<bindCount; i++) {
-        printf("%*s    %spBinds[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pBinds)[i]);
+        printf("%*s    %spBinds[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pBinds)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vksparsebuffermemorybindinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkSparseBufferMemoryBindInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseBufferMemoryBindInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksparsebuffermemorybindinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSparseBufferMemoryBindInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseBufferMemoryBindInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<bindCount; i++) {
@@ -5479,28 +6028,28 @@ vksparseimageformatproperties_struct_wrapper::~vksparseimageformatproperties_str
 // Output 'structname = struct_address' on a single line
 void vksparseimageformatproperties_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSparseImageFormatProperties = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSparseImageFormatProperties = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vksparseimageformatproperties_struct_wrapper::display_struct_members()
 {
     printf("%*s    %saspectMask = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.aspectMask));
-    printf("%*s    %simageGranularity = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageGranularity));
+    printf("%*s    %simageGranularity = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageGranularity));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
 }
 
 // Output all struct elements, each on their own line
 void vksparseimageformatproperties_struct_wrapper::display_txt()
 {
-    printf("%*sVkSparseImageFormatProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseImageFormatProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksparseimageformatproperties_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSparseImageFormatProperties struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseImageFormatProperties struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.imageGranularity) {
         vkextent3d_struct_wrapper class0(&m_struct.imageGranularity);
@@ -5526,16 +6075,16 @@ vksparseimagememorybind_struct_wrapper::~vksparseimagememorybind_struct_wrapper(
 // Output 'structname = struct_address' on a single line
 void vksparseimagememorybind_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSparseImageMemoryBind = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSparseImageMemoryBind = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vksparseimagememorybind_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %ssubresource = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.subresource));
-    printf("%*s    %soffset = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.offset));
-    printf("%*s    %sextent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.extent));
-    printf("%*s    %smemory = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.memory));
+    printf("%*s    %ssubresource = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.subresource));
+    printf("%*s    %soffset = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.offset));
+    printf("%*s    %sextent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.extent));
+    printf("%*s    %smemory = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.memory));
     printf("%*s    %smemoryOffset = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.memoryOffset));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
 }
@@ -5543,14 +6092,14 @@ void vksparseimagememorybind_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vksparseimagememorybind_struct_wrapper::display_txt()
 {
-    printf("%*sVkSparseImageMemoryBind struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseImageMemoryBind struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksparseimagememorybind_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSparseImageMemoryBind struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseImageMemoryBind struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.extent) {
         vkextent3d_struct_wrapper class0(&m_struct.extent);
@@ -5586,31 +6135,31 @@ vksparseimagememorybindinfo_struct_wrapper::~vksparseimagememorybindinfo_struct_
 // Output 'structname = struct_address' on a single line
 void vksparseimagememorybindinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSparseImageMemoryBindInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSparseImageMemoryBindInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vksparseimagememorybindinfo_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %simage = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.image));
+    printf("%*s    %simage = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.image));
     printf("%*s    %sbindCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.bindCount));
     uint32_t i;
     for (i = 0; i<bindCount; i++) {
-        printf("%*s    %spBinds[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pBinds)[i]);
+        printf("%*s    %spBinds[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pBinds)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vksparseimagememorybindinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkSparseImageMemoryBindInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseImageMemoryBindInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksparseimagememorybindinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSparseImageMemoryBindInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseImageMemoryBindInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<bindCount; i++) {
@@ -5637,13 +6186,13 @@ vksparseimagememoryrequirements_struct_wrapper::~vksparseimagememoryrequirements
 // Output 'structname = struct_address' on a single line
 void vksparseimagememoryrequirements_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSparseImageMemoryRequirements = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSparseImageMemoryRequirements = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vksparseimagememoryrequirements_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %sformatProperties = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.formatProperties));
+    printf("%*s    %sformatProperties = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.formatProperties));
     printf("%*s    %simageMipTailFirstLod = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.imageMipTailFirstLod));
     printf("%*s    %simageMipTailSize = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.imageMipTailSize));
     printf("%*s    %simageMipTailOffset = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.imageMipTailOffset));
@@ -5653,14 +6202,14 @@ void vksparseimagememoryrequirements_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vksparseimagememoryrequirements_struct_wrapper::display_txt()
 {
-    printf("%*sVkSparseImageMemoryRequirements struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseImageMemoryRequirements struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksparseimagememoryrequirements_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSparseImageMemoryRequirements struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseImageMemoryRequirements struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.formatProperties) {
         vksparseimageformatproperties_struct_wrapper class0(&m_struct.formatProperties);
@@ -5686,31 +6235,31 @@ vksparseimageopaquememorybindinfo_struct_wrapper::~vksparseimageopaquememorybind
 // Output 'structname = struct_address' on a single line
 void vksparseimageopaquememorybindinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSparseImageOpaqueMemoryBindInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSparseImageOpaqueMemoryBindInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vksparseimageopaquememorybindinfo_struct_wrapper::display_struct_members()
 {
-    printf("%*s    %simage = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.image));
+    printf("%*s    %simage = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.image));
     printf("%*s    %sbindCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.bindCount));
     uint32_t i;
     for (i = 0; i<bindCount; i++) {
-        printf("%*s    %spBinds[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pBinds)[i]);
+        printf("%*s    %spBinds[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pBinds)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vksparseimageopaquememorybindinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkSparseImageOpaqueMemoryBindInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseImageOpaqueMemoryBindInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksparseimageopaquememorybindinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSparseImageOpaqueMemoryBindInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseImageOpaqueMemoryBindInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<bindCount; i++) {
@@ -5737,7 +6286,7 @@ vksparsememorybind_struct_wrapper::~vksparsememorybind_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vksparsememorybind_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSparseMemoryBind = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSparseMemoryBind = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -5745,7 +6294,7 @@ void vksparsememorybind_struct_wrapper::display_struct_members()
 {
     printf("%*s    %sresourceOffset = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.resourceOffset));
     printf("%*s    %ssize = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.size));
-    printf("%*s    %smemory = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.memory));
+    printf("%*s    %smemory = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.memory));
     printf("%*s    %smemoryOffset = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.memoryOffset));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
 }
@@ -5753,14 +6302,14 @@ void vksparsememorybind_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vksparsememorybind_struct_wrapper::display_txt()
 {
-    printf("%*sVkSparseMemoryBind struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseMemoryBind struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksparsememorybind_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSparseMemoryBind struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSparseMemoryBind struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -5781,7 +6330,7 @@ vkspecializationinfo_struct_wrapper::~vkspecializationinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkspecializationinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSpecializationInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSpecializationInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -5790,23 +6339,23 @@ void vkspecializationinfo_struct_wrapper::display_struct_members()
     printf("%*s    %smapEntryCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.mapEntryCount));
     uint32_t i;
     for (i = 0; i<mapEntryCount; i++) {
-        printf("%*s    %spMapEntries[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pMapEntries)[i]);
+        printf("%*s    %spMapEntries[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pMapEntries)[i]);
     }
     printf("%*s    %sdataSize = " PRINTF_SIZE_T_SPECIFIER "\n", m_indent, "", &m_dummy_prefix, (m_struct.dataSize));
-    printf("%*s    %spData = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pData));
+    printf("%*s    %spData = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pData));
 }
 
 // Output all struct elements, each on their own line
 void vkspecializationinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkSpecializationInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSpecializationInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkspecializationinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSpecializationInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSpecializationInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<mapEntryCount; i++) {
@@ -5833,7 +6382,7 @@ vkspecializationmapentry_struct_wrapper::~vkspecializationmapentry_struct_wrappe
 // Output 'structname = struct_address' on a single line
 void vkspecializationmapentry_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSpecializationMapEntry = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSpecializationMapEntry = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -5847,14 +6396,14 @@ void vkspecializationmapentry_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkspecializationmapentry_struct_wrapper::display_txt()
 {
-    printf("%*sVkSpecializationMapEntry struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSpecializationMapEntry struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkspecializationmapentry_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSpecializationMapEntry struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSpecializationMapEntry struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -5875,7 +6424,7 @@ vkstencilopstate_struct_wrapper::~vkstencilopstate_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkstencilopstate_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkStencilOpState = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkStencilOpState = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -5893,14 +6442,14 @@ void vkstencilopstate_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkstencilopstate_struct_wrapper::display_txt()
 {
-    printf("%*sVkStencilOpState struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkStencilOpState struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkstencilopstate_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkStencilOpState struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkStencilOpState struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -5921,41 +6470,41 @@ vksubmitinfo_struct_wrapper::~vksubmitinfo_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vksubmitinfo_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSubmitInfo = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSubmitInfo = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vksubmitinfo_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %swaitSemaphoreCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.waitSemaphoreCount));
     uint32_t i;
     for (i = 0; i<waitSemaphoreCount; i++) {
-        printf("%*s    %spWaitSemaphores[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pWaitSemaphores)[i]);
+        printf("%*s    %spWaitSemaphores[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pWaitSemaphores)[i]);
     }
     printf("%*s    %spWaitDstStageMask = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.pWaitDstStageMask));
     printf("%*s    %scommandBufferCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.commandBufferCount));
     for (i = 0; i<commandBufferCount; i++) {
-        printf("%*s    %spCommandBuffers[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pCommandBuffers)[i]);
+        printf("%*s    %spCommandBuffers[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pCommandBuffers)[i]);
     }
     printf("%*s    %ssignalSemaphoreCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.signalSemaphoreCount));
     for (i = 0; i<signalSemaphoreCount; i++) {
-        printf("%*s    %spSignalSemaphores[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pSignalSemaphores)[i]);
+        printf("%*s    %spSignalSemaphores[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pSignalSemaphores)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vksubmitinfo_struct_wrapper::display_txt()
 {
-    printf("%*sVkSubmitInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSubmitInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksubmitinfo_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSubmitInfo struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSubmitInfo struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -5979,7 +6528,7 @@ vksubpassdependency_struct_wrapper::~vksubpassdependency_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vksubpassdependency_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSubpassDependency = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSubpassDependency = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -5997,14 +6546,14 @@ void vksubpassdependency_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vksubpassdependency_struct_wrapper::display_txt()
 {
-    printf("%*sVkSubpassDependency struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSubpassDependency struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksubpassdependency_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSubpassDependency struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSubpassDependency struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -6025,7 +6574,7 @@ vksubpassdescription_struct_wrapper::~vksubpassdescription_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vksubpassdescription_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSubpassDescription = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSubpassDescription = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -6036,16 +6585,16 @@ void vksubpassdescription_struct_wrapper::display_struct_members()
     printf("%*s    %sinputAttachmentCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.inputAttachmentCount));
     uint32_t i;
     for (i = 0; i<inputAttachmentCount; i++) {
-        printf("%*s    %spInputAttachments[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pInputAttachments)[i]);
+        printf("%*s    %spInputAttachments[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pInputAttachments)[i]);
     }
     printf("%*s    %scolorAttachmentCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.colorAttachmentCount));
     for (i = 0; i<colorAttachmentCount; i++) {
-        printf("%*s    %spColorAttachments[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pColorAttachments)[i]);
+        printf("%*s    %spColorAttachments[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pColorAttachments)[i]);
     }
     for (i = 0; i<colorAttachmentCount; i++) {
-        printf("%*s    %spResolveAttachments[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pResolveAttachments)[i]);
+        printf("%*s    %spResolveAttachments[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pResolveAttachments)[i]);
     }
-    printf("%*s    %spDepthStencilAttachment = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pDepthStencilAttachment));
+    printf("%*s    %spDepthStencilAttachment = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.pDepthStencilAttachment));
     printf("%*s    %spreserveAttachmentCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.preserveAttachmentCount));
     for (i = 0; i<preserveAttachmentCount; i++) {
         printf("%*s    %spPreserveAttachments[%u] = %u\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pPreserveAttachments)[i]);
@@ -6055,14 +6604,14 @@ void vksubpassdescription_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vksubpassdescription_struct_wrapper::display_txt()
 {
-    printf("%*sVkSubpassDescription struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSubpassDescription struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksubpassdescription_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSubpassDescription struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSubpassDescription struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pDepthStencilAttachment) {
         vkattachmentreference_struct_wrapper class0(m_struct.pDepthStencilAttachment);
@@ -6104,7 +6653,7 @@ vksubresourcelayout_struct_wrapper::~vksubresourcelayout_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vksubresourcelayout_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSubresourceLayout = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSubresourceLayout = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -6120,14 +6669,14 @@ void vksubresourcelayout_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vksubresourcelayout_struct_wrapper::display_txt()
 {
-    printf("%*sVkSubresourceLayout struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSubresourceLayout struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksubresourcelayout_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSubresourceLayout struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSubresourceLayout struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -6148,7 +6697,7 @@ vksurfacecapabilitieskhr_struct_wrapper::~vksurfacecapabilitieskhr_struct_wrappe
 // Output 'structname = struct_address' on a single line
 void vksurfacecapabilitieskhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSurfaceCapabilitiesKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSurfaceCapabilitiesKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -6156,9 +6705,9 @@ void vksurfacecapabilitieskhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %sminImageCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.minImageCount));
     printf("%*s    %smaxImageCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.maxImageCount));
-    printf("%*s    %scurrentExtent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.currentExtent));
-    printf("%*s    %sminImageExtent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.minImageExtent));
-    printf("%*s    %smaxImageExtent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.maxImageExtent));
+    printf("%*s    %scurrentExtent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.currentExtent));
+    printf("%*s    %sminImageExtent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.minImageExtent));
+    printf("%*s    %smaxImageExtent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.maxImageExtent));
     printf("%*s    %smaxImageArrayLayers = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.maxImageArrayLayers));
     printf("%*s    %ssupportedTransforms = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.supportedTransforms));
     printf("%*s    %scurrentTransform = %s\n", m_indent, "", &m_dummy_prefix, string_VkSurfaceTransformFlagBitsKHR(m_struct.currentTransform));
@@ -6169,14 +6718,14 @@ void vksurfacecapabilitieskhr_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vksurfacecapabilitieskhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkSurfaceCapabilitiesKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSurfaceCapabilitiesKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksurfacecapabilitieskhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSurfaceCapabilitiesKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSurfaceCapabilitiesKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.maxImageExtent) {
         vkextent2d_struct_wrapper class0(&m_struct.maxImageExtent);
@@ -6212,7 +6761,7 @@ vksurfaceformatkhr_struct_wrapper::~vksurfaceformatkhr_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vksurfaceformatkhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSurfaceFormatKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSurfaceFormatKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -6225,14 +6774,14 @@ void vksurfaceformatkhr_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vksurfaceformatkhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkSurfaceFormatKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSurfaceFormatKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vksurfaceformatkhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSurfaceFormatKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSurfaceFormatKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -6253,20 +6802,20 @@ vkswapchaincreateinfokhr_struct_wrapper::~vkswapchaincreateinfokhr_struct_wrappe
 // Output 'structname = struct_address' on a single line
 void vkswapchaincreateinfokhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkSwapchainCreateInfoKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkSwapchainCreateInfoKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkswapchaincreateinfokhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %ssurface = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.surface));
+    printf("%*s    %ssurface = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.surface));
     printf("%*s    %sminImageCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.minImageCount));
     printf("%*s    %simageFormat = %s\n", m_indent, "", &m_dummy_prefix, string_VkFormat(m_struct.imageFormat));
     printf("%*s    %simageColorSpace = %s\n", m_indent, "", &m_dummy_prefix, string_VkColorSpaceKHR(m_struct.imageColorSpace));
-    printf("%*s    %simageExtent = %p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageExtent));
+    printf("%*s    %simageExtent = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)&(m_struct.imageExtent));
     printf("%*s    %simageArrayLayers = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.imageArrayLayers));
     printf("%*s    %simageUsage = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.imageUsage));
     printf("%*s    %simageSharingMode = %s\n", m_indent, "", &m_dummy_prefix, string_VkSharingMode(m_struct.imageSharingMode));
@@ -6279,20 +6828,20 @@ void vkswapchaincreateinfokhr_struct_wrapper::display_struct_members()
     printf("%*s    %scompositeAlpha = %s\n", m_indent, "", &m_dummy_prefix, string_VkCompositeAlphaFlagBitsKHR(m_struct.compositeAlpha));
     printf("%*s    %spresentMode = %s\n", m_indent, "", &m_dummy_prefix, string_VkPresentModeKHR(m_struct.presentMode));
     printf("%*s    %sclipped = %s\n", m_indent, "", &m_dummy_prefix, (m_struct.clipped) ? "TRUE" : "FALSE");
-    printf("%*s    %soldSwapchain = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.oldSwapchain));
+    printf("%*s    %soldSwapchain = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.oldSwapchain));
 }
 
 // Output all struct elements, each on their own line
 void vkswapchaincreateinfokhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkSwapchainCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSwapchainCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkswapchaincreateinfokhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkSwapchainCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkSwapchainCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (&m_struct.imageExtent) {
         vkextent2d_struct_wrapper class0(&m_struct.imageExtent);
@@ -6321,7 +6870,7 @@ vkvertexinputattributedescription_struct_wrapper::~vkvertexinputattributedescrip
 // Output 'structname = struct_address' on a single line
 void vkvertexinputattributedescription_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkVertexInputAttributeDescription = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkVertexInputAttributeDescription = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -6336,14 +6885,14 @@ void vkvertexinputattributedescription_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkvertexinputattributedescription_struct_wrapper::display_txt()
 {
-    printf("%*sVkVertexInputAttributeDescription struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkVertexInputAttributeDescription struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkvertexinputattributedescription_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkVertexInputAttributeDescription struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkVertexInputAttributeDescription struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -6364,7 +6913,7 @@ vkvertexinputbindingdescription_struct_wrapper::~vkvertexinputbindingdescription
 // Output 'structname = struct_address' on a single line
 void vkvertexinputbindingdescription_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkVertexInputBindingDescription = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkVertexInputBindingDescription = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -6378,14 +6927,14 @@ void vkvertexinputbindingdescription_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkvertexinputbindingdescription_struct_wrapper::display_txt()
 {
-    printf("%*sVkVertexInputBindingDescription struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkVertexInputBindingDescription struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkvertexinputbindingdescription_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkVertexInputBindingDescription struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkVertexInputBindingDescription struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -6406,7 +6955,7 @@ vkviewport_struct_wrapper::~vkviewport_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkviewport_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkViewport = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkViewport = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
@@ -6423,14 +6972,14 @@ void vkviewport_struct_wrapper::display_struct_members()
 // Output all struct elements, each on their own line
 void vkviewport_struct_wrapper::display_txt()
 {
-    printf("%*sVkViewport struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkViewport struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkviewport_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkViewport struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkViewport struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
@@ -6451,30 +7000,92 @@ vkwaylandsurfacecreateinfokhr_struct_wrapper::~vkwaylandsurfacecreateinfokhr_str
 // Output 'structname = struct_address' on a single line
 void vkwaylandsurfacecreateinfokhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkWaylandSurfaceCreateInfoKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkWaylandSurfaceCreateInfoKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkwaylandsurfacecreateinfokhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %sdisplay = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.display));
-    printf("%*s    %ssurface = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.surface));
+    printf("%*s    %sdisplay = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.display));
+    printf("%*s    %ssurface = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.surface));
 }
 
 // Output all struct elements, each on their own line
 void vkwaylandsurfacecreateinfokhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkWaylandSurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkWaylandSurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkwaylandsurfacecreateinfokhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkWaylandSurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkWaylandSurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
+}
+
+
+// vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper class definition
+vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper::vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper::vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper(VkWin32KeyedMutexAcquireReleaseInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper::vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper(const VkWin32KeyedMutexAcquireReleaseInfoNV* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper::~vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkWin32KeyedMutexAcquireReleaseInfoNV = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %sacquireCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.acquireCount));
+    uint32_t i;
+    for (i = 0; i<acquireCount; i++) {
+        printf("%*s    %spAcquireSyncs[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pAcquireSyncs)[i]);
+    }
+    for (i = 0; i<acquireCount; i++) {
+        printf("%*s    %spAcquireKeys[%u] = %" PRId64 "\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pAcquireKeys)[i]);
+    }
+    for (i = 0; i<acquireCount; i++) {
+        printf("%*s    %spAcquireTimeoutMilliseconds[%u] = %u\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pAcquireTimeoutMilliseconds)[i]);
+    }
+    printf("%*s    %sreleaseCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.releaseCount));
+    for (i = 0; i<releaseCount; i++) {
+        printf("%*s    %spReleaseSyncs[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pReleaseSyncs)[i]);
+    }
+    for (i = 0; i<releaseCount; i++) {
+        printf("%*s    %spReleaseKeys[%u] = %" PRId64 "\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pReleaseKeys)[i]);
+    }
+}
+
+// Output all struct elements, each on their own line
+void vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper::display_txt()
+{
+    printf("%*sVkWin32KeyedMutexAcquireReleaseInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkWin32KeyedMutexAcquireReleaseInfoNV struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -6498,30 +7109,30 @@ vkwin32surfacecreateinfokhr_struct_wrapper::~vkwin32surfacecreateinfokhr_struct_
 // Output 'structname = struct_address' on a single line
 void vkwin32surfacecreateinfokhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkWin32SurfaceCreateInfoKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkWin32SurfaceCreateInfoKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkwin32surfacecreateinfokhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %shinstance = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.hinstance));
-    printf("%*s    %shwnd = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.hwnd));
+    printf("%*s    %shinstance = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.hinstance));
+    printf("%*s    %shwnd = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.hwnd));
 }
 
 // Output all struct elements, each on their own line
 void vkwin32surfacecreateinfokhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkWin32SurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkWin32SurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkwin32surfacecreateinfokhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkWin32SurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkWin32SurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -6545,42 +7156,42 @@ vkwritedescriptorset_struct_wrapper::~vkwritedescriptorset_struct_wrapper() {}
 // Output 'structname = struct_address' on a single line
 void vkwritedescriptorset_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkWriteDescriptorSet = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkWriteDescriptorSet = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkwritedescriptorset_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
-    printf("%*s    %sdstSet = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.dstSet));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %sdstSet = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.dstSet));
     printf("%*s    %sdstBinding = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.dstBinding));
     printf("%*s    %sdstArrayElement = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.dstArrayElement));
     printf("%*s    %sdescriptorCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.descriptorCount));
     printf("%*s    %sdescriptorType = %s\n", m_indent, "", &m_dummy_prefix, string_VkDescriptorType(m_struct.descriptorType));
     uint32_t i;
     for (i = 0; i<descriptorCount; i++) {
-        printf("%*s    %spImageInfo[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pImageInfo)[i]);
+        printf("%*s    %spImageInfo[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pImageInfo)[i]);
     }
     for (i = 0; i<descriptorCount; i++) {
-        printf("%*s    %spBufferInfo[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pBufferInfo)[i]);
+        printf("%*s    %spBufferInfo[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (void*)(m_struct.pBufferInfo)[i]);
     }
     for (i = 0; i<descriptorCount; i++) {
-        printf("%*s    %spTexelBufferView[%u] = %p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pTexelBufferView)[i]);
+        printf("%*s    %spTexelBufferView[%u] = 0x%p\n", m_indent, "", &m_dummy_prefix, i, (m_struct.pTexelBufferView)[i]);
     }
 }
 
 // Output all struct elements, each on their own line
 void vkwritedescriptorset_struct_wrapper::display_txt()
 {
-    printf("%*sVkWriteDescriptorSet struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkWriteDescriptorSet struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkwritedescriptorset_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkWriteDescriptorSet struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkWriteDescriptorSet struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     uint32_t i;
     for (i = 0; i<descriptorCount; i++) {
@@ -6615,30 +7226,30 @@ vkxcbsurfacecreateinfokhr_struct_wrapper::~vkxcbsurfacecreateinfokhr_struct_wrap
 // Output 'structname = struct_address' on a single line
 void vkxcbsurfacecreateinfokhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkXcbSurfaceCreateInfoKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkXcbSurfaceCreateInfoKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkxcbsurfacecreateinfokhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %sconnection = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.connection));
-    printf("%*s    %swindow = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.window));
+    printf("%*s    %sconnection = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.connection));
+    printf("%*s    %swindow = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.window));
 }
 
 // Output all struct elements, each on their own line
 void vkxcbsurfacecreateinfokhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkXcbSurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkXcbSurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkxcbsurfacecreateinfokhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkXcbSurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkXcbSurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);
@@ -6662,30 +7273,30 @@ vkxlibsurfacecreateinfokhr_struct_wrapper::~vkxlibsurfacecreateinfokhr_struct_wr
 // Output 'structname = struct_address' on a single line
 void vkxlibsurfacecreateinfokhr_struct_wrapper::display_single_txt()
 {
-    printf(" %*sVkXlibSurfaceCreateInfoKHR = %p", m_indent, "", (void*)m_origStructAddr);
+    printf(" %*sVkXlibSurfaceCreateInfoKHR = 0x%p", m_indent, "", (void*)m_origStructAddr);
 }
 
 // Private helper function that displays the members of the wrapped struct
 void vkxlibsurfacecreateinfokhr_struct_wrapper::display_struct_members()
 {
     printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
-    printf("%*s    %spNext = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
     printf("%*s    %sflags = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.flags));
-    printf("%*s    %sdpy = %p\n", m_indent, "", &m_dummy_prefix, (m_struct.dpy));
-    printf("%*s    %swindow = %p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.window));
+    printf("%*s    %sdpy = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.dpy));
+    printf("%*s    %swindow = 0x%p\n", m_indent, "", &m_dummy_prefix, (void*)(m_struct.window));
 }
 
 // Output all struct elements, each on their own line
 void vkxlibsurfacecreateinfokhr_struct_wrapper::display_txt()
 {
-    printf("%*sVkXlibSurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkXlibSurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
 }
 
 // Output all struct elements, and for any structs pointed to, print complete contents
 void vkxlibsurfacecreateinfokhr_struct_wrapper::display_full_txt()
 {
-    printf("%*sVkXlibSurfaceCreateInfoKHR struct contents at %p:\n", m_indent, "", (void*)m_origStructAddr);
+    printf("%*sVkXlibSurfaceCreateInfoKHR struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
     this->display_struct_members();
     if (m_struct.pNext) {
         dynamic_display_full_txt(m_struct.pNext, m_indent);

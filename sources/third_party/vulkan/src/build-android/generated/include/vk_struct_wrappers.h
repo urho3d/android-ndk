@@ -8,24 +8,17 @@
  * Copyright (c) 2015-2016 LunarG, Inc.
  * Copyright (c) 2015-2016 Google Inc.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Materials"),
- * to deal in the Materials without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Materials, and to permit persons to whom the
- * Materials is furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Materials.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- *
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE MATERIALS OR THE
- * USE OR OTHER DEALINGS IN THE MATERIALS
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
  * Author: Tobin Ehlis <tobin@lunarg.com>
@@ -34,7 +27,7 @@
 #include <vulkan/vulkan.h>
 #include <vk_enum_string_helper.h>
 #include <stdint.h>
-#include <inttypes.h>
+#include <cinttypes>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -881,6 +874,111 @@ private:
 
 
 //class declaration
+class vkdebugmarkermarkerinfoext_struct_wrapper
+{
+public:
+    vkdebugmarkermarkerinfoext_struct_wrapper();
+    vkdebugmarkermarkerinfoext_struct_wrapper(VkDebugMarkerMarkerInfoEXT* pInStruct);
+    vkdebugmarkermarkerinfoext_struct_wrapper(const VkDebugMarkerMarkerInfoEXT* pInStruct);
+
+    virtual ~vkdebugmarkermarkerinfoext_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    const char* get_pMarkerName() { return m_struct.pMarkerName; }
+
+
+private:
+    VkDebugMarkerMarkerInfoEXT m_struct;
+    const VkDebugMarkerMarkerInfoEXT* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
+class vkdebugmarkerobjectnameinfoext_struct_wrapper
+{
+public:
+    vkdebugmarkerobjectnameinfoext_struct_wrapper();
+    vkdebugmarkerobjectnameinfoext_struct_wrapper(VkDebugMarkerObjectNameInfoEXT* pInStruct);
+    vkdebugmarkerobjectnameinfoext_struct_wrapper(const VkDebugMarkerObjectNameInfoEXT* pInStruct);
+
+    virtual ~vkdebugmarkerobjectnameinfoext_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    VkDebugReportObjectTypeEXT get_objectType() { return m_struct.objectType; }
+    void set_objectType(VkDebugReportObjectTypeEXT inValue) { m_struct.objectType = inValue; }
+    uint64_t get_object() { return m_struct.object; }
+    void set_object(uint64_t inValue) { m_struct.object = inValue; }
+    const char* get_pObjectName() { return m_struct.pObjectName; }
+
+
+private:
+    VkDebugMarkerObjectNameInfoEXT m_struct;
+    const VkDebugMarkerObjectNameInfoEXT* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
+class vkdebugmarkerobjecttaginfoext_struct_wrapper
+{
+public:
+    vkdebugmarkerobjecttaginfoext_struct_wrapper();
+    vkdebugmarkerobjecttaginfoext_struct_wrapper(VkDebugMarkerObjectTagInfoEXT* pInStruct);
+    vkdebugmarkerobjecttaginfoext_struct_wrapper(const VkDebugMarkerObjectTagInfoEXT* pInStruct);
+
+    virtual ~vkdebugmarkerobjecttaginfoext_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    VkDebugReportObjectTypeEXT get_objectType() { return m_struct.objectType; }
+    void set_objectType(VkDebugReportObjectTypeEXT inValue) { m_struct.objectType = inValue; }
+    uint64_t get_object() { return m_struct.object; }
+    void set_object(uint64_t inValue) { m_struct.object = inValue; }
+    uint64_t get_tagName() { return m_struct.tagName; }
+    void set_tagName(uint64_t inValue) { m_struct.tagName = inValue; }
+    size_t get_tagSize() { return m_struct.tagSize; }
+    void set_tagSize(size_t inValue) { m_struct.tagSize = inValue; }
+    const void* get_pTag() { return m_struct.pTag; }
+
+
+private:
+    VkDebugMarkerObjectTagInfoEXT m_struct;
+    const VkDebugMarkerObjectTagInfoEXT* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
 class vkdebugreportcallbackcreateinfoext_struct_wrapper
 {
 public:
@@ -909,6 +1007,104 @@ public:
 private:
     VkDebugReportCallbackCreateInfoEXT m_struct;
     const VkDebugReportCallbackCreateInfoEXT* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
+class vkdedicatedallocationbuffercreateinfonv_struct_wrapper
+{
+public:
+    vkdedicatedallocationbuffercreateinfonv_struct_wrapper();
+    vkdedicatedallocationbuffercreateinfonv_struct_wrapper(VkDedicatedAllocationBufferCreateInfoNV* pInStruct);
+    vkdedicatedallocationbuffercreateinfonv_struct_wrapper(const VkDedicatedAllocationBufferCreateInfoNV* pInStruct);
+
+    virtual ~vkdedicatedallocationbuffercreateinfonv_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    VkBool32 get_dedicatedAllocation() { return m_struct.dedicatedAllocation; }
+    void set_dedicatedAllocation(VkBool32 inValue) { m_struct.dedicatedAllocation = inValue; }
+
+
+private:
+    VkDedicatedAllocationBufferCreateInfoNV m_struct;
+    const VkDedicatedAllocationBufferCreateInfoNV* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
+class vkdedicatedallocationimagecreateinfonv_struct_wrapper
+{
+public:
+    vkdedicatedallocationimagecreateinfonv_struct_wrapper();
+    vkdedicatedallocationimagecreateinfonv_struct_wrapper(VkDedicatedAllocationImageCreateInfoNV* pInStruct);
+    vkdedicatedallocationimagecreateinfonv_struct_wrapper(const VkDedicatedAllocationImageCreateInfoNV* pInStruct);
+
+    virtual ~vkdedicatedallocationimagecreateinfonv_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    VkBool32 get_dedicatedAllocation() { return m_struct.dedicatedAllocation; }
+    void set_dedicatedAllocation(VkBool32 inValue) { m_struct.dedicatedAllocation = inValue; }
+
+
+private:
+    VkDedicatedAllocationImageCreateInfoNV m_struct;
+    const VkDedicatedAllocationImageCreateInfoNV* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
+class vkdedicatedallocationmemoryallocateinfonv_struct_wrapper
+{
+public:
+    vkdedicatedallocationmemoryallocateinfonv_struct_wrapper();
+    vkdedicatedallocationmemoryallocateinfonv_struct_wrapper(VkDedicatedAllocationMemoryAllocateInfoNV* pInStruct);
+    vkdedicatedallocationmemoryallocateinfonv_struct_wrapper(const VkDedicatedAllocationMemoryAllocateInfoNV* pInStruct);
+
+    virtual ~vkdedicatedallocationmemoryallocateinfonv_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    VkImage get_image() { return m_struct.image; }
+    void set_image(VkImage inValue) { m_struct.image = inValue; }
+    VkBuffer get_buffer() { return m_struct.buffer; }
+    void set_buffer(VkBuffer inValue) { m_struct.buffer = inValue; }
+
+
+private:
+    VkDedicatedAllocationMemoryAllocateInfoNV m_struct;
+    const VkDedicatedAllocationMemoryAllocateInfoNV* m_origStructAddr;
     uint32_t m_indent;
     const char m_dummy_prefix;
     void display_struct_members();
@@ -1659,6 +1855,71 @@ private:
 
 
 //class declaration
+class vkexportmemoryallocateinfonv_struct_wrapper
+{
+public:
+    vkexportmemoryallocateinfonv_struct_wrapper();
+    vkexportmemoryallocateinfonv_struct_wrapper(VkExportMemoryAllocateInfoNV* pInStruct);
+    vkexportmemoryallocateinfonv_struct_wrapper(const VkExportMemoryAllocateInfoNV* pInStruct);
+
+    virtual ~vkexportmemoryallocateinfonv_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    VkExternalMemoryHandleTypeFlagsNV get_handleTypes() { return m_struct.handleTypes; }
+    void set_handleTypes(VkExternalMemoryHandleTypeFlagsNV inValue) { m_struct.handleTypes = inValue; }
+
+
+private:
+    VkExportMemoryAllocateInfoNV m_struct;
+    const VkExportMemoryAllocateInfoNV* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
+class vkexportmemorywin32handleinfonv_struct_wrapper
+{
+public:
+    vkexportmemorywin32handleinfonv_struct_wrapper();
+    vkexportmemorywin32handleinfonv_struct_wrapper(VkExportMemoryWin32HandleInfoNV* pInStruct);
+    vkexportmemorywin32handleinfonv_struct_wrapper(const VkExportMemoryWin32HandleInfoNV* pInStruct);
+
+    virtual ~vkexportmemorywin32handleinfonv_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    const SECURITY_ATTRIBUTES* get_pAttributes() { return m_struct.pAttributes; }
+    DWORD get_dwAccess() { return m_struct.dwAccess; }
+    void set_dwAccess(DWORD inValue) { m_struct.dwAccess = inValue; }
+
+
+private:
+    VkExportMemoryWin32HandleInfoNV m_struct;
+    const VkExportMemoryWin32HandleInfoNV* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
 class vkextensionproperties_struct_wrapper
 {
 public:
@@ -1744,6 +2005,73 @@ public:
 private:
     VkExtent3D m_struct;
     const VkExtent3D* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
+class vkexternalimageformatpropertiesnv_struct_wrapper
+{
+public:
+    vkexternalimageformatpropertiesnv_struct_wrapper();
+    vkexternalimageformatpropertiesnv_struct_wrapper(VkExternalImageFormatPropertiesNV* pInStruct);
+    vkexternalimageformatpropertiesnv_struct_wrapper(const VkExternalImageFormatPropertiesNV* pInStruct);
+
+    virtual ~vkexternalimageformatpropertiesnv_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkImageFormatProperties get_imageFormatProperties() { return m_struct.imageFormatProperties; }
+    void set_imageFormatProperties(VkImageFormatProperties inValue) { m_struct.imageFormatProperties = inValue; }
+    VkExternalMemoryFeatureFlagsNV get_externalMemoryFeatures() { return m_struct.externalMemoryFeatures; }
+    void set_externalMemoryFeatures(VkExternalMemoryFeatureFlagsNV inValue) { m_struct.externalMemoryFeatures = inValue; }
+    VkExternalMemoryHandleTypeFlagsNV get_exportFromImportedHandleTypes() { return m_struct.exportFromImportedHandleTypes; }
+    void set_exportFromImportedHandleTypes(VkExternalMemoryHandleTypeFlagsNV inValue) { m_struct.exportFromImportedHandleTypes = inValue; }
+    VkExternalMemoryHandleTypeFlagsNV get_compatibleHandleTypes() { return m_struct.compatibleHandleTypes; }
+    void set_compatibleHandleTypes(VkExternalMemoryHandleTypeFlagsNV inValue) { m_struct.compatibleHandleTypes = inValue; }
+
+
+private:
+    VkExternalImageFormatPropertiesNV m_struct;
+    const VkExternalImageFormatPropertiesNV* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
+class vkexternalmemoryimagecreateinfonv_struct_wrapper
+{
+public:
+    vkexternalmemoryimagecreateinfonv_struct_wrapper();
+    vkexternalmemoryimagecreateinfonv_struct_wrapper(VkExternalMemoryImageCreateInfoNV* pInStruct);
+    vkexternalmemoryimagecreateinfonv_struct_wrapper(const VkExternalMemoryImageCreateInfoNV* pInStruct);
+
+    virtual ~vkexternalmemoryimagecreateinfonv_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    VkExternalMemoryHandleTypeFlagsNV get_handleTypes() { return m_struct.handleTypes; }
+    void set_handleTypes(VkExternalMemoryHandleTypeFlagsNV inValue) { m_struct.handleTypes = inValue; }
+
+
+private:
+    VkExternalMemoryImageCreateInfoNV m_struct;
+    const VkExternalMemoryImageCreateInfoNV* m_origStructAddr;
     uint32_t m_indent;
     const char m_dummy_prefix;
     void display_struct_members();
@@ -2293,6 +2621,40 @@ public:
 private:
     VkImageViewCreateInfo m_struct;
     const VkImageViewCreateInfo* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
+class vkimportmemorywin32handleinfonv_struct_wrapper
+{
+public:
+    vkimportmemorywin32handleinfonv_struct_wrapper();
+    vkimportmemorywin32handleinfonv_struct_wrapper(VkImportMemoryWin32HandleInfoNV* pInStruct);
+    vkimportmemorywin32handleinfonv_struct_wrapper(const VkImportMemoryWin32HandleInfoNV* pInStruct);
+
+    virtual ~vkimportmemorywin32handleinfonv_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    VkExternalMemoryHandleTypeFlagsNV get_handleType() { return m_struct.handleType; }
+    void set_handleType(VkExternalMemoryHandleTypeFlagsNV inValue) { m_struct.handleType = inValue; }
+    HANDLE get_handle() { return m_struct.handle; }
+    void set_handle(HANDLE inValue) { m_struct.handle = inValue; }
+
+
+private:
+    VkImportMemoryWin32HandleInfoNV m_struct;
+    const VkImportMemoryWin32HandleInfoNV* m_origStructAddr;
     uint32_t m_indent;
     const char m_dummy_prefix;
     void display_struct_members();
@@ -3500,6 +3862,38 @@ public:
 private:
     VkPipelineRasterizationStateCreateInfo m_struct;
     const VkPipelineRasterizationStateCreateInfo* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
+class vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper
+{
+public:
+    vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper();
+    vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper(VkPipelineRasterizationStateRasterizationOrderAMD* pInStruct);
+    vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper(const VkPipelineRasterizationStateRasterizationOrderAMD* pInStruct);
+
+    virtual ~vkpipelinerasterizationstaterasterizationorderamd_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    VkRasterizationOrderAMD get_rasterizationOrder() { return m_struct.rasterizationOrder; }
+    void set_rasterizationOrder(VkRasterizationOrderAMD inValue) { m_struct.rasterizationOrder = inValue; }
+
+
+private:
+    VkPipelineRasterizationStateRasterizationOrderAMD m_struct;
+    const VkPipelineRasterizationStateRasterizationOrderAMD* m_origStructAddr;
     uint32_t m_indent;
     const char m_dummy_prefix;
     void display_struct_members();
@@ -4801,6 +5195,40 @@ public:
 private:
     VkWaylandSurfaceCreateInfoKHR m_struct;
     const VkWaylandSurfaceCreateInfoKHR* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
+class vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper
+{
+public:
+    vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper();
+    vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper(VkWin32KeyedMutexAcquireReleaseInfoNV* pInStruct);
+    vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper(const VkWin32KeyedMutexAcquireReleaseInfoNV* pInStruct);
+
+    virtual ~vkwin32keyedmutexacquirereleaseinfonv_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    uint32_t get_acquireCount() { return m_struct.acquireCount; }
+    void set_acquireCount(uint32_t inValue) { m_struct.acquireCount = inValue; }
+    uint32_t get_releaseCount() { return m_struct.releaseCount; }
+    void set_releaseCount(uint32_t inValue) { m_struct.releaseCount = inValue; }
+
+
+private:
+    VkWin32KeyedMutexAcquireReleaseInfoNV m_struct;
+    const VkWin32KeyedMutexAcquireReleaseInfoNV* m_origStructAddr;
     uint32_t m_indent;
     const char m_dummy_prefix;
     void display_struct_members();

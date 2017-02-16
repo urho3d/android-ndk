@@ -1,28 +1,16 @@
 // Copyright (c) 2015-2016 The Khronos Group Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and/or associated documentation files (the
-// "Materials"), to deal in the Materials without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Materials, and to
-// permit persons to whom the Materials are furnished to do so, subject to
-// the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Materials.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// MODIFICATIONS TO THIS FILE MAY MEAN IT NO LONGER ACCURATELY REFLECTS
-// KHRONOS STANDARDS. THE UNMODIFIED, NORMATIVE VERSIONS OF KHRONOS
-// SPECIFICATIONS AND HEADER INFORMATION ARE LOCATED AT
-//    https://www.khronos.org/registry/
-//
-// THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 #include "text.h"
 
@@ -43,6 +31,7 @@
 #include "diagnostic.h"
 #include "ext_inst.h"
 #include "instruction.h"
+#include "message.h"
 #include "opcode.h"
 #include "operand.h"
 #include "spirv-tools/libspirv.h"
@@ -50,6 +39,7 @@
 #include "table.h"
 #include "text_handler.h"
 #include "util/bitutils.h"
+#include "util/parse_number.h"
 
 bool spvIsValidIDCharacter(const char value) {
   return value == '_' || 0 != ::isalnum(value);
@@ -171,10 +161,10 @@ spv_result_t encodeImmediate(libspirv::AssemblyContext* context,
                              const char* text, spv_instruction_t* pInst) {
   assert(*text == '!');
   uint32_t parse_result;
-  if (auto error =
-          context->parseNumber(text + 1, SPV_ERROR_INVALID_TEXT, &parse_result,
-                               "Invalid immediate integer: !"))
-    return error;
+  if (!spvutils::ParseNumber(text + 1, &parse_result)) {
+    return context->diagnostic(SPV_ERROR_INVALID_TEXT)
+           << "Invalid immediate integer: !" << text + 1;
+  }
   context->binaryEncodeU32(parse_result, pInst);
   context->seekForward(static_cast<uint32_t>(strlen(text)));
   return SPV_SUCCESS;
@@ -673,19 +663,15 @@ spv_result_t SetHeader(spv_target_env env, const uint32_t bound,
 // If a diagnostic is generated, it is not yet marked as being
 // for a text-based input.
 spv_result_t spvTextToBinaryInternal(const libspirv::AssemblyGrammar& grammar,
-                                     const spv_text text, spv_binary* pBinary,
-                                     spv_diagnostic* pDiagnostic) {
-  if (!pDiagnostic) return SPV_ERROR_INVALID_DIAGNOSTIC;
-  libspirv::AssemblyContext context(text, pDiagnostic);
+                                     const spvtools::MessageConsumer& consumer,
+                                     const spv_text text, spv_binary* pBinary) {
+  libspirv::AssemblyContext context(text, consumer);
   if (!text->str) return context.diagnostic() << "Missing assembly text.";
 
   if (!grammar.isValid()) {
     return SPV_ERROR_INVALID_TABLE;
   }
   if (!pBinary) return SPV_ERROR_INVALID_POINTER;
-
-  // NOTE: Ensure diagnostic is zero initialised
-  *pDiagnostic = {};
 
   std::vector<spv_instruction_t> instructions;
 
@@ -739,11 +725,17 @@ spv_result_t spvTextToBinary(const spv_const_context context,
                              const char* input_text,
                              const size_t input_text_size, spv_binary* pBinary,
                              spv_diagnostic* pDiagnostic) {
+  spv_context_t hijack_context = *context;
+  if (pDiagnostic) {
+    *pDiagnostic = nullptr;
+    libspirv::UseDiagnosticAsMessageConsumer(&hijack_context, pDiagnostic);
+  }
+
   spv_text_t text = {input_text, input_text_size};
-  libspirv::AssemblyGrammar grammar(context);
+  libspirv::AssemblyGrammar grammar(&hijack_context);
 
   spv_result_t result =
-      spvTextToBinaryInternal(grammar, &text, pBinary, pDiagnostic);
+      spvTextToBinaryInternal(grammar, hijack_context.consumer, &text, pBinary);
   if (pDiagnostic && *pDiagnostic) (*pDiagnostic)->isTextSource = true;
 
   return result;

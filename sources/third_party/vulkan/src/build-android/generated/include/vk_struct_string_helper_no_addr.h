@@ -8,24 +8,17 @@
  * Copyright (c) 2015-2016 LunarG, Inc.
  * Copyright (c) 2015-2016 Google Inc.
  *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Materials"),
- * to deal in the Materials without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Materials, and to permit persons to whom the
- * Materials is furnished to do so, subject to the following conditions:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * The above copyright notice and this permission notice shall be included
- * in all copies or substantial portions of the Materials.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- *
- * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
- * DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
- * OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE MATERIALS OR THE
- * USE OR OTHER DEALINGS IN THE MATERIALS
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
  * Author: Tobin Ehlis <tobin@lunarg.com>
@@ -33,7 +26,7 @@
 //#includes, #defines, globals and such...
 #include <vulkan/vulkan.h>
 #include <stdint.h>
-#include <inttypes.h>
+#include <cinttypes>
 #include <stdio.h>
 #include <stdlib.h>
 #include "vk_enum_string_helper.h"
@@ -63,7 +56,13 @@ char* vk_print_vkcommandpoolcreateinfo(const VkCommandPoolCreateInfo* pStruct, c
 char* vk_print_vkcomponentmapping(const VkComponentMapping* pStruct, const char* prefix);
 char* vk_print_vkcomputepipelinecreateinfo(const VkComputePipelineCreateInfo* pStruct, const char* prefix);
 char* vk_print_vkcopydescriptorset(const VkCopyDescriptorSet* pStruct, const char* prefix);
+char* vk_print_vkdebugmarkermarkerinfoext(const VkDebugMarkerMarkerInfoEXT* pStruct, const char* prefix);
+char* vk_print_vkdebugmarkerobjectnameinfoext(const VkDebugMarkerObjectNameInfoEXT* pStruct, const char* prefix);
+char* vk_print_vkdebugmarkerobjecttaginfoext(const VkDebugMarkerObjectTagInfoEXT* pStruct, const char* prefix);
 char* vk_print_vkdebugreportcallbackcreateinfoext(const VkDebugReportCallbackCreateInfoEXT* pStruct, const char* prefix);
+char* vk_print_vkdedicatedallocationbuffercreateinfonv(const VkDedicatedAllocationBufferCreateInfoNV* pStruct, const char* prefix);
+char* vk_print_vkdedicatedallocationimagecreateinfonv(const VkDedicatedAllocationImageCreateInfoNV* pStruct, const char* prefix);
+char* vk_print_vkdedicatedallocationmemoryallocateinfonv(const VkDedicatedAllocationMemoryAllocateInfoNV* pStruct, const char* prefix);
 char* vk_print_vkdescriptorbufferinfo(const VkDescriptorBufferInfo* pStruct, const char* prefix);
 char* vk_print_vkdescriptorimageinfo(const VkDescriptorImageInfo* pStruct, const char* prefix);
 char* vk_print_vkdescriptorpoolcreateinfo(const VkDescriptorPoolCreateInfo* pStruct, const char* prefix);
@@ -85,9 +84,13 @@ char* vk_print_vkdisplaysurfacecreateinfokhr(const VkDisplaySurfaceCreateInfoKHR
 char* vk_print_vkdrawindexedindirectcommand(const VkDrawIndexedIndirectCommand* pStruct, const char* prefix);
 char* vk_print_vkdrawindirectcommand(const VkDrawIndirectCommand* pStruct, const char* prefix);
 char* vk_print_vkeventcreateinfo(const VkEventCreateInfo* pStruct, const char* prefix);
+char* vk_print_vkexportmemoryallocateinfonv(const VkExportMemoryAllocateInfoNV* pStruct, const char* prefix);
+char* vk_print_vkexportmemorywin32handleinfonv(const VkExportMemoryWin32HandleInfoNV* pStruct, const char* prefix);
 char* vk_print_vkextensionproperties(const VkExtensionProperties* pStruct, const char* prefix);
 char* vk_print_vkextent2d(const VkExtent2D* pStruct, const char* prefix);
 char* vk_print_vkextent3d(const VkExtent3D* pStruct, const char* prefix);
+char* vk_print_vkexternalimageformatpropertiesnv(const VkExternalImageFormatPropertiesNV* pStruct, const char* prefix);
+char* vk_print_vkexternalmemoryimagecreateinfonv(const VkExternalMemoryImageCreateInfoNV* pStruct, const char* prefix);
 char* vk_print_vkfencecreateinfo(const VkFenceCreateInfo* pStruct, const char* prefix);
 char* vk_print_vkformatproperties(const VkFormatProperties* pStruct, const char* prefix);
 char* vk_print_vkframebuffercreateinfo(const VkFramebufferCreateInfo* pStruct, const char* prefix);
@@ -102,6 +105,7 @@ char* vk_print_vkimagesubresource(const VkImageSubresource* pStruct, const char*
 char* vk_print_vkimagesubresourcelayers(const VkImageSubresourceLayers* pStruct, const char* prefix);
 char* vk_print_vkimagesubresourcerange(const VkImageSubresourceRange* pStruct, const char* prefix);
 char* vk_print_vkimageviewcreateinfo(const VkImageViewCreateInfo* pStruct, const char* prefix);
+char* vk_print_vkimportmemorywin32handleinfonv(const VkImportMemoryWin32HandleInfoNV* pStruct, const char* prefix);
 char* vk_print_vkinstancecreateinfo(const VkInstanceCreateInfo* pStruct, const char* prefix);
 char* vk_print_vklayerproperties(const VkLayerProperties* pStruct, const char* prefix);
 char* vk_print_vkmappedmemoryrange(const VkMappedMemoryRange* pStruct, const char* prefix);
@@ -127,6 +131,7 @@ char* vk_print_vkpipelineinputassemblystatecreateinfo(const VkPipelineInputAssem
 char* vk_print_vkpipelinelayoutcreateinfo(const VkPipelineLayoutCreateInfo* pStruct, const char* prefix);
 char* vk_print_vkpipelinemultisamplestatecreateinfo(const VkPipelineMultisampleStateCreateInfo* pStruct, const char* prefix);
 char* vk_print_vkpipelinerasterizationstatecreateinfo(const VkPipelineRasterizationStateCreateInfo* pStruct, const char* prefix);
+char* vk_print_vkpipelinerasterizationstaterasterizationorderamd(const VkPipelineRasterizationStateRasterizationOrderAMD* pStruct, const char* prefix);
 char* vk_print_vkpipelineshaderstagecreateinfo(const VkPipelineShaderStageCreateInfo* pStruct, const char* prefix);
 char* vk_print_vkpipelinetessellationstatecreateinfo(const VkPipelineTessellationStateCreateInfo* pStruct, const char* prefix);
 char* vk_print_vkpipelinevertexinputstatecreateinfo(const VkPipelineVertexInputStateCreateInfo* pStruct, const char* prefix);
@@ -162,6 +167,7 @@ char* vk_print_vkvertexinputattributedescription(const VkVertexInputAttributeDes
 char* vk_print_vkvertexinputbindingdescription(const VkVertexInputBindingDescription* pStruct, const char* prefix);
 char* vk_print_vkviewport(const VkViewport* pStruct, const char* prefix);
 char* vk_print_vkwaylandsurfacecreateinfokhr(const VkWaylandSurfaceCreateInfoKHR* pStruct, const char* prefix);
+char* vk_print_vkwin32keyedmutexacquirereleaseinfonv(const VkWin32KeyedMutexAcquireReleaseInfoNV* pStruct, const char* prefix);
 char* vk_print_vkwin32surfacecreateinfokhr(const VkWin32SurfaceCreateInfoKHR* pStruct, const char* prefix);
 char* vk_print_vkwritedescriptorset(const VkWriteDescriptorSet* pStruct, const char* prefix);
 char* vk_print_vkxcbsurfacecreateinfokhr(const VkXcbSurfaceCreateInfoKHR* pStruct, const char* prefix);
@@ -745,6 +751,96 @@ char* vk_print_vkcopydescriptorset(const VkCopyDescriptorSet* pStruct, const cha
     free(extra_indent);
     return str;
 }
+char* vk_print_vkdebugmarkermarkerinfoext(const VkDebugMarkerMarkerInfoEXT* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (addr)\n%s", prefix, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%spMarkerName = addr\n%scolor = addr\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, prefix);
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
+char* vk_print_vkdebugmarkerobjectnameinfoext(const VkDebugMarkerObjectNameInfoEXT* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (addr)\n%s", prefix, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%sobjectType = %s\n%sobject = %" PRId64 "\n%spObjectName = addr\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, string_VkDebugReportObjectTypeEXT(pStruct->objectType), prefix, (pStruct->object), prefix);
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
+char* vk_print_vkdebugmarkerobjecttaginfoext(const VkDebugMarkerObjectTagInfoEXT* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (addr)\n%s", prefix, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%sobjectType = %s\n%sobject = %" PRId64 "\n%stagName = %" PRId64 "\n%stagSize = " PRINTF_SIZE_T_SPECIFIER "\n%spTag = addr\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, string_VkDebugReportObjectTypeEXT(pStruct->objectType), prefix, (pStruct->object), prefix, (pStruct->tagName), prefix, (pStruct->tagSize), prefix);
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
 char* vk_print_vkdebugreportcallbackcreateinfoext(const VkDebugReportCallbackCreateInfoEXT* pStruct, const char* prefix)
 {
     char* str;
@@ -766,6 +862,96 @@ char* vk_print_vkdebugreportcallbackcreateinfoext(const VkDebugReportCallbackCre
     len = strlen(stp_strs[0]) + sizeof(char)*1024;
     str = (char*)malloc(len);
     snprintf(str, len, "%ssType = %s\n%spNext = addr\n%sflags = %u\n%spfnCallback = addr\n%spUserData = addr\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, (pStruct->flags), prefix, prefix);
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
+char* vk_print_vkdedicatedallocationbuffercreateinfonv(const VkDedicatedAllocationBufferCreateInfoNV* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (addr)\n%s", prefix, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%sdedicatedAllocation = %s\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, (pStruct->dedicatedAllocation) ? "TRUE" : "FALSE");
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
+char* vk_print_vkdedicatedallocationimagecreateinfonv(const VkDedicatedAllocationImageCreateInfoNV* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (addr)\n%s", prefix, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%sdedicatedAllocation = %s\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, (pStruct->dedicatedAllocation) ? "TRUE" : "FALSE");
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
+char* vk_print_vkdedicatedallocationmemoryallocateinfonv(const VkDedicatedAllocationMemoryAllocateInfoNV* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (addr)\n%s", prefix, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%simage = addr\n%sbuffer = addr\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, prefix);
     for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
         if (0 < strlen(stp_strs[stp_index])) {
             strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
@@ -1297,6 +1483,66 @@ char* vk_print_vkeventcreateinfo(const VkEventCreateInfo* pStruct, const char* p
     free(extra_indent);
     return str;
 }
+char* vk_print_vkexportmemoryallocateinfonv(const VkExportMemoryAllocateInfoNV* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (addr)\n%s", prefix, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%shandleTypes = %u\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, (pStruct->handleTypes));
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
+char* vk_print_vkexportmemorywin32handleinfonv(const VkExportMemoryWin32HandleInfoNV* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (addr)\n%s", prefix, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%spAttributes = addr\n%sdwAccess = addr\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, prefix);
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
 char* vk_print_vkextensionproperties(const VkExtensionProperties* pStruct, const char* prefix)
 {
     char* str;
@@ -1322,6 +1568,61 @@ char* vk_print_vkextent3d(const VkExtent3D* pStruct, const char* prefix)
     len = sizeof(char)*1024;
     str = (char*)malloc(len);
     snprintf(str, len, "%swidth = %u\n%sheight = %u\n%sdepth = %u\n", prefix, (pStruct->width), prefix, (pStruct->height), prefix, (pStruct->depth));
+    return str;
+}
+char* vk_print_vkexternalimageformatpropertiesnv(const VkExternalImageFormatPropertiesNV* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    tmpStr = vk_print_vkimageformatproperties(&pStruct->imageFormatProperties, extra_indent);
+    len = 256+strlen(tmpStr);
+    stp_strs[0] = (char*)malloc(len);
+    snprintf(stp_strs[0], len, " %simageFormatProperties (addr)\n%s", prefix, tmpStr);
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%simageFormatProperties = addr\n%sexternalMemoryFeatures = %u\n%sexportFromImportedHandleTypes = %u\n%scompatibleHandleTypes = %u\n", prefix, prefix, (pStruct->externalMemoryFeatures), prefix, (pStruct->exportFromImportedHandleTypes), prefix, (pStruct->compatibleHandleTypes));
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
+char* vk_print_vkexternalmemoryimagecreateinfonv(const VkExternalMemoryImageCreateInfoNV* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (addr)\n%s", prefix, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%shandleTypes = %u\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, (pStruct->handleTypes));
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
     return str;
 }
 char* vk_print_vkfencecreateinfo(const VkFenceCreateInfo* pStruct, const char* prefix)
@@ -1772,6 +2073,36 @@ char* vk_print_vkimageviewcreateinfo(const VkImageViewCreateInfo* pStruct, const
     str = (char*)malloc(len);
     snprintf(str, len, "%ssType = %s\n%spNext = addr\n%sflags = %u\n%simage = addr\n%sviewType = %s\n%sformat = %s\n%scomponents = addr\n%ssubresourceRange = addr\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, (pStruct->flags), prefix, prefix, string_VkImageViewType(pStruct->viewType), prefix, string_VkFormat(pStruct->format), prefix, prefix);
     for (int32_t stp_index = 2; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
+char* vk_print_vkimportmemorywin32handleinfonv(const VkImportMemoryWin32HandleInfoNV* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (addr)\n%s", prefix, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%shandleType = %u\n%shandle = addr\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, (pStruct->handleType), prefix);
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
         if (0 < strlen(stp_strs[stp_index])) {
             strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
             free(stp_strs[stp_index]);
@@ -2350,6 +2681,36 @@ char* vk_print_vkpipelinerasterizationstatecreateinfo(const VkPipelineRasterizat
     free(extra_indent);
     return str;
 }
+char* vk_print_vkpipelinerasterizationstaterasterizationorderamd(const VkPipelineRasterizationStateRasterizationOrderAMD* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (addr)\n%s", prefix, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%srasterizationOrder = %s\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, string_VkRasterizationOrderAMD(pStruct->rasterizationOrder));
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
 char* vk_print_vkpipelineshaderstagecreateinfo(const VkPipelineShaderStageCreateInfo* pStruct, const char* prefix)
 {
     char* str;
@@ -2530,7 +2891,7 @@ char* vk_print_vkpresentinfokhr(const VkPresentInfoKHR* pStruct, const char* pre
         stp_strs[0] = "";
     len = strlen(stp_strs[0]) + sizeof(char)*1024;
     str = (char*)malloc(len);
-    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%swaitSemaphoreCount = %u\n%spWaitSemaphores = addr\n%sswapchainCount = %u\n%spSwapchains = addr\n%spImageIndices = addr\n%spResults = %s\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, (pStruct->waitSemaphoreCount), prefix, prefix, (pStruct->swapchainCount), prefix, prefix, prefix, string_VkResult(*pStruct->pResults));
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%swaitSemaphoreCount = %u\n%spWaitSemaphores = addr\n%sswapchainCount = %u\n%spSwapchains = addr\n%spImageIndices = addr\n%spResults = 0x%s\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, (pStruct->waitSemaphoreCount), prefix, prefix, (pStruct->swapchainCount), prefix, prefix, prefix, string_VkResult(*pStruct->pResults));
     for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
         if (0 < strlen(stp_strs[stp_index])) {
             strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
@@ -3270,6 +3631,36 @@ char* vk_print_vkwaylandsurfacecreateinfokhr(const VkWaylandSurfaceCreateInfoKHR
     len = strlen(stp_strs[0]) + sizeof(char)*1024;
     str = (char*)malloc(len);
     snprintf(str, len, "%ssType = %s\n%spNext = addr\n%sflags = %u\n%sdisplay = addr\n%ssurface = addr\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, (pStruct->flags), prefix, prefix);
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
+char* vk_print_vkwin32keyedmutexacquirereleaseinfonv(const VkWin32KeyedMutexAcquireReleaseInfoNV* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (addr)\n%s", prefix, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = addr\n%sacquireCount = %u\n%spAcquireSyncs = addr\n%spAcquireKeys = addr\n%spAcquireTimeoutMilliseconds = addr\n%sreleaseCount = %u\n%spReleaseSyncs = addr\n%spReleaseKeys = addr\n", prefix, string_VkStructureType(pStruct->sType), prefix, prefix, (pStruct->acquireCount), prefix, prefix, prefix, prefix, (pStruct->releaseCount), prefix, prefix);
     for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
         if (0 < strlen(stp_strs[stp_index])) {
             strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));

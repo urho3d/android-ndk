@@ -45,6 +45,14 @@
 #include <stddef.h>
 #include <pthread.h>
 
+// Temporary hack since we build this against prebuilts/ndk when building the
+// NDK but against the shipped platforms in the tests (FORCE_REBUILD case). We
+// need to update the headers in prebuilts/ndk, but we can't do that until we
+// have an NDK built with the unified headers.
+#ifndef PTHREAD_RECURSIVE_MUTEX_INITIALIZER
+#define PTHREAD_RECURSIVE_MUTEX_INITIALIZER PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+#endif
+
 /* In this implementation, we use a single global mutex+condvar pair.
  *
  * Pros: portable and doesn't require playing with futexes, atomics

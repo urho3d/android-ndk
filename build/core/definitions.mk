@@ -384,6 +384,7 @@ modules-LOCALS := \
     CONLYFLAGS \
     CXXFLAGS \
     CPPFLAGS \
+    ASFLAGS \
     ASMFLAGS \
     STATIC_LIBRARIES \
     WHOLE_STATIC_LIBRARIES \
@@ -1277,18 +1278,33 @@ $(foreach __src,$(LOCAL_SRC_FILES),$(info LOCAL_SRC_FILES_TEXT.$(__src) = $(LOCA
 NDK_APP_VARS_REQUIRED :=
 
 # the list of variables that *may* be defined in Application.mk files
-NDK_APP_VARS_OPTIONAL := APP_OPTIM APP_CPPFLAGS APP_CFLAGS APP_CONLYFLAGS APP_CXXFLAGS \
-                         APP_LDFLAGS APP_PLATFORM APP_BUILD_SCRIPT APP_ABI APP_MODULES \
-                         APP_PROJECT_PATH APP_STL APP_SHORT_COMMANDS \
-                         APP_PIE APP_THIN_ARCHIVE
+NDK_APP_VARS_OPTIONAL := \
+    APP_ABI \
+    APP_ASFLAGS \
+    APP_ASMFLAGS \
+    APP_BUILD_SCRIPT \
+    APP_CFLAGS \
+    APP_CONLYFLAGS \
+    APP_CPPFLAGS \
+    APP_CXXFLAGS \
+    APP_LDFLAGS \
+    APP_MODULES \
+    APP_OPTIM \
+    APP_PIE \
+    APP_PLATFORM \
+    APP_PROJECT_PATH \
+    APP_SHORT_COMMANDS \
+    APP_STL \
+    APP_THIN_ARCHIVE \
 
 # the list of all variables that may appear in an Application.mk file
 # or defined by the build scripts.
-NDK_APP_VARS := $(NDK_APP_VARS_REQUIRED) \
-                $(NDK_APP_VARS_OPTIONAL) \
-                APP_DEBUG \
-                APP_DEBUGGABLE \
-                APP_MANIFEST
+NDK_APP_VARS := \
+    $(NDK_APP_VARS_REQUIRED) \
+    $(NDK_APP_VARS_OPTIONAL) \
+    APP_DEBUG \
+    APP_DEBUGGABLE \
+    APP_MANIFEST \
 
 # =============================================================================
 #
@@ -1625,6 +1641,33 @@ $$(eval $$(call ev-build-source-file))
 endef
 
 # -----------------------------------------------------------------------------
+# Template  : ev-compile-s-source
+# Arguments : 1: single .S source file name (relative to LOCAL_PATH)
+#             2: target object file (without path)
+# Returns   : None
+# Usage     : $(eval $(call ev-compile-s-source,<srcfile>,<objfile>)
+# -----------------------------------------------------------------------------
+define  ev-compile-s-source
+_SRC:=$$(call local-source-file-path,$(1))
+_OBJ:=$$(LOCAL_OBJS_DIR:%/=%)/$(2)
+
+_FLAGS := $$($$(my)CFLAGS) \
+          $$(call get-src-file-target-cflags,$(1)) \
+          $$(call host-c-includes,$$(LOCAL_C_INCLUDES) $$(LOCAL_PATH)) \
+          $$(LOCAL_CFLAGS) \
+          $$(LOCAL_ASFLAGS) \
+          $$(NDK_APP_CFLAGS) \
+          $$(NDK_APP_ASFLAGS) \
+          -isystem $$(call host-path,$$(SYSROOT_INC)/usr/include) \
+          -c \
+
+_TEXT := Compile $$(call get-src-file-text,$1)
+_CC   := $$(NDK_CCACHE) $$(TARGET_CC)
+
+$$(eval $$(call ev-build-source-file))
+endef
+
+# -----------------------------------------------------------------------------
 # Template  : ev-compile-asm-source
 # Arguments : 1: single ASM source file name (relative to LOCAL_PATH)
 #             2: target object file (without path)
@@ -1684,7 +1727,7 @@ compile-c-source = $(eval $(call ev-compile-c-source,$1,$2))
 # Usage     : $(call compile-s-source,<srcfile>,<objfile>)
 # Rationale : Setup everything required to build a single Assembly source file
 # -----------------------------------------------------------------------------
-compile-s-source = $(eval $(call ev-compile-c-source,$1,$2))
+compile-s-source = $(eval $(call ev-compile-s-source,$1,$2))
 
 # -----------------------------------------------------------------------------
 # Function  : compile-asm-source
@@ -2075,7 +2118,7 @@ $(call ndk-stl-register,\
 $(call ndk-stl-register,\
     c++_shared,\
     cxx-stl/llvm-libc++,\
-    libunwind,\
+    libandroid_support libunwind,\
     c++_shared,\
     \
     )

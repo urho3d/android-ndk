@@ -5,11 +5,60 @@ DIAG: *** Including extension VK_KHR_surface (defaultExtensions matches the 'sup
 DIAG: *** Including extension VK_KHR_win32_surface (defaultExtensions matches the 'supported' attribute)
 DIAG: *** NOT including extension VK_ANDROID_native_buffer (does not match api attribute or explicitly requested extensions)
 DIAG: *** Including extension VK_EXT_debug_report (defaultExtensions matches the 'supported' attribute)
+DIAG: *** Including extension VK_NV_glsl_shader (defaultExtensions matches the 'supported' attribute)
+DIAG: *** NOT including extension VK_NV_extension_1 (does not match api attribute or explicitly requested extensions)
+DIAG: *** Including extension VK_KHR_sampler_mirror_clamp_to_edge (defaultExtensions matches the 'supported' attribute)
+DIAG: *** Including extension VK_IMG_filter_cubic (defaultExtensions matches the 'supported' attribute)
+DIAG: *** NOT including extension VK_AMD_extension_17 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_18 (does not match api attribute or explicitly requested extensions)
+DIAG: *** Including extension VK_AMD_rasterization_order (defaultExtensions matches the 'supported' attribute)
 DIAG: *** Including extension VK_KHR_swapchain (defaultExtensions matches the 'supported' attribute)
+DIAG: *** NOT including extension VK_AMD_extension_20 (does not match api attribute or explicitly requested extensions)
+DIAG: *** Including extension VK_AMD_shader_trinary_minmax (defaultExtensions matches the 'supported' attribute)
+DIAG: *** Including extension VK_AMD_shader_explicit_vertex_parameter (defaultExtensions matches the 'supported' attribute)
+DIAG: *** Including extension VK_EXT_debug_marker (defaultExtensions matches the 'supported' attribute)
+DIAG: *** NOT including extension VK_AMD_extension_24 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_25 (does not match api attribute or explicitly requested extensions)
+DIAG: *** Including extension VK_AMD_gcn_shader (defaultExtensions matches the 'supported' attribute)
+DIAG: *** Including extension VK_NV_dedicated_allocation (defaultExtensions matches the 'supported' attribute)
+DIAG: *** NOT including extension VK_EXT_extension_28 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_NVX_extension_29 (does not match api attribute or explicitly requested extensions)
 DIAG: *** Including extension VK_KHR_display (defaultExtensions matches the 'supported' attribute)
+DIAG: *** NOT including extension VK_NVX_extension_30 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_NVX_extension_31 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_32 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_33 (does not match api attribute or explicitly requested extensions)
+DIAG: *** Including extension VK_AMD_draw_indirect_count (defaultExtensions matches the 'supported' attribute)
+DIAG: *** NOT including extension VK_AMD_extension_35 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_36 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_37 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_38 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_39 (does not match api attribute or explicitly requested extensions)
 DIAG: *** Including extension VK_KHR_display_swapchain (defaultExtensions matches the 'supported' attribute)
+DIAG: *** NOT including extension VK_AMD_extension_40 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_41 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_42 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_43 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_44 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_45 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_46 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_AMD_extension_47 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_NVX_extension_48 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_GOOGLE_extension_49 (does not match api attribute or explicitly requested extensions)
 DIAG: *** Including extension VK_KHR_xlib_surface (defaultExtensions matches the 'supported' attribute)
+DIAG: *** NOT including extension VK_GOOGLE_extension_50 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_NVX_extension_51 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_NVX_extension_52 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_NV_extension_53 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_NV_extension_54 (does not match api attribute or explicitly requested extensions)
+DIAG: *** Including extension VK_IMG_format_pvrtc (defaultExtensions matches the 'supported' attribute)
+DIAG: *** Including extension VK_NV_external_memory_capabilities (defaultExtensions matches the 'supported' attribute)
+DIAG: *** Including extension VK_NV_external_memory (defaultExtensions matches the 'supported' attribute)
+DIAG: *** Including extension VK_NV_external_memory_win32 (defaultExtensions matches the 'supported' attribute)
+DIAG: *** Including extension VK_NV_win32_keyed_mutex (defaultExtensions matches the 'supported' attribute)
 DIAG: *** Including extension VK_KHR_xcb_surface (defaultExtensions matches the 'supported' attribute)
+DIAG: *** NOT including extension VK_KHR_extension_60 (does not match api attribute or explicitly requested extensions)
+DIAG: *** NOT including extension VK_KHR_extension_61 (does not match api attribute or explicitly requested extensions)
 DIAG: *** Including extension VK_KHR_wayland_surface (defaultExtensions matches the 'supported' attribute)
 DIAG: *** Including extension VK_KHR_mir_surface (defaultExtensions matches the 'supported' attribute)
 DIAG: *** Including extension VK_KHR_android_surface (defaultExtensions matches the 'supported' attribute)
@@ -21,6 +70,13 @@ DIAG: *** markRequired (features = <too long to print>, required = True )
 DIAG: *** tagging type: VK_API_VERSION -> required = True
 DIAG: *** markRequired: type requires dependent <type> VK_MAKE_VERSION
 DIAG: *** tagging type: VK_MAKE_VERSION -> required = True
+DIAG: *** tagging type: VK_API_VERSION_1_0 -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_MAKE_VERSION
+DIAG: *** tagging type: VK_MAKE_VERSION -> required = True
+DIAG: *** tagging type: VK_VERSION_MAJOR -> required = True
+DIAG: *** tagging type: VK_VERSION_MINOR -> required = True
+DIAG: *** tagging type: VK_VERSION_PATCH -> required = True
+DIAG: *** tagging type: VK_HEADER_VERSION -> required = True
 DIAG: *** markRequired (features = <too long to print>, required = True )
 DIAG: *** tagging type: VK_NULL_HANDLE -> required = True
 DIAG: *** tagging type: VkPipelineCacheHeaderVersion -> required = True
@@ -9413,9 +9469,9 @@ DIAG: *** markRequired: type requires dependent <type> uint64_t
 DIAG: *** tagging type: uint64_t -> required = True
 DIAG: *** Generating dependent type vk_platform for type uint64_t
 DIAG: *** tagging type: vk_platform -> required = True
-DIAG: *** markRequired: command implicitly requires dependent type uint32_t
-DIAG: *** tagging type: uint32_t -> required = True
-DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** markRequired: command implicitly requires dependent type void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
 DIAG: *** tagging type: vk_platform -> required = True
 DIAG: *** tagging command: vkCmdFillBuffer -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type void
@@ -10709,7 +10765,14 @@ DIAG: *** PASS 1: Tagging required and removed features for VK_KHR_surface
 DIAG: *** markRequired (features = <too long to print>, required = True )
 DIAG: *** tagging enum: VK_KHR_SURFACE_SPEC_VERSION -> required = True
 DIAG: *** tagging enum: VK_KHR_SURFACE_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_ERROR_SURFACE_LOST_KHR -> required = True
+DIAG: *** tagging enum: VK_ERROR_NATIVE_WINDOW_IN_USE_KHR -> required = True
+DIAG: *** tagging enum: VK_COLORSPACE_SRGB_NONLINEAR_KHR -> required = True
 DIAG: *** tagging command: vkDestroySurfaceKHR -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkInstance
 DIAG: *** tagging type: VkInstance -> required = True
 DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
@@ -10948,6 +11011,11 @@ DIAG: *** PASS 1: Tagging required and removed features for VK_KHR_swapchain
 DIAG: *** markRequired (features = <too long to print>, required = True )
 DIAG: *** tagging enum: VK_KHR_SWAPCHAIN_SPEC_VERSION -> required = True
 DIAG: *** tagging enum: VK_KHR_SWAPCHAIN_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_PRESENT_INFO_KHR -> required = True
+DIAG: *** tagging enum: VK_IMAGE_LAYOUT_PRESENT_SRC_KHR -> required = True
+DIAG: *** tagging enum: VK_SUBOPTIMAL_KHR -> required = True
+DIAG: *** tagging enum: VK_ERROR_OUT_OF_DATE_KHR -> required = True
 DIAG: *** tagging command: vkCreateSwapchainKHR -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkResult
 DIAG: *** tagging type: VkResult -> required = True
@@ -11118,6 +11186,10 @@ DIAG: *** tagging type: VkSwapchainKHR -> required = True
 DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
 DIAG: *** tagging type: VK_DEFINE_NON_DISPATCHABLE_HANDLE -> required = True
 DIAG: *** tagging command: vkDestroySwapchainKHR -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkDevice
 DIAG: *** tagging type: VkDevice -> required = True
 DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
@@ -11291,6 +11363,15 @@ DIAG: *** markRequired: type requires dependent <type> VkResult
 DIAG: *** tagging type: VkResult -> required = True
 DIAG: *** PASS 1: Tagging required and removed features for VK_KHR_display
 DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging type: VkDisplayPlaneAlphaFlagsKHR -> required = True
+DIAG: *** Generating dependent type VkDisplayPlaneAlphaFlagBitsKHR for type VkDisplayPlaneAlphaFlagsKHR
+DIAG: *** tagging type: VkDisplayPlaneAlphaFlagBitsKHR -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
 DIAG: *** tagging type: VkDisplayPlaneAlphaFlagBitsKHR -> required = True
 DIAG: *** tagging type: VkDisplayPropertiesKHR -> required = True
 DIAG: *** markRequired: type requires dependent <type> VkDisplayKHR
@@ -11557,6 +11638,8 @@ DIAG: *** Generating dependent type vk_platform for type uint32_t
 DIAG: *** tagging type: vk_platform -> required = True
 DIAG: *** tagging enum: VK_KHR_DISPLAY_SPEC_VERSION -> required = True
 DIAG: *** tagging enum: VK_KHR_DISPLAY_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_DISPLAY_MODE_CREATE_INFO_KHR -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR -> required = True
 DIAG: *** tagging command: vkGetPhysicalDeviceDisplayPropertiesKHR -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkResult
 DIAG: *** tagging type: VkResult -> required = True
@@ -12129,6 +12212,8 @@ DIAG: *** Generating dependent type vk_platform for type uint32_t
 DIAG: *** tagging type: vk_platform -> required = True
 DIAG: *** tagging enum: VK_KHR_DISPLAY_SWAPCHAIN_SPEC_VERSION -> required = True
 DIAG: *** tagging enum: VK_KHR_DISPLAY_SWAPCHAIN_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR -> required = True
+DIAG: *** tagging enum: VK_ERROR_INCOMPATIBLE_DISPLAY_KHR -> required = True
 DIAG: *** tagging command: vkCreateSharedSwapchainsKHR -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkResult
 DIAG: *** tagging type: VkResult -> required = True
@@ -12336,6 +12421,7 @@ DIAG: *** Generating dependent type X11/Xlib.h for type Window
 DIAG: *** tagging type: X11/Xlib.h -> required = True
 DIAG: *** tagging enum: VK_KHR_XLIB_SURFACE_SPEC_VERSION -> required = True
 DIAG: *** tagging enum: VK_KHR_XLIB_SURFACE_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR -> required = True
 DIAG: *** tagging command: vkCreateXlibSurfaceKHR -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkResult
 DIAG: *** tagging type: VkResult -> required = True
@@ -12508,6 +12594,7 @@ DIAG: *** Generating dependent type xcb/xcb.h for type xcb_window_t
 DIAG: *** tagging type: xcb/xcb.h -> required = True
 DIAG: *** tagging enum: VK_KHR_XCB_SURFACE_SPEC_VERSION -> required = True
 DIAG: *** tagging enum: VK_KHR_XCB_SURFACE_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR -> required = True
 DIAG: *** tagging command: vkCreateXcbSurfaceKHR -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkResult
 DIAG: *** tagging type: VkResult -> required = True
@@ -12680,6 +12767,7 @@ DIAG: *** Generating dependent type wayland-client.h for type wl_surface
 DIAG: *** tagging type: wayland-client.h -> required = True
 DIAG: *** tagging enum: VK_KHR_WAYLAND_SURFACE_SPEC_VERSION -> required = True
 DIAG: *** tagging enum: VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR -> required = True
 DIAG: *** tagging command: vkCreateWaylandSurfaceKHR -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkResult
 DIAG: *** tagging type: VkResult -> required = True
@@ -12848,6 +12936,7 @@ DIAG: *** Generating dependent type mir_toolkit/client_types.h for type MirSurfa
 DIAG: *** tagging type: mir_toolkit/client_types.h -> required = True
 DIAG: *** tagging enum: VK_KHR_MIR_SURFACE_SPEC_VERSION -> required = True
 DIAG: *** tagging enum: VK_KHR_MIR_SURFACE_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_MIR_SURFACE_CREATE_INFO_KHR -> required = True
 DIAG: *** tagging command: vkCreateMirSurfaceKHR -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkResult
 DIAG: *** tagging type: VkResult -> required = True
@@ -13012,6 +13101,7 @@ DIAG: *** Generating dependent type android/native_window.h for type ANativeWind
 DIAG: *** tagging type: android/native_window.h -> required = True
 DIAG: *** tagging enum: VK_KHR_ANDROID_SURFACE_SPEC_VERSION -> required = True
 DIAG: *** tagging enum: VK_KHR_ANDROID_SURFACE_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR -> required = True
 DIAG: *** tagging command: vkCreateAndroidSurfaceKHR -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkResult
 DIAG: *** tagging type: VkResult -> required = True
@@ -13157,6 +13247,7 @@ DIAG: *** Generating dependent type windows.h for type HWND
 DIAG: *** tagging type: windows.h -> required = True
 DIAG: *** tagging enum: VK_KHR_WIN32_SURFACE_SPEC_VERSION -> required = True
 DIAG: *** tagging enum: VK_KHR_WIN32_SURFACE_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR -> required = True
 DIAG: *** tagging command: vkCreateWin32SurfaceKHR -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkResult
 DIAG: *** tagging type: VkResult -> required = True
@@ -13287,12 +13378,20 @@ DIAG: *** markRequired: command implicitly requires dependent type uint32_t
 DIAG: *** tagging type: uint32_t -> required = True
 DIAG: *** Generating dependent type vk_platform for type uint32_t
 DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_KHR_sampler_mirror_clamp_to_edge
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging enum: VK_KHR_SAMPLER_MIRROR_CLAMP_TO_EDGE_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_KHR_SAMPLER_MIRROR_CLAMP_TO_EDGE_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE -> required = True
 DIAG: *** PASS 1: Tagging required and removed features for VK_EXT_debug_report
 DIAG: *** markRequired (features = <too long to print>, required = True )
 DIAG: *** tagging type: VkDebugReportObjectTypeEXT -> required = True
 DIAG: *** tagging type: VkDebugReportErrorEXT -> required = True
 DIAG: *** tagging enum: VK_EXT_DEBUG_REPORT_SPEC_VERSION -> required = True
 DIAG: *** tagging enum: VK_EXT_DEBUG_REPORT_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT -> required = True
+DIAG: *** tagging enum: VK_ERROR_VALIDATION_FAILED_EXT -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT -> required = True
 DIAG: *** tagging command: vkCreateDebugReportCallbackEXT -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkResult
 DIAG: *** tagging type: VkResult -> required = True
@@ -13445,6 +13544,10 @@ DIAG: *** tagging type: VkDebugReportCallbackEXT -> required = True
 DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
 DIAG: *** tagging type: VK_DEFINE_NON_DISPATCHABLE_HANDLE -> required = True
 DIAG: *** tagging command: vkDestroyDebugReportCallbackEXT -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkInstance
 DIAG: *** tagging type: VkInstance -> required = True
 DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
@@ -13534,6 +13637,10 @@ DIAG: *** tagging type: VkInternalAllocationType -> required = True
 DIAG: *** markRequired: type requires dependent <type> VkSystemAllocationScope
 DIAG: *** tagging type: VkSystemAllocationScope -> required = True
 DIAG: *** tagging command: vkDebugReportMessageEXT -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
 DIAG: *** markRequired: command implicitly requires dependent type VkInstance
 DIAG: *** tagging type: VkInstance -> required = True
 DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
@@ -13570,12 +13677,733 @@ DIAG: *** markRequired: command implicitly requires dependent type char
 DIAG: *** tagging type: char -> required = True
 DIAG: *** Generating dependent type vk_platform for type char
 DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_NV_glsl_shader
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging enum: VK_NV_GLSL_SHADER_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_NV_GLSL_SHADER_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_ERROR_INVALID_SHADER_NV -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_IMG_filter_cubic
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging enum: VK_IMG_FILTER_CUBIC_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_IMG_FILTER_CUBIC_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_FILTER_CUBIC_IMG -> required = True
+DIAG: *** tagging enum: VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_CUBIC_BIT_IMG -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_AMD_rasterization_order
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging type: VkRasterizationOrderAMD -> required = True
+DIAG: *** tagging type: VkPipelineRasterizationStateRasterizationOrderAMD -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkRasterizationOrderAMD
+DIAG: *** tagging type: VkRasterizationOrderAMD -> required = True
+DIAG: *** tagging enum: VK_AMD_RASTERIZATION_ORDER_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_AMD_RASTERIZATION_ORDER_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_AMD_shader_trinary_minmax
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging enum: VK_AMD_SHADER_TRINARY_MINMAX_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_AMD_SHADER_TRINARY_MINMAX_EXTENSION_NAME -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_AMD_shader_explicit_vertex_parameter
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging enum: VK_AMD_SHADER_EXPLICIT_VERTEX_PARAMETER_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_AMD_SHADER_EXPLICIT_VERTEX_PARAMETER_EXTENSION_NAME -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_EXT_debug_marker
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging type: VkDebugMarkerObjectNameInfoEXT -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkDebugReportObjectTypeEXT
+DIAG: *** tagging type: VkDebugReportObjectTypeEXT -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> char
+DIAG: *** tagging type: char -> required = True
+DIAG: *** Generating dependent type vk_platform for type char
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging type: VkDebugMarkerObjectTagInfoEXT -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkDebugReportObjectTypeEXT
+DIAG: *** tagging type: VkDebugReportObjectTypeEXT -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> size_t
+DIAG: *** tagging type: size_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type size_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging type: VkDebugMarkerMarkerInfoEXT -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> char
+DIAG: *** tagging type: char -> required = True
+DIAG: *** Generating dependent type vk_platform for type char
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> float
+DIAG: *** tagging type: float -> required = True
+DIAG: *** Generating dependent type vk_platform for type float
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging enum: VK_EXT_DEBUG_MARKER_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_EXT_DEBUG_MARKER_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_TAG_INFO_EXT -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT -> required = True
+DIAG: *** tagging command: vkDebugMarkerSetObjectTagEXT -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkResult
+DIAG: *** tagging type: VkResult -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkDevice
+DIAG: *** tagging type: VkDevice -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkDebugMarkerObjectTagInfoEXT
+DIAG: *** tagging type: VkDebugMarkerObjectTagInfoEXT -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkDebugReportObjectTypeEXT
+DIAG: *** tagging type: VkDebugReportObjectTypeEXT -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> size_t
+DIAG: *** tagging type: size_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type size_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging command: vkDebugMarkerSetObjectNameEXT -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkResult
+DIAG: *** tagging type: VkResult -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkDevice
+DIAG: *** tagging type: VkDevice -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkDebugMarkerObjectNameInfoEXT
+DIAG: *** tagging type: VkDebugMarkerObjectNameInfoEXT -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkDebugReportObjectTypeEXT
+DIAG: *** tagging type: VkDebugReportObjectTypeEXT -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> char
+DIAG: *** tagging type: char -> required = True
+DIAG: *** Generating dependent type vk_platform for type char
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging command: vkCmdDebugMarkerBeginEXT -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkCommandBuffer
+DIAG: *** tagging type: VkCommandBuffer -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkDebugMarkerMarkerInfoEXT
+DIAG: *** tagging type: VkDebugMarkerMarkerInfoEXT -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> char
+DIAG: *** tagging type: char -> required = True
+DIAG: *** Generating dependent type vk_platform for type char
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> float
+DIAG: *** tagging type: float -> required = True
+DIAG: *** Generating dependent type vk_platform for type float
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging command: vkCmdDebugMarkerEndEXT -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkCommandBuffer
+DIAG: *** tagging type: VkCommandBuffer -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_HANDLE -> required = True
+DIAG: *** tagging command: vkCmdDebugMarkerInsertEXT -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkCommandBuffer
+DIAG: *** tagging type: VkCommandBuffer -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkDebugMarkerMarkerInfoEXT
+DIAG: *** tagging type: VkDebugMarkerMarkerInfoEXT -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> char
+DIAG: *** tagging type: char -> required = True
+DIAG: *** Generating dependent type vk_platform for type char
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> float
+DIAG: *** tagging type: float -> required = True
+DIAG: *** Generating dependent type vk_platform for type float
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_AMD_gcn_shader
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging enum: VK_AMD_GCN_SHADER_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_AMD_GCN_SHADER_EXTENSION_NAME -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_NV_dedicated_allocation
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging type: VkDedicatedAllocationImageCreateInfoNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkBool32
+DIAG: *** tagging type: VkBool32 -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging type: VkDedicatedAllocationBufferCreateInfoNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkBool32
+DIAG: *** tagging type: VkBool32 -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging type: VkDedicatedAllocationMemoryAllocateInfoNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkImage
+DIAG: *** tagging type: VkImage -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_NON_DISPATCHABLE_HANDLE -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkBuffer
+DIAG: *** tagging type: VkBuffer -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_NON_DISPATCHABLE_HANDLE -> required = True
+DIAG: *** tagging enum: VK_NV_DEDICATED_ALLOCATION_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_NV_DEDICATED_ALLOCATION_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_AMD_draw_indirect_count
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging enum: VK_AMD_EXTENSION_DRAW_INDIRECT_COUNT_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_AMD_EXTENSION_DRAW_INDIRECT_COUNT_EXTENSION_NAME -> required = True
+DIAG: *** tagging command: vkCmdDrawIndirectCountAMD -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkCommandBuffer
+DIAG: *** tagging type: VkCommandBuffer -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkBuffer
+DIAG: *** tagging type: VkBuffer -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_NON_DISPATCHABLE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkDeviceSize
+DIAG: *** tagging type: VkDeviceSize -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkBuffer
+DIAG: *** tagging type: VkBuffer -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_NON_DISPATCHABLE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkDeviceSize
+DIAG: *** tagging type: VkDeviceSize -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging command: vkCmdDrawIndexedIndirectCountAMD -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkCommandBuffer
+DIAG: *** tagging type: VkCommandBuffer -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkBuffer
+DIAG: *** tagging type: VkBuffer -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_NON_DISPATCHABLE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkDeviceSize
+DIAG: *** tagging type: VkDeviceSize -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkBuffer
+DIAG: *** tagging type: VkBuffer -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_NON_DISPATCHABLE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkDeviceSize
+DIAG: *** tagging type: VkDeviceSize -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_IMG_format_pvrtc
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging enum: VK_IMG_FORMAT_PVRTC_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_IMG_FORMAT_PVRTC_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_FORMAT_PVRTC1_2BPP_UNORM_BLOCK_IMG -> required = True
+DIAG: *** tagging enum: VK_FORMAT_PVRTC1_4BPP_UNORM_BLOCK_IMG -> required = True
+DIAG: *** tagging enum: VK_FORMAT_PVRTC2_2BPP_UNORM_BLOCK_IMG -> required = True
+DIAG: *** tagging enum: VK_FORMAT_PVRTC2_4BPP_UNORM_BLOCK_IMG -> required = True
+DIAG: *** tagging enum: VK_FORMAT_PVRTC1_2BPP_SRGB_BLOCK_IMG -> required = True
+DIAG: *** tagging enum: VK_FORMAT_PVRTC1_4BPP_SRGB_BLOCK_IMG -> required = True
+DIAG: *** tagging enum: VK_FORMAT_PVRTC2_2BPP_SRGB_BLOCK_IMG -> required = True
+DIAG: *** tagging enum: VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_NV_external_memory_capabilities
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryHandleTypeFlagBitsNV for type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagBitsNV -> required = True
+DIAG: *** tagging type: VkExternalMemoryFeatureFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryFeatureFlagBitsNV for type VkExternalMemoryFeatureFlagsNV
+DIAG: *** tagging type: VkExternalMemoryFeatureFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging type: VkExternalMemoryFeatureFlagBitsNV -> required = True
+DIAG: *** tagging type: VkExternalImageFormatPropertiesNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkImageFormatProperties
+DIAG: *** tagging type: VkImageFormatProperties -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkExtent3D
+DIAG: *** tagging type: VkExtent3D -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkSampleCountFlags
+DIAG: *** tagging type: VkSampleCountFlags -> required = True
+DIAG: *** Generating dependent type VkSampleCountFlagBits for type VkSampleCountFlags
+DIAG: *** tagging type: VkSampleCountFlagBits -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkDeviceSize
+DIAG: *** tagging type: VkDeviceSize -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkExternalMemoryFeatureFlagsNV
+DIAG: *** tagging type: VkExternalMemoryFeatureFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryFeatureFlagBitsNV for type VkExternalMemoryFeatureFlagsNV
+DIAG: *** tagging type: VkExternalMemoryFeatureFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryHandleTypeFlagBitsNV for type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryHandleTypeFlagBitsNV for type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging enum: VK_NV_EXTERNAL_MEMORY_CAPABILITIES_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_NV_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME -> required = True
+DIAG: *** tagging command: vkGetPhysicalDeviceExternalImageFormatPropertiesNV -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkResult
+DIAG: *** tagging type: VkResult -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkPhysicalDevice
+DIAG: *** tagging type: VkPhysicalDevice -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkFormat
+DIAG: *** tagging type: VkFormat -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkImageType
+DIAG: *** tagging type: VkImageType -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkImageTiling
+DIAG: *** tagging type: VkImageTiling -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkImageUsageFlags
+DIAG: *** tagging type: VkImageUsageFlags -> required = True
+DIAG: *** Generating dependent type VkImageUsageFlagBits for type VkImageUsageFlags
+DIAG: *** tagging type: VkImageUsageFlagBits -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkImageCreateFlags
+DIAG: *** tagging type: VkImageCreateFlags -> required = True
+DIAG: *** Generating dependent type VkImageCreateFlagBits for type VkImageCreateFlags
+DIAG: *** tagging type: VkImageCreateFlagBits -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryHandleTypeFlagBitsNV for type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkExternalImageFormatPropertiesNV
+DIAG: *** tagging type: VkExternalImageFormatPropertiesNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkImageFormatProperties
+DIAG: *** tagging type: VkImageFormatProperties -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkExtent3D
+DIAG: *** tagging type: VkExtent3D -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkSampleCountFlags
+DIAG: *** tagging type: VkSampleCountFlags -> required = True
+DIAG: *** Generating dependent type VkSampleCountFlagBits for type VkSampleCountFlags
+DIAG: *** tagging type: VkSampleCountFlagBits -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkDeviceSize
+DIAG: *** tagging type: VkDeviceSize -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkExternalMemoryFeatureFlagsNV
+DIAG: *** tagging type: VkExternalMemoryFeatureFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryFeatureFlagBitsNV for type VkExternalMemoryFeatureFlagsNV
+DIAG: *** tagging type: VkExternalMemoryFeatureFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryHandleTypeFlagBitsNV for type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryHandleTypeFlagBitsNV for type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_NV_external_memory
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging type: VkExternalMemoryImageCreateInfoNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryHandleTypeFlagBitsNV for type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging type: VkExportMemoryAllocateInfoNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryHandleTypeFlagBitsNV for type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging enum: VK_NV_EXTERNAL_MEMORY_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_NV_EXTERNAL_MEMORY_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_NV_external_memory_win32
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging type: VkImportMemoryWin32HandleInfoNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryHandleTypeFlagBitsNV for type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> HANDLE
+DIAG: *** tagging type: HANDLE -> required = True
+DIAG: *** Generating dependent type windows.h for type HANDLE
+DIAG: *** tagging type: windows.h -> required = True
+DIAG: *** tagging type: VkExportMemoryWin32HandleInfoNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> SECURITY_ATTRIBUTES
+DIAG: *** tagging type: SECURITY_ATTRIBUTES -> required = True
+DIAG: *** Generating dependent type windows.h for type SECURITY_ATTRIBUTES
+DIAG: *** tagging type: windows.h -> required = True
+DIAG: *** markRequired: type requires dependent <type> DWORD
+DIAG: *** tagging type: DWORD -> required = True
+DIAG: *** Generating dependent type windows.h for type DWORD
+DIAG: *** tagging type: windows.h -> required = True
+DIAG: *** tagging enum: VK_NV_EXTERNAL_MEMORY_WIN32_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_NV_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV -> required = True
+DIAG: *** tagging command: vkGetMemoryWin32HandleNV -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkResult
+DIAG: *** tagging type: VkResult -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkDevice
+DIAG: *** tagging type: VkDevice -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkDeviceMemory
+DIAG: *** tagging type: VkDeviceMemory -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_NON_DISPATCHABLE_HANDLE -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagsNV -> required = True
+DIAG: *** Generating dependent type VkExternalMemoryHandleTypeFlagBitsNV for type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** tagging type: VkExternalMemoryHandleTypeFlagBitsNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkFlags
+DIAG: *** tagging type: VkFlags -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: command implicitly requires dependent type HANDLE
+DIAG: *** tagging type: HANDLE -> required = True
+DIAG: *** Generating dependent type windows.h for type HANDLE
+DIAG: *** tagging type: windows.h -> required = True
+DIAG: *** PASS 1: Tagging required and removed features for VK_NV_win32_keyed_mutex
+DIAG: *** markRequired (features = <too long to print>, required = True )
+DIAG: *** tagging type: VkWin32KeyedMutexAcquireReleaseInfoNV -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkStructureType
+DIAG: *** tagging type: VkStructureType -> required = True
+DIAG: *** markRequired: type requires dependent <type> void
+DIAG: *** tagging type: void -> required = True
+DIAG: *** Generating dependent type vk_platform for type void
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkDeviceMemory
+DIAG: *** tagging type: VkDeviceMemory -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_NON_DISPATCHABLE_HANDLE -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint32_t
+DIAG: *** tagging type: uint32_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint32_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** markRequired: type requires dependent <type> VkDeviceMemory
+DIAG: *** tagging type: VkDeviceMemory -> required = True
+DIAG: *** markRequired: type requires dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
+DIAG: *** tagging type: VK_DEFINE_NON_DISPATCHABLE_HANDLE -> required = True
+DIAG: *** markRequired: type requires dependent <type> uint64_t
+DIAG: *** tagging type: uint64_t -> required = True
+DIAG: *** Generating dependent type vk_platform for type uint64_t
+DIAG: *** tagging type: vk_platform -> required = True
+DIAG: *** tagging enum: VK_NV_WIN32_KEYED_MUTEX_SPEC_VERSION -> required = True
+DIAG: *** tagging enum: VK_NV_WIN32_KEYED_MUTEX_EXTENSION_NAME -> required = True
+DIAG: *** tagging enum: VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV -> required = True
 DIAG: *** PASS 2: GENERATE INTERFACES FOR FEATURES ************************
 DIAG: *** PASS 2: Generating interface for VK_VERSION_1_0
 DIAG: *** Emitting type decl for vk_platform
 DIAG: *** Generating required dependent <type> VK_MAKE_VERSION
 DIAG: *** Emitting type decl for VK_MAKE_VERSION
 DIAG: *** Emitting type decl for VK_API_VERSION
+DIAG: *** Generating required dependent <type> VK_MAKE_VERSION
+DIAG: *** Skipping type VK_MAKE_VERSION (already declared)
+DIAG: *** Emitting type decl for VK_API_VERSION_1_0
+DIAG: *** Emitting type decl for VK_VERSION_MAJOR
+DIAG: *** Emitting type decl for VK_VERSION_MINOR
+DIAG: *** Emitting type decl for VK_VERSION_PATCH
+DIAG: *** Emitting type decl for VK_HEADER_VERSION
 DIAG: *** Emitting type decl for VK_NULL_HANDLE
 DIAG: *** Type VkPipelineCacheHeaderVersion is an enum group, so generate that instead
 DIAG: *** Emitting type decl for VkPipelineCacheHeaderVersion
@@ -17380,8 +18208,8 @@ DIAG: *** Generating required parameter type VkDeviceSize
 DIAG: *** Skipping type VkDeviceSize (already declared)
 DIAG: *** Generating required parameter type VkDeviceSize
 DIAG: *** Skipping type VkDeviceSize (already declared)
-DIAG: *** Generating required parameter type uint32_t
-DIAG: *** Skipping type uint32_t (already declared)
+DIAG: *** Generating required parameter type void
+DIAG: *** Skipping type void (already declared)
 DIAG: *** Emitting command decl for vkCmdUpdateBuffer
 DIAG: Aligning parameter commandBuffer to column 48
 DIAG: Adjust length of parameter decl from 19 to 48 :     VkCommandBuffer                             
@@ -17392,7 +18220,7 @@ DIAG: Adjust length of parameter decl from 16 to 48 :     VkDeviceSize
 DIAG: Aligning parameter dataSize to column 48
 DIAG: Adjust length of parameter decl from 16 to 48 :     VkDeviceSize                                
 DIAG: Aligning parameter pData to column 48
-DIAG: Adjust length of parameter decl from 19 to 48 :     const uint32_t*                             
+DIAG: Adjust length of parameter decl from 15 to 48 :     const void*                                 
 DIAG: *** Generating required parameter type void
 DIAG: *** Skipping type void (already declared)
 DIAG: *** Generating required parameter type VkCommandBuffer
@@ -17953,9 +18781,48 @@ DIAG: *** Skipping type uint32_t (already declared)
 DIAG: *** Emitting type decl for VkDrawIndirectCommand
 DIAG: *** Skipping type VkImageMemoryBarrier (already declared)
 DIAG: *** Skipping type VkMemoryBarrier (already declared)
+DIAG: ParameterValidation: Generating VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV for VkDedicatedAllocationMemoryAllocateInfoNV structure type that was not defined by the current feature
+DIAG: ParameterValidation: No validation for VkQueryPoolCreateInfo pipelineStatistics
+DIAG: ParameterValidation: Generating VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV for VkDedicatedAllocationBufferCreateInfoNV structure type that was not defined by the current feature
+DIAG: ParameterValidation: No validation for VkBufferCreateInfo pQueueFamilyIndices
+DIAG: ParameterValidation: Generating VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV for VkDedicatedAllocationImageCreateInfoNV structure type that was not defined by the current feature
+DIAG: ParameterValidation: No validation for VkImageCreateInfo pQueueFamilyIndices
+DIAG: ParameterValidation: No validation for VkPipelineViewportStateCreateInfo pViewports
+DIAG: ParameterValidation: No validation for VkPipelineViewportStateCreateInfo pScissors
+DIAG: ParameterValidation: Generating VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD for VkPipelineRasterizationStateRasterizationOrderAMD structure type that was not defined by the current feature
+DIAG: ParameterValidation: No validation for VkPipelineColorBlendStateCreateInfo logicOp
+DIAG: ParameterValidation: No validation for VkGraphicsPipelineCreateInfo pTessellationState
+DIAG: ParameterValidation: No validation for VkGraphicsPipelineCreateInfo pViewportState
+DIAG: ParameterValidation: No validation for VkGraphicsPipelineCreateInfo pMultisampleState
+DIAG: ParameterValidation: No validation for VkGraphicsPipelineCreateInfo pDepthStencilState
+DIAG: ParameterValidation: No validation for VkGraphicsPipelineCreateInfo pColorBlendState
+DIAG: ParameterValidation: No validation for VkGraphicsPipelineCreateInfo basePipelineHandle
+DIAG: ParameterValidation: No validation for VkComputePipelineCreateInfo basePipelineHandle
+DIAG: ParameterValidation: No validation for VkSamplerCreateInfo compareOp
+DIAG: ParameterValidation: No validation for VkSamplerCreateInfo borderColor
+DIAG: ParameterValidation: No validation for VkDescriptorSetLayoutBinding stageFlags
+DIAG: ParameterValidation: No validation for VkDescriptorSetLayoutBinding pImmutableSamplers
+DIAG: ParameterValidation: No validation for VkDescriptorImageInfo sampler
+DIAG: ParameterValidation: No validation for VkDescriptorImageInfo imageView
+DIAG: ParameterValidation: No validation for VkDescriptorImageInfo imageLayout
+DIAG: ParameterValidation: No validation for VkWriteDescriptorSet pImageInfo
+DIAG: ParameterValidation: No validation for VkWriteDescriptorSet pBufferInfo
+DIAG: ParameterValidation: No validation for VkWriteDescriptorSet pTexelBufferView
+DIAG: ParameterValidation: No validation for VkCommandBufferInheritanceInfo renderPass
+DIAG: ParameterValidation: No validation for VkCommandBufferInheritanceInfo framebuffer
+DIAG: ParameterValidation: No validation for VkCommandBufferInheritanceInfo queryFlags
+DIAG: ParameterValidation: No validation for VkCommandBufferInheritanceInfo pipelineStatistics
+DIAG: ParameterValidation: No validation for VkCommandBufferBeginInfo pInheritanceInfo
+DIAG: ParameterValidation: No validation for vkFreeDescriptorSets pDescriptorSets
+DIAG: ParameterValidation: No validation for vkFreeCommandBuffers pCommandBuffers
 DIAG: *** PASS 2: Generating interface for VK_KHR_surface
 DIAG: *** Emitting enum decl for VK_KHR_SURFACE_SPEC_VERSION
 DIAG: *** Emitting enum decl for VK_KHR_SURFACE_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_ERROR_SURFACE_LOST_KHR
+DIAG: *** Emitting enum decl for VK_ERROR_NATIVE_WINDOW_IN_USE_KHR
+DIAG: *** Emitting enum decl for VK_COLORSPACE_SRGB_NONLINEAR_KHR
+DIAG: *** Generating required parameter type void
+DIAG: *** Skipping type void (already declared)
 DIAG: *** Generating required parameter type VkInstance
 DIAG: *** Skipping type VkInstance (already declared)
 DIAG: *** Generating required parameter type VkSurfaceKHR
@@ -18082,6 +18949,11 @@ DIAG: Adjust length of parameter decl from 21 to 48 :     VkPresentModeKHR*
 DIAG: *** PASS 2: Generating interface for VK_KHR_swapchain
 DIAG: *** Emitting enum decl for VK_KHR_SWAPCHAIN_SPEC_VERSION
 DIAG: *** Emitting enum decl for VK_KHR_SWAPCHAIN_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_PRESENT_INFO_KHR
+DIAG: *** Emitting enum decl for VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+DIAG: *** Emitting enum decl for VK_SUBOPTIMAL_KHR
+DIAG: *** Emitting enum decl for VK_ERROR_OUT_OF_DATE_KHR
 DIAG: *** Generating required parameter type VkResult
 DIAG: *** Skipping type VkResult (already declared)
 DIAG: *** Generating required parameter type VkDevice
@@ -18141,6 +19013,8 @@ DIAG: Aligning parameter pAllocator to column 48
 DIAG: Adjust length of parameter decl from 32 to 48 :     const VkAllocationCallbacks*                
 DIAG: Aligning parameter pSwapchain to column 48
 DIAG: Adjust length of parameter decl from 19 to 48 :     VkSwapchainKHR*                             
+DIAG: *** Generating required parameter type void
+DIAG: *** Skipping type void (already declared)
 DIAG: *** Generating required parameter type VkDevice
 DIAG: *** Skipping type VkDevice (already declared)
 DIAG: *** Generating required parameter type VkSwapchainKHR
@@ -18227,9 +19101,15 @@ DIAG: Aligning parameter queue to column 48
 DIAG: Adjust length of parameter decl from 11 to 48 :     VkQueue                                     
 DIAG: Aligning parameter pPresentInfo to column 48
 DIAG: Adjust length of parameter decl from 27 to 48 :     const VkPresentInfoKHR*                     
+DIAG: ParameterValidation: No validation for VkSwapchainCreateInfoKHR pQueueFamilyIndices
 DIAG: *** PASS 2: Generating interface for VK_KHR_display
+DIAG: *** Generating required dependent type VkDisplayPlaneAlphaFlagBitsKHR
 DIAG: *** Type VkDisplayPlaneAlphaFlagBitsKHR is an enum group, so generate that instead
 DIAG: *** Emitting type decl for VkDisplayPlaneAlphaFlagBitsKHR
+DIAG: *** Generating required dependent <type> VkFlags
+DIAG: *** Skipping type VkFlags (already declared)
+DIAG: *** Emitting type decl for VkDisplayPlaneAlphaFlagsKHR
+DIAG: *** Skipping type VkDisplayPlaneAlphaFlagBitsKHR (already declared)
 DIAG: *** Generating required dependent <type> VkDisplayKHR
 DIAG: *** Generating required dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
 DIAG: *** Skipping type VK_DEFINE_NON_DISPATCHABLE_HANDLE (already declared)
@@ -18271,11 +19151,7 @@ DIAG: *** Generating required dependent <type> VkDisplayModeParametersKHR
 DIAG: *** Skipping type VkDisplayModeParametersKHR (already declared)
 DIAG: *** Emitting type decl for VkDisplayModeCreateInfoKHR
 DIAG: *** Generating required dependent <type> VkDisplayPlaneAlphaFlagsKHR
-DIAG: *** Generating required dependent type VkDisplayPlaneAlphaFlagBitsKHR
-DIAG: *** Skipping type VkDisplayPlaneAlphaFlagBitsKHR (already declared)
-DIAG: *** Generating required dependent <type> VkFlags
-DIAG: *** Skipping type VkFlags (already declared)
-DIAG: *** Emitting type decl for VkDisplayPlaneAlphaFlagsKHR
+DIAG: *** Skipping type VkDisplayPlaneAlphaFlagsKHR (already declared)
 DIAG: *** Generating required dependent <type> VkOffset2D
 DIAG: *** Skipping type VkOffset2D (already declared)
 DIAG: *** Generating required dependent <type> VkOffset2D
@@ -18323,6 +19199,8 @@ DIAG: *** Skipping type VkExtent2D (already declared)
 DIAG: *** Emitting type decl for VkDisplaySurfaceCreateInfoKHR
 DIAG: *** Emitting enum decl for VK_KHR_DISPLAY_SPEC_VERSION
 DIAG: *** Emitting enum decl for VK_KHR_DISPLAY_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_DISPLAY_MODE_CREATE_INFO_KHR
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_DISPLAY_SURFACE_CREATE_INFO_KHR
 DIAG: *** Generating required parameter type VkResult
 DIAG: *** Skipping type VkResult (already declared)
 DIAG: *** Generating required parameter type VkPhysicalDevice
@@ -18466,6 +19344,8 @@ DIAG: *** Skipping type VkBool32 (already declared)
 DIAG: *** Emitting type decl for VkDisplayPresentInfoKHR
 DIAG: *** Emitting enum decl for VK_KHR_DISPLAY_SWAPCHAIN_SPEC_VERSION
 DIAG: *** Emitting enum decl for VK_KHR_DISPLAY_SWAPCHAIN_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_DISPLAY_PRESENT_INFO_KHR
+DIAG: *** Emitting enum decl for VK_ERROR_INCOMPATIBLE_DISPLAY_KHR
 DIAG: *** Generating required parameter type VkResult
 DIAG: *** Skipping type VkResult (already declared)
 DIAG: *** Generating required parameter type VkDevice
@@ -18510,6 +19390,7 @@ DIAG: *** Emitting type decl for Window
 DIAG: *** Emitting type decl for VkXlibSurfaceCreateInfoKHR
 DIAG: *** Emitting enum decl for VK_KHR_XLIB_SURFACE_SPEC_VERSION
 DIAG: *** Emitting enum decl for VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR
 DIAG: *** Generating required parameter type VkResult
 DIAG: *** Skipping type VkResult (already declared)
 DIAG: *** Generating required parameter type VkInstance
@@ -18571,6 +19452,7 @@ DIAG: *** Emitting type decl for xcb_window_t
 DIAG: *** Emitting type decl for VkXcbSurfaceCreateInfoKHR
 DIAG: *** Emitting enum decl for VK_KHR_XCB_SURFACE_SPEC_VERSION
 DIAG: *** Emitting enum decl for VK_KHR_XCB_SURFACE_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR
 DIAG: *** Generating required parameter type VkResult
 DIAG: *** Skipping type VkResult (already declared)
 DIAG: *** Generating required parameter type VkInstance
@@ -18632,6 +19514,7 @@ DIAG: *** Emitting type decl for wl_surface
 DIAG: *** Emitting type decl for VkWaylandSurfaceCreateInfoKHR
 DIAG: *** Emitting enum decl for VK_KHR_WAYLAND_SURFACE_SPEC_VERSION
 DIAG: *** Emitting enum decl for VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR
 DIAG: *** Generating required parameter type VkResult
 DIAG: *** Skipping type VkResult (already declared)
 DIAG: *** Generating required parameter type VkInstance
@@ -18687,6 +19570,7 @@ DIAG: *** Emitting type decl for MirSurface
 DIAG: *** Emitting type decl for VkMirSurfaceCreateInfoKHR
 DIAG: *** Emitting enum decl for VK_KHR_MIR_SURFACE_SPEC_VERSION
 DIAG: *** Emitting enum decl for VK_KHR_MIR_SURFACE_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_MIR_SURFACE_CREATE_INFO_KHR
 DIAG: *** Generating required parameter type VkResult
 DIAG: *** Skipping type VkResult (already declared)
 DIAG: *** Generating required parameter type VkInstance
@@ -18738,6 +19622,7 @@ DIAG: *** Emitting type decl for ANativeWindow
 DIAG: *** Emitting type decl for VkAndroidSurfaceCreateInfoKHR
 DIAG: *** Emitting enum decl for VK_KHR_ANDROID_SURFACE_SPEC_VERSION
 DIAG: *** Emitting enum decl for VK_KHR_ANDROID_SURFACE_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR
 DIAG: *** Generating required parameter type VkResult
 DIAG: *** Skipping type VkResult (already declared)
 DIAG: *** Generating required parameter type VkInstance
@@ -18778,6 +19663,7 @@ DIAG: *** Emitting type decl for HWND
 DIAG: *** Emitting type decl for VkWin32SurfaceCreateInfoKHR
 DIAG: *** Emitting enum decl for VK_KHR_WIN32_SURFACE_SPEC_VERSION
 DIAG: *** Emitting enum decl for VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR
 DIAG: *** Generating required parameter type VkResult
 DIAG: *** Skipping type VkResult (already declared)
 DIAG: *** Generating required parameter type VkInstance
@@ -18808,6 +19694,10 @@ DIAG: Aligning parameter physicalDevice to column 48
 DIAG: Adjust length of parameter decl from 20 to 48 :     VkPhysicalDevice                            
 DIAG: Aligning parameter queueFamilyIndex to column 48
 DIAG: Adjust length of parameter decl from 12 to 48 :     uint32_t                                    
+DIAG: *** PASS 2: Generating interface for VK_KHR_sampler_mirror_clamp_to_edge
+DIAG: *** Emitting enum decl for VK_KHR_SAMPLER_MIRROR_CLAMP_TO_EDGE_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_KHR_SAMPLER_MIRROR_CLAMP_TO_EDGE_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE
 DIAG: *** PASS 2: Generating interface for VK_EXT_debug_report
 DIAG: *** Type VkDebugReportObjectTypeEXT is an enum group, so generate that instead
 DIAG: *** Emitting type decl for VkDebugReportObjectTypeEXT
@@ -18815,6 +19705,9 @@ DIAG: *** Type VkDebugReportErrorEXT is an enum group, so generate that instead
 DIAG: *** Emitting type decl for VkDebugReportErrorEXT
 DIAG: *** Emitting enum decl for VK_EXT_DEBUG_REPORT_SPEC_VERSION
 DIAG: *** Emitting enum decl for VK_EXT_DEBUG_REPORT_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT
+DIAG: *** Emitting enum decl for VK_ERROR_VALIDATION_FAILED_EXT
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT
 DIAG: *** Generating required parameter type VkResult
 DIAG: *** Skipping type VkResult (already declared)
 DIAG: *** Generating required parameter type VkInstance
@@ -18859,6 +19752,8 @@ DIAG: *** Generating required dependent <type> VK_DEFINE_NON_DISPATCHABLE_HANDLE
 DIAG: *** Skipping type VK_DEFINE_NON_DISPATCHABLE_HANDLE (already declared)
 DIAG: *** Emitting type decl for VkDebugReportCallbackEXT
 DIAG: *** Emitting command decl for vkCreateDebugReportCallbackEXT
+DIAG: *** Generating required parameter type void
+DIAG: *** Skipping type void (already declared)
 DIAG: *** Generating required parameter type VkInstance
 DIAG: *** Skipping type VkInstance (already declared)
 DIAG: *** Generating required parameter type VkDebugReportCallbackEXT
@@ -18872,6 +19767,8 @@ DIAG: Aligning parameter callback to column 48
 DIAG: Adjust length of parameter decl from 28 to 48 :     VkDebugReportCallbackEXT                    
 DIAG: Aligning parameter pAllocator to column 48
 DIAG: Adjust length of parameter decl from 32 to 48 :     const VkAllocationCallbacks*                
+DIAG: *** Generating required parameter type void
+DIAG: *** Skipping type void (already declared)
 DIAG: *** Generating required parameter type VkInstance
 DIAG: *** Skipping type VkInstance (already declared)
 DIAG: *** Generating required parameter type VkDebugReportFlagsEXT
@@ -18889,3 +19786,382 @@ DIAG: *** Skipping type char (already declared)
 DIAG: *** Generating required parameter type char
 DIAG: *** Skipping type char (already declared)
 DIAG: *** Emitting command decl for vkDebugReportMessageEXT
+DIAG: *** PASS 2: Generating interface for VK_NV_glsl_shader
+DIAG: *** Emitting enum decl for VK_NV_GLSL_SHADER_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_NV_GLSL_SHADER_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_ERROR_INVALID_SHADER_NV
+DIAG: *** PASS 2: Generating interface for VK_IMG_filter_cubic
+DIAG: *** Emitting enum decl for VK_IMG_FILTER_CUBIC_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_IMG_FILTER_CUBIC_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_FILTER_CUBIC_IMG
+DIAG: *** Emitting enum decl for VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_CUBIC_BIT_IMG
+DIAG: *** PASS 2: Generating interface for VK_AMD_rasterization_order
+DIAG: *** Type VkRasterizationOrderAMD is an enum group, so generate that instead
+DIAG: *** Emitting type decl for VkRasterizationOrderAMD
+DIAG: *** Generating required dependent <type> VkStructureType
+DIAG: *** Skipping type VkStructureType (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required dependent <type> VkRasterizationOrderAMD
+DIAG: *** Skipping type VkRasterizationOrderAMD (already declared)
+DIAG: *** Emitting type decl for VkPipelineRasterizationStateRasterizationOrderAMD
+DIAG: *** Emitting enum decl for VK_AMD_RASTERIZATION_ORDER_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_AMD_RASTERIZATION_ORDER_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_RASTERIZATION_ORDER_AMD
+DIAG: *** PASS 2: Generating interface for VK_AMD_shader_trinary_minmax
+DIAG: *** Emitting enum decl for VK_AMD_SHADER_TRINARY_MINMAX_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_AMD_SHADER_TRINARY_MINMAX_EXTENSION_NAME
+DIAG: *** PASS 2: Generating interface for VK_AMD_shader_explicit_vertex_parameter
+DIAG: *** Emitting enum decl for VK_AMD_SHADER_EXPLICIT_VERTEX_PARAMETER_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_AMD_SHADER_EXPLICIT_VERTEX_PARAMETER_EXTENSION_NAME
+DIAG: *** PASS 2: Generating interface for VK_EXT_debug_marker
+DIAG: *** Generating required dependent <type> VkStructureType
+DIAG: *** Skipping type VkStructureType (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required dependent <type> VkDebugReportObjectTypeEXT
+DIAG: *** Skipping type VkDebugReportObjectTypeEXT (already declared)
+DIAG: *** Generating required dependent <type> uint64_t
+DIAG: *** Skipping type uint64_t (already declared)
+DIAG: *** Generating required dependent <type> char
+DIAG: *** Skipping type char (already declared)
+DIAG: *** Emitting type decl for VkDebugMarkerObjectNameInfoEXT
+DIAG: *** Generating required dependent <type> VkStructureType
+DIAG: *** Skipping type VkStructureType (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required dependent <type> VkDebugReportObjectTypeEXT
+DIAG: *** Skipping type VkDebugReportObjectTypeEXT (already declared)
+DIAG: *** Generating required dependent <type> uint64_t
+DIAG: *** Skipping type uint64_t (already declared)
+DIAG: *** Generating required dependent <type> uint64_t
+DIAG: *** Skipping type uint64_t (already declared)
+DIAG: *** Generating required dependent <type> size_t
+DIAG: *** Skipping type size_t (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Emitting type decl for VkDebugMarkerObjectTagInfoEXT
+DIAG: *** Generating required dependent <type> VkStructureType
+DIAG: *** Skipping type VkStructureType (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required dependent <type> char
+DIAG: *** Skipping type char (already declared)
+DIAG: *** Generating required dependent <type> float
+DIAG: *** Skipping type float (already declared)
+DIAG: *** Emitting type decl for VkDebugMarkerMarkerInfoEXT
+DIAG: *** Emitting enum decl for VK_EXT_DEBUG_MARKER_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_EXT_DEBUG_MARKER_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_NAME_INFO_EXT
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_DEBUG_MARKER_OBJECT_TAG_INFO_EXT
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_DEBUG_MARKER_MARKER_INFO_EXT
+DIAG: *** Generating required parameter type VkResult
+DIAG: *** Skipping type VkResult (already declared)
+DIAG: *** Generating required parameter type VkDevice
+DIAG: *** Skipping type VkDevice (already declared)
+DIAG: *** Generating required parameter type VkDebugMarkerObjectTagInfoEXT
+DIAG: *** Skipping type VkDebugMarkerObjectTagInfoEXT (already declared)
+DIAG: *** Emitting command decl for vkDebugMarkerSetObjectTagEXT
+DIAG: Aligning parameter device to column 48
+DIAG: Adjust length of parameter decl from 12 to 48 :     VkDevice                                    
+DIAG: Aligning parameter pTagInfo to column 48
+DIAG: Adjust length of parameter decl from 34 to 48 :     VkDebugMarkerObjectTagInfoEXT*              
+DIAG: *** Generating required parameter type VkResult
+DIAG: *** Skipping type VkResult (already declared)
+DIAG: *** Generating required parameter type VkDevice
+DIAG: *** Skipping type VkDevice (already declared)
+DIAG: *** Generating required parameter type VkDebugMarkerObjectNameInfoEXT
+DIAG: *** Skipping type VkDebugMarkerObjectNameInfoEXT (already declared)
+DIAG: *** Emitting command decl for vkDebugMarkerSetObjectNameEXT
+DIAG: Aligning parameter device to column 48
+DIAG: Adjust length of parameter decl from 12 to 48 :     VkDevice                                    
+DIAG: Aligning parameter pNameInfo to column 48
+DIAG: Adjust length of parameter decl from 35 to 48 :     VkDebugMarkerObjectNameInfoEXT*             
+DIAG: *** Generating required parameter type void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required parameter type VkCommandBuffer
+DIAG: *** Skipping type VkCommandBuffer (already declared)
+DIAG: *** Generating required parameter type VkDebugMarkerMarkerInfoEXT
+DIAG: *** Skipping type VkDebugMarkerMarkerInfoEXT (already declared)
+DIAG: *** Emitting command decl for vkCmdDebugMarkerBeginEXT
+DIAG: Aligning parameter commandBuffer to column 48
+DIAG: Adjust length of parameter decl from 19 to 48 :     VkCommandBuffer                             
+DIAG: Aligning parameter pMarkerInfo to column 48
+DIAG: Adjust length of parameter decl from 31 to 48 :     VkDebugMarkerMarkerInfoEXT*                 
+DIAG: *** Generating required parameter type void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required parameter type VkCommandBuffer
+DIAG: *** Skipping type VkCommandBuffer (already declared)
+DIAG: *** Emitting command decl for vkCmdDebugMarkerEndEXT
+DIAG: Aligning parameter commandBuffer to column 48
+DIAG: Adjust length of parameter decl from 19 to 48 :     VkCommandBuffer                             
+DIAG: *** Generating required parameter type void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required parameter type VkCommandBuffer
+DIAG: *** Skipping type VkCommandBuffer (already declared)
+DIAG: *** Generating required parameter type VkDebugMarkerMarkerInfoEXT
+DIAG: *** Skipping type VkDebugMarkerMarkerInfoEXT (already declared)
+DIAG: *** Emitting command decl for vkCmdDebugMarkerInsertEXT
+DIAG: Aligning parameter commandBuffer to column 48
+DIAG: Adjust length of parameter decl from 19 to 48 :     VkCommandBuffer                             
+DIAG: Aligning parameter pMarkerInfo to column 48
+DIAG: Adjust length of parameter decl from 31 to 48 :     VkDebugMarkerMarkerInfoEXT*                 
+DIAG: *** PASS 2: Generating interface for VK_AMD_gcn_shader
+DIAG: *** Emitting enum decl for VK_AMD_GCN_SHADER_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_AMD_GCN_SHADER_EXTENSION_NAME
+DIAG: *** PASS 2: Generating interface for VK_NV_dedicated_allocation
+DIAG: *** Generating required dependent <type> VkStructureType
+DIAG: *** Skipping type VkStructureType (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required dependent <type> VkBool32
+DIAG: *** Skipping type VkBool32 (already declared)
+DIAG: *** Emitting type decl for VkDedicatedAllocationImageCreateInfoNV
+DIAG: *** Generating required dependent <type> VkStructureType
+DIAG: *** Skipping type VkStructureType (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required dependent <type> VkBool32
+DIAG: *** Skipping type VkBool32 (already declared)
+DIAG: *** Emitting type decl for VkDedicatedAllocationBufferCreateInfoNV
+DIAG: *** Generating required dependent <type> VkStructureType
+DIAG: *** Skipping type VkStructureType (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required dependent <type> VkImage
+DIAG: *** Skipping type VkImage (already declared)
+DIAG: *** Generating required dependent <type> VkBuffer
+DIAG: *** Skipping type VkBuffer (already declared)
+DIAG: *** Emitting type decl for VkDedicatedAllocationMemoryAllocateInfoNV
+DIAG: *** Emitting enum decl for VK_NV_DEDICATED_ALLOCATION_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_NV_DEDICATED_ALLOCATION_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_IMAGE_CREATE_INFO_NV
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_BUFFER_CREATE_INFO_NV
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_DEDICATED_ALLOCATION_MEMORY_ALLOCATE_INFO_NV
+DIAG: *** PASS 2: Generating interface for VK_AMD_draw_indirect_count
+DIAG: *** Emitting enum decl for VK_AMD_EXTENSION_DRAW_INDIRECT_COUNT_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_AMD_EXTENSION_DRAW_INDIRECT_COUNT_EXTENSION_NAME
+DIAG: *** Generating required parameter type void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required parameter type VkCommandBuffer
+DIAG: *** Skipping type VkCommandBuffer (already declared)
+DIAG: *** Generating required parameter type VkBuffer
+DIAG: *** Skipping type VkBuffer (already declared)
+DIAG: *** Generating required parameter type VkDeviceSize
+DIAG: *** Skipping type VkDeviceSize (already declared)
+DIAG: *** Generating required parameter type VkBuffer
+DIAG: *** Skipping type VkBuffer (already declared)
+DIAG: *** Generating required parameter type VkDeviceSize
+DIAG: *** Skipping type VkDeviceSize (already declared)
+DIAG: *** Generating required parameter type uint32_t
+DIAG: *** Skipping type uint32_t (already declared)
+DIAG: *** Generating required parameter type uint32_t
+DIAG: *** Skipping type uint32_t (already declared)
+DIAG: *** Emitting command decl for vkCmdDrawIndirectCountAMD
+DIAG: Aligning parameter commandBuffer to column 48
+DIAG: Adjust length of parameter decl from 19 to 48 :     VkCommandBuffer                             
+DIAG: Aligning parameter buffer to column 48
+DIAG: Adjust length of parameter decl from 12 to 48 :     VkBuffer                                    
+DIAG: Aligning parameter offset to column 48
+DIAG: Adjust length of parameter decl from 16 to 48 :     VkDeviceSize                                
+DIAG: Aligning parameter countBuffer to column 48
+DIAG: Adjust length of parameter decl from 12 to 48 :     VkBuffer                                    
+DIAG: Aligning parameter countBufferOffset to column 48
+DIAG: Adjust length of parameter decl from 16 to 48 :     VkDeviceSize                                
+DIAG: Aligning parameter maxDrawCount to column 48
+DIAG: Adjust length of parameter decl from 12 to 48 :     uint32_t                                    
+DIAG: Aligning parameter stride to column 48
+DIAG: Adjust length of parameter decl from 12 to 48 :     uint32_t                                    
+DIAG: *** Generating required parameter type void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required parameter type VkCommandBuffer
+DIAG: *** Skipping type VkCommandBuffer (already declared)
+DIAG: *** Generating required parameter type VkBuffer
+DIAG: *** Skipping type VkBuffer (already declared)
+DIAG: *** Generating required parameter type VkDeviceSize
+DIAG: *** Skipping type VkDeviceSize (already declared)
+DIAG: *** Generating required parameter type VkBuffer
+DIAG: *** Skipping type VkBuffer (already declared)
+DIAG: *** Generating required parameter type VkDeviceSize
+DIAG: *** Skipping type VkDeviceSize (already declared)
+DIAG: *** Generating required parameter type uint32_t
+DIAG: *** Skipping type uint32_t (already declared)
+DIAG: *** Generating required parameter type uint32_t
+DIAG: *** Skipping type uint32_t (already declared)
+DIAG: *** Emitting command decl for vkCmdDrawIndexedIndirectCountAMD
+DIAG: Aligning parameter commandBuffer to column 48
+DIAG: Adjust length of parameter decl from 19 to 48 :     VkCommandBuffer                             
+DIAG: Aligning parameter buffer to column 48
+DIAG: Adjust length of parameter decl from 12 to 48 :     VkBuffer                                    
+DIAG: Aligning parameter offset to column 48
+DIAG: Adjust length of parameter decl from 16 to 48 :     VkDeviceSize                                
+DIAG: Aligning parameter countBuffer to column 48
+DIAG: Adjust length of parameter decl from 12 to 48 :     VkBuffer                                    
+DIAG: Aligning parameter countBufferOffset to column 48
+DIAG: Adjust length of parameter decl from 16 to 48 :     VkDeviceSize                                
+DIAG: Aligning parameter maxDrawCount to column 48
+DIAG: Adjust length of parameter decl from 12 to 48 :     uint32_t                                    
+DIAG: Aligning parameter stride to column 48
+DIAG: Adjust length of parameter decl from 12 to 48 :     uint32_t                                    
+DIAG: *** PASS 2: Generating interface for VK_IMG_format_pvrtc
+DIAG: *** Emitting enum decl for VK_IMG_FORMAT_PVRTC_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_IMG_FORMAT_PVRTC_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_FORMAT_PVRTC1_2BPP_UNORM_BLOCK_IMG
+DIAG: *** Emitting enum decl for VK_FORMAT_PVRTC1_4BPP_UNORM_BLOCK_IMG
+DIAG: *** Emitting enum decl for VK_FORMAT_PVRTC2_2BPP_UNORM_BLOCK_IMG
+DIAG: *** Emitting enum decl for VK_FORMAT_PVRTC2_4BPP_UNORM_BLOCK_IMG
+DIAG: *** Emitting enum decl for VK_FORMAT_PVRTC1_2BPP_SRGB_BLOCK_IMG
+DIAG: *** Emitting enum decl for VK_FORMAT_PVRTC1_4BPP_SRGB_BLOCK_IMG
+DIAG: *** Emitting enum decl for VK_FORMAT_PVRTC2_2BPP_SRGB_BLOCK_IMG
+DIAG: *** Emitting enum decl for VK_FORMAT_PVRTC2_4BPP_SRGB_BLOCK_IMG
+DIAG: *** PASS 2: Generating interface for VK_NV_external_memory_capabilities
+DIAG: *** Generating required dependent type VkExternalMemoryHandleTypeFlagBitsNV
+DIAG: *** Type VkExternalMemoryHandleTypeFlagBitsNV is an enum group, so generate that instead
+DIAG: *** Emitting type decl for VkExternalMemoryHandleTypeFlagBitsNV
+DIAG: *** Generating required dependent <type> VkFlags
+DIAG: *** Skipping type VkFlags (already declared)
+DIAG: *** Emitting type decl for VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** Skipping type VkExternalMemoryHandleTypeFlagBitsNV (already declared)
+DIAG: *** Generating required dependent type VkExternalMemoryFeatureFlagBitsNV
+DIAG: *** Type VkExternalMemoryFeatureFlagBitsNV is an enum group, so generate that instead
+DIAG: *** Emitting type decl for VkExternalMemoryFeatureFlagBitsNV
+DIAG: *** Generating required dependent <type> VkFlags
+DIAG: *** Skipping type VkFlags (already declared)
+DIAG: *** Emitting type decl for VkExternalMemoryFeatureFlagsNV
+DIAG: *** Skipping type VkExternalMemoryFeatureFlagBitsNV (already declared)
+DIAG: *** Generating required dependent <type> VkImageFormatProperties
+DIAG: *** Skipping type VkImageFormatProperties (already declared)
+DIAG: *** Generating required dependent <type> VkExternalMemoryFeatureFlagsNV
+DIAG: *** Skipping type VkExternalMemoryFeatureFlagsNV (already declared)
+DIAG: *** Generating required dependent <type> VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** Skipping type VkExternalMemoryHandleTypeFlagsNV (already declared)
+DIAG: *** Generating required dependent <type> VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** Skipping type VkExternalMemoryHandleTypeFlagsNV (already declared)
+DIAG: *** Emitting type decl for VkExternalImageFormatPropertiesNV
+DIAG: *** Emitting enum decl for VK_NV_EXTERNAL_MEMORY_CAPABILITIES_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_NV_EXTERNAL_MEMORY_CAPABILITIES_EXTENSION_NAME
+DIAG: *** Generating required parameter type VkResult
+DIAG: *** Skipping type VkResult (already declared)
+DIAG: *** Generating required parameter type VkPhysicalDevice
+DIAG: *** Skipping type VkPhysicalDevice (already declared)
+DIAG: *** Generating required parameter type VkFormat
+DIAG: *** Skipping type VkFormat (already declared)
+DIAG: *** Generating required parameter type VkImageType
+DIAG: *** Skipping type VkImageType (already declared)
+DIAG: *** Generating required parameter type VkImageTiling
+DIAG: *** Skipping type VkImageTiling (already declared)
+DIAG: *** Generating required parameter type VkImageUsageFlags
+DIAG: *** Skipping type VkImageUsageFlags (already declared)
+DIAG: *** Generating required parameter type VkImageCreateFlags
+DIAG: *** Skipping type VkImageCreateFlags (already declared)
+DIAG: *** Generating required parameter type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** Skipping type VkExternalMemoryHandleTypeFlagsNV (already declared)
+DIAG: *** Generating required parameter type VkExternalImageFormatPropertiesNV
+DIAG: *** Skipping type VkExternalImageFormatPropertiesNV (already declared)
+DIAG: *** Emitting command decl for vkGetPhysicalDeviceExternalImageFormatPropertiesNV
+DIAG: Aligning parameter physicalDevice to column 48
+DIAG: Adjust length of parameter decl from 20 to 48 :     VkPhysicalDevice                            
+DIAG: Aligning parameter format to column 48
+DIAG: Adjust length of parameter decl from 12 to 48 :     VkFormat                                    
+DIAG: Aligning parameter type to column 48
+DIAG: Adjust length of parameter decl from 15 to 48 :     VkImageType                                 
+DIAG: Aligning parameter tiling to column 48
+DIAG: Adjust length of parameter decl from 17 to 48 :     VkImageTiling                               
+DIAG: Aligning parameter usage to column 48
+DIAG: Adjust length of parameter decl from 21 to 48 :     VkImageUsageFlags                           
+DIAG: Aligning parameter flags to column 48
+DIAG: Adjust length of parameter decl from 22 to 48 :     VkImageCreateFlags                          
+DIAG: Aligning parameter externalHandleType to column 48
+DIAG: Adjust length of parameter decl from 37 to 48 :     VkExternalMemoryHandleTypeFlagsNV           
+DIAG: Aligning parameter pExternalImageFormatProperties to column 48
+DIAG: Adjust length of parameter decl from 38 to 48 :     VkExternalImageFormatPropertiesNV*          
+DIAG: *** PASS 2: Generating interface for VK_NV_external_memory
+DIAG: *** Generating required dependent <type> VkStructureType
+DIAG: *** Skipping type VkStructureType (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required dependent <type> VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** Skipping type VkExternalMemoryHandleTypeFlagsNV (already declared)
+DIAG: *** Emitting type decl for VkExternalMemoryImageCreateInfoNV
+DIAG: *** Generating required dependent <type> VkStructureType
+DIAG: *** Skipping type VkStructureType (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required dependent <type> VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** Skipping type VkExternalMemoryHandleTypeFlagsNV (already declared)
+DIAG: *** Emitting type decl for VkExportMemoryAllocateInfoNV
+DIAG: *** Emitting enum decl for VK_NV_EXTERNAL_MEMORY_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_NV_EXTERNAL_MEMORY_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_IMAGE_CREATE_INFO_NV
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_EXPORT_MEMORY_ALLOCATE_INFO_NV
+DIAG: *** PASS 2: Generating interface for VK_NV_external_memory_win32
+DIAG: *** Generating required dependent <type> VkStructureType
+DIAG: *** Skipping type VkStructureType (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required dependent <type> VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** Skipping type VkExternalMemoryHandleTypeFlagsNV (already declared)
+DIAG: *** Generating required dependent <type> HANDLE
+DIAG: *** Generating required dependent type windows.h
+DIAG: *** Skipping type windows.h (already declared)
+DIAG: *** Emitting type decl for HANDLE
+DIAG: *** Emitting type decl for VkImportMemoryWin32HandleInfoNV
+DIAG: *** Generating required dependent <type> VkStructureType
+DIAG: *** Skipping type VkStructureType (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required dependent <type> SECURITY_ATTRIBUTES
+DIAG: *** Generating required dependent type windows.h
+DIAG: *** Skipping type windows.h (already declared)
+DIAG: *** Emitting type decl for SECURITY_ATTRIBUTES
+DIAG: *** Generating required dependent <type> DWORD
+DIAG: *** Generating required dependent type windows.h
+DIAG: *** Skipping type windows.h (already declared)
+DIAG: *** Emitting type decl for DWORD
+DIAG: *** Emitting type decl for VkExportMemoryWin32HandleInfoNV
+DIAG: *** Emitting enum decl for VK_NV_EXTERNAL_MEMORY_WIN32_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_NV_EXTERNAL_MEMORY_WIN32_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_IMPORT_MEMORY_WIN32_HANDLE_INFO_NV
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_EXPORT_MEMORY_WIN32_HANDLE_INFO_NV
+DIAG: *** Generating required parameter type VkResult
+DIAG: *** Skipping type VkResult (already declared)
+DIAG: *** Generating required parameter type VkDevice
+DIAG: *** Skipping type VkDevice (already declared)
+DIAG: *** Generating required parameter type VkDeviceMemory
+DIAG: *** Skipping type VkDeviceMemory (already declared)
+DIAG: *** Generating required parameter type VkExternalMemoryHandleTypeFlagsNV
+DIAG: *** Skipping type VkExternalMemoryHandleTypeFlagsNV (already declared)
+DIAG: *** Generating required parameter type HANDLE
+DIAG: *** Skipping type HANDLE (already declared)
+DIAG: *** Emitting command decl for vkGetMemoryWin32HandleNV
+DIAG: Aligning parameter device to column 48
+DIAG: Adjust length of parameter decl from 12 to 48 :     VkDevice                                    
+DIAG: Aligning parameter memory to column 48
+DIAG: Adjust length of parameter decl from 18 to 48 :     VkDeviceMemory                              
+DIAG: Aligning parameter handleType to column 48
+DIAG: Adjust length of parameter decl from 37 to 48 :     VkExternalMemoryHandleTypeFlagsNV           
+DIAG: Aligning parameter pHandle to column 48
+DIAG: Adjust length of parameter decl from 11 to 48 :     HANDLE*                                     
+DIAG: *** PASS 2: Generating interface for VK_NV_win32_keyed_mutex
+DIAG: *** Generating required dependent <type> VkStructureType
+DIAG: *** Skipping type VkStructureType (already declared)
+DIAG: *** Generating required dependent <type> void
+DIAG: *** Skipping type void (already declared)
+DIAG: *** Generating required dependent <type> uint32_t
+DIAG: *** Skipping type uint32_t (already declared)
+DIAG: *** Generating required dependent <type> VkDeviceMemory
+DIAG: *** Skipping type VkDeviceMemory (already declared)
+DIAG: *** Generating required dependent <type> uint64_t
+DIAG: *** Skipping type uint64_t (already declared)
+DIAG: *** Generating required dependent <type> uint32_t
+DIAG: *** Skipping type uint32_t (already declared)
+DIAG: *** Generating required dependent <type> uint32_t
+DIAG: *** Skipping type uint32_t (already declared)
+DIAG: *** Generating required dependent <type> VkDeviceMemory
+DIAG: *** Skipping type VkDeviceMemory (already declared)
+DIAG: *** Generating required dependent <type> uint64_t
+DIAG: *** Skipping type uint64_t (already declared)
+DIAG: *** Emitting type decl for VkWin32KeyedMutexAcquireReleaseInfoNV
+DIAG: *** Emitting enum decl for VK_NV_WIN32_KEYED_MUTEX_SPEC_VERSION
+DIAG: *** Emitting enum decl for VK_NV_WIN32_KEYED_MUTEX_EXTENSION_NAME
+DIAG: *** Emitting enum decl for VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV

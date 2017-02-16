@@ -1,41 +1,32 @@
 // Copyright (c) 2015-2016 The Khronos Group Inc.
 //
-// Permission is hereby granted, free of charge, to any person obtaining a
-// copy of this software and/or associated documentation files (the
-// "Materials"), to deal in the Materials without restriction, including
-// without limitation the rights to use, copy, modify, merge, publish,
-// distribute, sublicense, and/or sell copies of the Materials, and to
-// permit persons to whom the Materials are furnished to do so, subject to
-// the following conditions:
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-// The above copyright notice and this permission notice shall be included
-// in all copies or substantial portions of the Materials.
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-// MODIFICATIONS TO THIS FILE MAY MEAN IT NO LONGER ACCURATELY REFLECTS
-// KHRONOS STANDARDS. THE UNMODIFIED, NORMATIVE VERSIONS OF KHRONOS
-// SPECIFICATIONS AND HEADER INFORMATION ARE LOCATED AT
-//    https://www.khronos.org/registry/
-//
-// THE MATERIALS ARE PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-// IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-// CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-// TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-// MATERIALS OR THE USE OR OTHER DEALINGS IN THE MATERIALS.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 // This file contains a disassembler:  It converts a SPIR-V binary
 // to text.
 
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <iomanip>
+#include <memory>
 #include <unordered_map>
 
 #include "assembly_grammar.h"
 #include "binary.h"
 #include "diagnostic.h"
 #include "ext_inst.h"
+#include "name_mapper.h"
 #include "opcode.h"
 #include "print.h"
 #include "spirv-tools/libspirv.h"
@@ -49,7 +40,8 @@ namespace {
 // representation.
 class Disassembler {
  public:
-  Disassembler(const libspirv::AssemblyGrammar& grammar, uint32_t options)
+  Disassembler(const libspirv::AssemblyGrammar& grammar, uint32_t options,
+               libspirv::NameMapper name_mapper)
       : grammar_(grammar),
         print_(spvIsInBitfield(SPV_BINARY_TO_TEXT_OPTION_PRINT, options)),
         color_(print_ &&
@@ -60,9 +52,11 @@ class Disassembler {
         text_(),
         out_(print_ ? out_stream() : out_stream(text_)),
         stream_(out_.get()),
+        header_(!spvIsInBitfield(SPV_BINARY_TO_TEXT_OPTION_NO_HEADER, options)),
         show_byte_offset_(spvIsInBitfield(
             SPV_BINARY_TO_TEXT_OPTION_SHOW_BYTE_OFFSET, options)),
-        byte_offset_(0) {}
+        byte_offset_(0),
+        name_mapper_(std::move(name_mapper)) {}
 
   // Emits the assembly header for the module, and sets up internal state
   // so subsequent callbacks can handle the cases where the entire module
@@ -123,8 +117,10 @@ class Disassembler {
   std::stringstream text_;   // Captures the text, if not printing.
   out_stream out_;  // The Output stream.  Either to text_ or standard output.
   std::ostream& stream_;  // The output std::stream.
+  const bool header_;     // Should we output header as the leading comment?
   const bool show_byte_offset_;  // Should we print byte offset, in hex?
-  size_t byte_offset_; // The number of bytes processed so far.
+  size_t byte_offset_;           // The number of bytes processed so far.
+  libspirv::NameMapper name_mapper_;
 };
 
 spv_result_t Disassembler::HandleHeader(spv_endianness_t endian,
@@ -132,50 +128,39 @@ spv_result_t Disassembler::HandleHeader(spv_endianness_t endian,
                                         uint32_t id_bound, uint32_t schema) {
   endian_ = endian;
 
-  SetGrey();
-  const char* generator_tool =
-      spvGeneratorStr(SPV_GENERATOR_TOOL_PART(generator));
-  stream_ << "; SPIR-V\n"
-          << "; Version: " << SPV_SPIRV_VERSION_MAJOR_PART(version) << "."
-          << SPV_SPIRV_VERSION_MINOR_PART(version) << "\n"
-          << "; Generator: " << generator_tool;
-  // For unknown tools, print the numeric tool value.
-  if (0 == strcmp("Unknown", generator_tool)) {
-    stream_ << "(" << SPV_GENERATOR_TOOL_PART(generator) << ")";
+  if (header_) {
+    SetGrey();
+    const char* generator_tool =
+        spvGeneratorStr(SPV_GENERATOR_TOOL_PART(generator));
+    stream_ << "; SPIR-V\n"
+            << "; Version: " << SPV_SPIRV_VERSION_MAJOR_PART(version) << "."
+            << SPV_SPIRV_VERSION_MINOR_PART(version) << "\n"
+            << "; Generator: " << generator_tool;
+    // For unknown tools, print the numeric tool value.
+    if (0 == strcmp("Unknown", generator_tool)) {
+      stream_ << "(" << SPV_GENERATOR_TOOL_PART(generator) << ")";
+    }
+    // Print the miscellaneous part of the generator word on the same
+    // line as the tool name.
+    stream_ << "; " << SPV_GENERATOR_MISC_PART(generator) << "\n"
+            << "; Bound: " << id_bound << "\n"
+            << "; Schema: " << schema << "\n";
+    ResetColor();
   }
-  // Print the miscellaneous part of the generator word on the same
-  // line as the tool name.
-  stream_ << "; " << SPV_GENERATOR_MISC_PART(generator) << "\n"
-          << "; Bound: " << id_bound << "\n"
-          << "; Schema: " << schema << "\n";
-  ResetColor();
 
   byte_offset_ = SPV_INDEX_INSTRUCTION * sizeof(uint32_t);
 
   return SPV_SUCCESS;
 }
 
-// Returns the number of digits in n.
-int NumDigits(uint32_t n) {
-  if (n < 10) return 0;
-  if (n < 100) return 1;
-  if (n < 1000) return 2;
-  if (n < 10000) return 3;
-  if (n < 100000) return 4;
-  if (n < 1000000) return 5;
-  if (n < 10000000) return 6;
-  if (n < 100000000) return 7;
-  if (n < 1000000000) return 8;
-  return 9;
-}
-
 spv_result_t Disassembler::HandleInstruction(
     const spv_parsed_instruction_t& inst) {
   if (inst.result_id) {
     SetBlue();
-    // Indent if needed, but account for the 4 characters in "%" and " = "
-    if (indent_) stream_ << std::setw(indent_ - 4 - NumDigits(inst.result_id));
-    stream_ << "%" << inst.result_id;
+    const std::string id_name = name_mapper_(inst.result_id);
+    if (indent_)
+      stream_ << std::setw(std::max(0, indent_ - 3 - int(id_name.size())));
+    stream_ << "%" << id_name;
     ResetColor();
     stream_ << " = ";
   } else {
@@ -218,14 +203,14 @@ void Disassembler::EmitOperand(const spv_parsed_instruction_t& inst,
     case SPV_OPERAND_TYPE_RESULT_ID:
       assert(false && "<result-id> is not supposed to be handled here");
       SetBlue();
-      stream_ << "%" << word;
+      stream_ << "%" << name_mapper_(word);
       break;
     case SPV_OPERAND_TYPE_ID:
     case SPV_OPERAND_TYPE_TYPE_ID:
     case SPV_OPERAND_TYPE_SCOPE_ID:
     case SPV_OPERAND_TYPE_MEMORY_SEMANTICS_ID:
       SetYellow();
-      stream_ << "%" << word;
+      stream_ << "%" << name_mapper_(word);
       break;
     case SPV_OPERAND_TYPE_EXTENSION_INSTRUCTION_NUMBER: {
       spv_ext_inst_desc ext_inst;
@@ -254,7 +239,8 @@ void Disassembler::EmitOperand(const spv_parsed_instruction_t& inst,
             break;
           case SPV_NUMBER_FLOATING:
             if (operand.number_bit_width == 16) {
-              stream_ << spvutils::FloatProxy<spvutils::Float16>(uint16_t(word & 0xFFFF));
+              stream_ << spvutils::FloatProxy<spvutils::Float16>(
+                  uint16_t(word & 0xFFFF));
             } else {
               // Assume 32-bit floats.
               stream_ << spvutils::FloatProxy<float>(word);
@@ -407,16 +393,29 @@ spv_result_t spvBinaryToText(const spv_const_context context,
                              const uint32_t* code, const size_t wordCount,
                              const uint32_t options, spv_text* pText,
                              spv_diagnostic* pDiagnostic) {
-  // Invalid arguments return error codes, but don't necessarily generate
-  // diagnostics.  These are programmer errors, not user errors.
-  if (!pDiagnostic) return SPV_ERROR_INVALID_DIAGNOSTIC;
-  const libspirv::AssemblyGrammar grammar(context);
+  spv_context_t hijack_context = *context;
+  if (pDiagnostic) {
+    *pDiagnostic = nullptr;
+    libspirv::UseDiagnosticAsMessageConsumer(&hijack_context, pDiagnostic);
+  }
+
+  const libspirv::AssemblyGrammar grammar(&hijack_context);
   if (!grammar.isValid()) return SPV_ERROR_INVALID_TABLE;
 
-  Disassembler disassembler(grammar, options);
-  if (auto error = spvBinaryParse(context, &disassembler, code, wordCount,
-                                  DisassembleHeader, DisassembleInstruction,
-                                  pDiagnostic)) {
+  // Generate friendly names for Ids if requested.
+  std::unique_ptr<libspirv::FriendlyNameMapper> friendly_mapper;
+  libspirv::NameMapper name_mapper = libspirv::GetTrivialNameMapper();
+  if (options & SPV_BINARY_TO_TEXT_OPTION_FRIENDLY_NAMES) {
+    friendly_mapper.reset(
+        new libspirv::FriendlyNameMapper(&hijack_context, code, wordCount));
+    name_mapper = friendly_mapper->GetNameMapper();
+  }
+
+  // Now disassemble!
+  Disassembler disassembler(grammar, options, name_mapper);
+  if (auto error = spvBinaryParse(&hijack_context, &disassembler, code,
+                                  wordCount, DisassembleHeader,
+                                  DisassembleInstruction, pDiagnostic)) {
     return error;
   }
 

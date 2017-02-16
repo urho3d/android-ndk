@@ -16,10 +16,10 @@ LOCAL_SRC_FILES := \
   math_unittest.cc \
   stdio_unittest.cc \
   wchar_unittest.cc
+LOCAL_C_INCLUDES := $(LOCAL_PATH)/../include
 
 LOCAL_STATIC_LIBRARIES := android_support minitest
 include $(BUILD_EXECUTABLE)
 
 # Include the android_support module definitions.
-include $(LOCAL_PATH)/../Android.mk
-
+$(call import-module,android/support)

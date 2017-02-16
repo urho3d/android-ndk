@@ -501,7 +501,7 @@ build_stl_libs_for_abi ()
 
     EXTRA_CFLAGS=""
     EXTRA_CXXFLAGS=""
-    EXTRA_LDFLAGS=""
+    EXTRA_LDFLAGS="-Wl,--build-id"
 
     case $ABI in
         arm64-v8a)
