@@ -94,7 +94,9 @@ extern locale_t newlocale(int, const char*, locale_t);
 extern locale_t uselocale(locale_t);
 extern void     freelocale(locale_t);
 
+#ifndef LC_GLOBAL_LOCALE
 #define LC_GLOBAL_LOCALE    ((locale_t) -1L)
+#endif
 
 struct lconv {
     char* decimal_point;       /* Decimal point character */

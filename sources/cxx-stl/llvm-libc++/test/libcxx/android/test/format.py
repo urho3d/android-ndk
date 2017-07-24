@@ -2,7 +2,7 @@ import os
 
 import lit.util  # pylint: disable=import-error
 
-from libcxx.android.executors import AdbExecutor
+from libcxx.android.executors import AdbExecutor, NoopExecutor
 from libcxx.test.executor import LocalExecutor, TimeoutExecutor
 import libcxx.test.format
 import libcxx.android.adb as adb
@@ -37,7 +37,7 @@ class HostTestFormat(libcxx.test.format.LibcxxTestFormat):
 
 class TestFormat(HostTestFormat):
     def __init__(self, cxx, libcxx_src_root, libcxx_obj_root, device_dir,
-                 timeout, exec_env=None):
+                 timeout, exec_env=None, build_only=False):
         HostTestFormat.__init__(
             self,
             cxx,
@@ -46,7 +46,11 @@ class TestFormat(HostTestFormat):
             timeout,
             exec_env)
         self.device_dir = device_dir
-        self.executor = AdbExecutor(device_dir)
+        self.build_only = build_only
+        if self.build_only:
+            self.executor = NoopExecutor()
+        else:
+            self.executor = AdbExecutor(device_dir)
 
     def _working_directory(self, file_name):
         return os.path.join(self.device_dir, file_name)
@@ -88,6 +92,3 @@ class TestFormat(HostTestFormat):
             os.remove(exec_path)
         except OSError:
             pass
-
-    def _run(self, exec_path, _, in_dir=None):
-        raise NotImplementedError()

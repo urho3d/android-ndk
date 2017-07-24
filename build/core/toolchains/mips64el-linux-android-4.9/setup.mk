@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-# this file is used to prepare the NDK to build with the mips64el gcc-4.9
+# this file is used to prepare the NDK to build mips64 with the mips64el gcc-4.9
 # toolchain any number of source files
 #
 # its purpose is to define (or re-define) templates used to build

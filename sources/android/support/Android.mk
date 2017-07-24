@@ -4,28 +4,19 @@ android_support_c_includes := $(LOCAL_PATH)/include
 
 ifneq ($(filter $(NDK_KNOWN_DEVICE_ABI64S),$(TARGET_ARCH_ABI)),)
 # 64-bit ABIs
-android_support_sources := \
-    src/musl-locale/catclose.c \
-    src/musl-locale/catgets.c \
-    src/musl-locale/catopen.c
-
+android_support_sources :=
 else
 # 32-bit ABIs
 
 android_support_sources := \
-    src/locale_support.c \
-    src/math_support.c \
-    src/stdlib_support.c \
-    src/wchar_support.c \
+    src/_Exit.cpp \
     src/locale/duplocale.c \
     src/locale/freelocale.c \
     src/locale/localeconv.c \
     src/locale/newlocale.c \
     src/locale/uselocale.c \
-    src/stdio/stdio_impl.c \
-    src/stdio/strtod.c \
-    src/stdio/vfprintf.c \
-    src/stdio/vfwprintf.c \
+    src/locale_support.c \
+    src/math_support.c \
     src/msun/e_log2.c \
     src/msun/e_log2f.c \
     src/msun/s_nan.c \
@@ -46,53 +37,6 @@ android_support_sources := \
     src/musl-ctype/wcswidth.c \
     src/musl-ctype/wctrans.c \
     src/musl-ctype/wcwidth.c \
-    src/musl-locale/catclose.c \
-    src/musl-locale/catgets.c \
-    src/musl-locale/catopen.c \
-    src/musl-locale/iconv.c \
-    src/musl-locale/intl.c \
-    src/musl-locale/isalnum_l.c \
-    src/musl-locale/isalpha_l.c \
-    src/musl-locale/isblank_l.c \
-    src/musl-locale/iscntrl_l.c \
-    src/musl-locale/isdigit_l.c \
-    src/musl-locale/isgraph_l.c \
-    src/musl-locale/islower_l.c \
-    src/musl-locale/isprint_l.c \
-    src/musl-locale/ispunct_l.c \
-    src/musl-locale/isspace_l.c \
-    src/musl-locale/isupper_l.c \
-    src/musl-locale/iswalnum_l.c \
-    src/musl-locale/iswalpha_l.c \
-    src/musl-locale/iswblank_l.c \
-    src/musl-locale/iswcntrl_l.c \
-    src/musl-locale/iswctype_l.c \
-    src/musl-locale/iswdigit_l.c \
-    src/musl-locale/iswgraph_l.c \
-    src/musl-locale/iswlower_l.c \
-    src/musl-locale/iswprint_l.c \
-    src/musl-locale/iswpunct_l.c \
-    src/musl-locale/iswspace_l.c \
-    src/musl-locale/iswupper_l.c \
-    src/musl-locale/iswxdigit_l.c \
-    src/musl-locale/isxdigit_l.c \
-    src/musl-locale/langinfo.c \
-    src/musl-locale/strcasecmp_l.c \
-    src/musl-locale/strcoll.c \
-    src/musl-locale/strerror_l.c \
-    src/musl-locale/strfmon.c \
-    src/musl-locale/strftime_l.c \
-    src/musl-locale/strncasecmp_l.c \
-    src/musl-locale/strxfrm.c \
-    src/musl-locale/tolower_l.c \
-    src/musl-locale/toupper_l.c \
-    src/musl-locale/towctrans_l.c \
-    src/musl-locale/towlower_l.c \
-    src/musl-locale/towupper_l.c \
-    src/musl-locale/wcscoll.c \
-    src/musl-locale/wcsxfrm.c \
-    src/musl-locale/wctrans_l.c \
-    src/musl-locale/wctype_l.c \
     src/musl-math/frexp.c \
     src/musl-math/frexpf.c \
     src/musl-math/frexpl.c \
@@ -115,16 +59,22 @@ android_support_sources := \
     src/musl-stdio/printf.c \
     src/musl-stdio/snprintf.c \
     src/musl-stdio/sprintf.c \
+    src/musl-stdio/swprintf.c \
     src/musl-stdio/vprintf.c \
     src/musl-stdio/vsprintf.c \
-    src/musl-stdio/swprintf.c \
     src/musl-stdio/vwprintf.c \
     src/musl-stdio/wprintf.c \
+    src/stdio/stdio_impl.c \
+    src/stdio/strtod.c \
+    src/stdio/vfprintf.c \
+    src/stdio/vfwprintf.c \
+    src/stdlib_support.c \
+    src/wchar_support.c \
     src/wcstox/floatscan.c \
     src/wcstox/intscan.c \
     src/wcstox/shgetc.c \
-    src/wcstox/wcstol.c \
     src/wcstox/wcstod.c \
+    src/wcstox/wcstol.c \
 
 # Replaces broken implementations in x86 libm.so
 ifeq (x86,$(TARGET_ARCH_ABI))
@@ -145,6 +95,7 @@ LIBCXX_LIBS := ../../cxx-stl/llvm-libc++/libs/$(TARGET_ARCH_ABI)
 include $(CLEAR_VARS)
 LOCAL_MODULE := android_support
 LOCAL_SRC_FILES := $(LIBCXX_LIBS)/lib$(LOCAL_MODULE)$(TARGET_LIB_EXTENSION)
+LOCAL_EXPORT_C_INCLUDES := $(android_support_c_includes)
 include $(PREBUILT_STATIC_LIBRARY)
 
 else # Building
@@ -170,8 +121,7 @@ LOCAL_CFLAGS += \
   -Wno-shift-negative-value
 endif
 
-LOCAL_CFLAGS += $(android_support_cflags)
-LOCAL_EXPORT_CFLAGS := $(android_support_cflags)
+LOCAL_EXPORT_C_INCLUDES := $(android_support_c_includes)
 include $(BUILD_STATIC_LIBRARY)
 
 endif # Prebuilt/building

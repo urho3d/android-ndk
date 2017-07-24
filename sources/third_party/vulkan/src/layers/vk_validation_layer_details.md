@@ -91,6 +91,12 @@ The Draw State portion of the core validation layer tracks state leading into Dr
 | Verify Memory Buffer Not Deleted | Validate Command Buffer not submitted with deleted memory buffer | INVALID_BUFFER | vkQueueSubmit | VertexBufferInvalid | None |
 | Verify Image Not Deleted | Validate Command Buffer not submitted with deleted image | INVALID_IMAGE | vkQueueSubmit | TODO | Write test (or record here if we already have one) |
 | Verify Query Pool Not Deleted | Validate Command Buffer not submitted with deleted query pool | INVALID_QUERY_POOL | vkQueueSubmit | TODO | Write test (or record here if we already have one) |
+| Verify BufferView Not Deleted | Validate Command Buffer not submitted with deleted buffer view | INVALID_BUFFER_VIEW | vkQueueSubmit | TODO | Write test (or record here if we already have one) |
+| Verify ImageView Not Deleted | Validate Command Buffer not submitted with deleted image view | INVALID_IMAGE_VIEW | vkQueueSubmit | TODO | Write test (or record here if we already have one) |
+| Verify DescriptorPool Not Deleted | Validate Command Buffer not submitted with deleted descriptor pool | INVALID_DESCRIPTOR_POOL | vkQueueSubmit | TODO | Write test (or record here if we already have one) |
+| Verify CommandPool Not Deleted | Validate Command Buffer not submitted with deleted command pool | INVALID_COMMAND_POOL | vkQueueSubmit | TODO | Write test (or record here if we already have one) |
+| Verify Framebuffer Not Deleted | Validate Command Buffer not submitted with deleted framebuffer | INVALID_FRAMEBUFFER | vkQueueSubmit | TODO | Write test (or record here if we already have one) |
+| Verify DeviceMemory Not Deleted | Validate Command Buffer not submitted with deleted device memory | INVALID_DEVICE_MEMORY | vkQueueSubmit | TODO | Write test (or record here if we already have one) |
 | Verify Memory Buffer Destroy | Validate memory buffers are not destroyed more than once | DOUBLE_DESTROY | vkDestroyBuffer | VertexBufferInvalid | None |
 | Verify Object Not In Use | Validate that object being freed or modified is not in use | OBJECT_INUSE | vkDestroyBuffer vkFreeDescriptorSets vkUpdateDescriptorSets vkDestroySemaphore | InUseDestroyedSignaled InvalidCmdBufferDescriptorSetImageSamplerDestroyed | NA |
 | Verify Get Queries| Validate that queries are properly setup, initialized and synchronized | INVALID_QUERY | vkGetFenceStatus vkQueueWaitIdle vkWaitForFences vkDeviceWaitIdle vkCmdBeginQuery vkCmdEndQuery | InvalidQueueIndexInvalidQuery | May need to check existing case against object_tracker and remove any redundant checks. Then write tests for remaining case. Currently there are 8 cases for this check with 1 each in cleanInFlightCmdBuffer(), EndCommandBuffer(), CmdEndQuery(), validateQuery(), and 4 cases in GetQueryPoolResults() |
@@ -103,7 +109,6 @@ The Draw State portion of the core validation layer tracks state leading into Dr
 | Uniform Buffer Alignment  | Uniform Buffer offsets in BindBufferMemory, BindDescriptorSets must agree with offset alignment device limit | INVALID_UNIFORM_BUFFER_OFFSET | vkBindBufferMemory vkCmdBindDescriptorSets | VertexBufferInvalid | None |
 | Independent Blending  | If independent blending is not enabled, all elements of pAttachments must be identical | INDEPENDENT_BLEND | vkCreateGraphicsPipelines | DisabledIndependentBlend | Create test |
 | Enabled Logic Operations  | If logic operations is not enabled, logicOpEnable must be VK_FALSE | DISABLED_LOGIC_OP | vkCreateGraphicsPipelines | ColorBlendLogicOpTests | NA |
-| Valid Logic Operations  | If logicOpEnable is VK_TRUE, logicOp must be a valid VkLogicOp value | INVALID_LOGIC_OP | vkCreateGraphicsPipelines | ColorBlendLogicOpTests | NA |
 | QueueFamilyIndex is Valid | Validates that QueueFamilyIndices are less an the number of QueueFamilies | INVALID_QUEUE_INDEX | vkCmdWaitEvents vkCmdPipelineBarrier vkCreateBuffer vkCreateImage | InvalidQueueIndexInvalidQuery | NA |
 | Invalid Queue Family Consistency | Validates that items created in one Queue Family are not submitted using a different one | INVALID_QUEUE_FAMILY | vkCmdExecuteCommands vkQueueSubmit | MismatchedQueueFamiliesOnSubmit |
 | Push Constants | Validate that the size of push constant ranges and updates does not exceed maxPushConstantSize | PUSH_CONSTANTS_ERROR | vkCreatePipelineLayout vkCmdPushConstants | InvalidPushConstants | NA |
@@ -114,6 +119,11 @@ The Draw State portion of the core validation layer tracks state leading into Dr
 | NA | Enum used for errors in the layer itself. This does not indicate an app issue, but instead a bug in the layer. | INTERNAL_ERROR | | TODO | None |
 | NA | Enum used when VK_LAYER_LUNARG_core_validation attempts to allocate memory for its own internal use and is unable to. | OUT_OF_MEMORY | | TODO | None |
 | Bad subpass indexing | Must not step beyond last subpass in a renderpass instance, and must reach the last subpass before CmdEndRenderPass. | INVALID_SUBPASS_INDEX | vkCmdNextSubpass | RenderPassExcessiveNextSubpass | NA |
+| Proper synchronization of acquired images | vkAcquireNextImageKHR should be called with a valid semaphore and/or fence | SWAPCHAIN_NO_SYNC_FOR_ACQUIRE | vkAcquireNextImageKHR | TODO | None |
+| Swapchain image index too large | Validates that an image index is within the number of images in a swapchain | SWAPCHAIN_INVALID_IMAGE | vkQueuePresentKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
+| Can't present a non-owned image | Validates that application only presents images that it owns | SWAPCHAIN_IMAGE_NOT_ACQUIRED | vkQueuePresentKHR | TODO | None |
+| Surface already has swapchain | Cannot create a swapchain for a surface that already has one [other than the swapchain being replaced] | SWAPCHAIN_ALREADY_EXISTS | vkCreateSwapchainKHR | TODO | None |
+| Swapchain replacement | pCreateInfo->surface must match pCreateInfo->oldSwapchain's surface | SWAPCHAIN_WRONG_SURFACE | vkCreateSwapchainKHR | TODO | None |
 
 ### VK_LAYER_LUNARG_core_validation Draw State Pending Work
 
@@ -133,15 +143,15 @@ It flags errors when inconsistencies are found across interfaces between shader 
 | Non-SPIRV shader | Flag warning if a non-SPIR-V shader image is detected. This can occur if early drivers are ingesting GLSL. VK_LAYER_LUNARG_ShaderChecker cannot analyze non-SPIRV shaders, so this suppresses most other checks. | NON_SPIRV_SHADER | vkCreateGraphicsPipelines | TODO | NA |
 | VI Binding Descriptions | Validate that there is a single vertex input binding description for each binding | INCONSISTENT_VI | vkCreateGraphicsPipelines | CreatePipelineAttribBindingConflict | NA |
 | Shader Stage Check | Warns if shader stage is unsupported | UNKNOWN_STAGE | vkCreateGraphicsPipelines | TODO | NA |
-| Shader Specialization | Error if specialization entry data is not fully contained within the specialization data block. | BAD_SPECIALIZATION | vkCreateGraphicsPipelines vkCreateComputePipelines | TODO | NA |
+| Shader Specialization | Error if specialization entry data is not fully contained within the specialization data block. | BAD_SPECIALIZATION | vkCreateGraphicsPipelines vkCreateComputePipelines | CreatePipelineCheckShaderBadSpecialization | NA |
 | Missing Descriptor | Flags error if shader attempts to use a descriptor binding not declared in the layout | MISSING_DESCRIPTOR | vkCreateGraphicsPipelines | CreatePipelineUniformBlockNotProvided | NA |
 | Missing Entrypoint | Flags error if specified entrypoint is not present in the shader module | MISSING_ENTRYPOINT | vkCreateGraphicsPipelines | TODO | NA |
 | Push constant out of range | Flags error if a member of a push constant block is not contained within a push constant range specified in the pipeline layout | PUSH_CONSTANT_OUT_OF_RANGE | vkCreateGraphicsPipelines | CreatePipelinePushConstantsNotInLayout | NA |
-| Push constant not accessible from stage | Flags error if the push constant range containing a push constant block member is not accessible from the current shader stage. | PUSH_CONSTANT_NOT_ACCESSIBLE_FROM_STAGE | vkCreateGraphicsPipelines | TODO | NA |
-| Descriptor not accessible from stage | Flags error if a descriptor used by a shader stage does not include that stage in its stageFlags | DESCRIPTOR_NOT_ACCESSIBLE_FROM_STAGE | vkCreateGraphicsPipelines | TODO | NA |
-| Descriptor type mismatch | Flags error if a descriptor type does not match the shader resource type. | DESCRIPTOR_TYPE_MISMATCH | vkCreateGraphicsPipelines | TODO | NA |
-| Feature not enabled | Flags error if a capability declared by the shader requires a feature not enabled on the device | FEATURE_NOT_ENABLED | vkCreateGraphicsPipelines | TODO | NA |
-| Bad capability | Flags error if a capability declared by the shader is not supported by Vulkan shaders | BAD_CAPABILITY | vkCreateGraphicsPipelines | TODO | NA |
+| Push constant not accessible from stage | Flags error if the push constant range containing a push constant block member is not accessible from the current shader stage. | PUSH_CONSTANT_NOT_ACCESSIBLE_FROM_STAGE | vkCreateGraphicsPipelines | CreatePipelineCheckShaderPushConstantNotAccessible | NA |
+| Descriptor not accessible from stage | Flags error if a descriptor used by a shader stage does not include that stage in its stageFlags | DESCRIPTOR_NOT_ACCESSIBLE_FROM_STAGE | vkCreateGraphicsPipelines | CreatePipelineCheckShaderDescriptorNotAccessible | NA |
+| Descriptor type mismatch | Flags error if a descriptor type does not match the shader resource type. | DESCRIPTOR_TYPE_MISMATCH | vkCreateGraphicsPipelines | CreatePipelineCheckShaderDescriptorTypeMismatch | NA |
+| Feature not enabled | Flags error if a capability declared by the shader requires a feature not enabled on the device | FEATURE_NOT_ENABLED | vkCreateGraphicsPipelines | CreatePipelineCheckShaderNotEnabled | NA |
+| Bad capability | Flags error if a capability declared by the shader is not supported by Vulkan shaders | BAD_CAPABILITY | vkCreateGraphicsPipelines | CreatePipelineCheckShaderBadCapability | NA |
 | Missing input attachment | Flags error if shader consumes an input attachment which is not provided in the subpass in which a pipeline will be used | MISSING_INPUT_ATTACHMENT | vkCreateGraphicsPipelines | CreatePipelineInputAttachment* | NA |
 | Input attachment type mismatch | Flags error if shader's declaration of an input attachment has a type inconsistent with the format declared in the renderpass | INPUT_ATTACHMENT_TYPE_MISMATCH | vkCreateGraphicsPipelines | CreatePipelineInputAttachmentTypeMismatch | NA |
 | NA | Enum used for informational messages | NONE | | TODO | None |
@@ -231,7 +241,7 @@ DETAILS TABLE PENDING
 | ----- | -------- | ---------------- | ------------ | -------- | ---------- |
 | Image Format | Verifies that requested format is a supported Vulkan format on this device | FORMAT_UNSUPPORTED | vkCreateImage vkCreateRenderPass | ImageLayerUnsupportedFormat | NA |
 | RenderPass Attachments | Validates that attachment image format, layouts, loadOps, and storeOps are valid Vulkan values | RENDERPASS_INVALID_ATTACHMENT | vkCreateRenderPass | AttachmentDescriptionUndefinedFormat | Tests are needed for loadops, storeops, layouts, and bad depth format |
-| Subpass DS Settings | Verifies that if there is no depth attachment then the subpass attachment is set to VK_ATTACHMENT_UNUSED | RENDERPASS_INVALID_DS_ATTACHMENT | vkCreateRenderPass | RenderPassDepthStencilAttachmentUnused | NA |
+| Subpass Depth/Stencil Settings | Verifies that if there is no depth/stencil attachment then the subpass attachment is set to VK_ATTACHMENT_UNUSED | RENDERPASS_INVALID_DS_ATTACHMENT | vkCreateRenderPass | RenderPassDepthStencilAttachmentUnused | NA |
 | View Creation | Verify that requested Image View Creation parameters are reasonable for the image that the view is being created for | VIEW_CREATE_ERROR | vkCreateImageView | ImageLayerViewTests | NA |
 | Image Aspects | Verify that Image commands are using valid Image Aspect flags | INVALID_IMAGE_ASPECT | vkCreateImageView vkCmdClearColorImage vkCmdClearDepthStencilImage vkCmdClearAttachments vkCmdCopyImage vkCmdCopyImageToBuffer vkCmdCopyBufferToImage vkCmdResolveImage vkCmdBlitImage | InvalidImageViewAspect | NA |
 | Image Aspect Mismatch | Verify that Image commands with source and dest images use matching aspect flags | MISMATCHED_IMAGE_ASPECT | vkCmdCopyImage | MiscImageLayerTests | NA |
@@ -266,6 +276,7 @@ The VK_LAYER_LUNARG_object_tracker layer maintains a record of all Vulkan object
 | Unknown object  | Internal layer errors when it attempts to update use count for an object that's not in its internal tracking datastructures. | UNKNOWN_OBJECT |  | CreateUnknownObject | NA |
 | Correct Command Pool | Validates that command buffers in a FreeCommandBuffers call were all created in the specified commandPool | COMMAND_POOL_MISMATCH | vkFreeCommandBuffers | InvalidCommandPoolConsistency | NA |
 | Correct Descriptor Pool | Validates that descriptor sets in a FreeDescriptorSets call were all created in the specified descriptorPool | DESCRIPTOR_POOL_MISMATCH | vkFreeDescriptorSets | InvalidDescriptorPoolConsistency | NA |
+| Inconsistent Allocators | Validates that a custom allocator is either provided for both create and destroy, or neither. | ALLOCATOR_MISMATCH | | TODO | None |
 | NA | Enum used for informational messages | NONE | | TODO | None |
 | NA | Enum used for errors in the layer itself. This does not indicate an app issue, but instead a bug in the layer. | INTERNAL_ERROR | | TODO | None |
 
@@ -339,22 +350,16 @@ This layer is a work in progress. VK_LAYER_LUNARG_swapchain layer is intended to
 | vkCreateSwapchainKHR(pCreateInfo->presentMode) | Validates vkCreateSwapchainKHR(pCreateInfo->presentMode) | CREATE_SWAP_BAD_PRESENT_MODE | vkCreateSwapchainKHR | TODO | None |
 | vkCreateSwapchainKHR(pCreateInfo->imageSharingMode) | Validates vkCreateSwapchainKHR(pCreateInfo->imageSharingMode) | CREATE_SWAP_BAD_SHARING_MODE | vkCreateSwapchainKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
 | vkCreateSwapchainKHR(pCreateInfo->imageSharingMode) | Validates vkCreateSwapchainKHR(pCreateInfo->imageSharingMode) | CREATE_SWAP_BAD_SHARING_VALUES | vkCreateSwapchainKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
-| vkCreateSwapchainKHR(pCreateInfo->oldSwapchain and pCreateInfo->surface) | pCreateInfo->surface must match pCreateInfo->oldSwapchain's surface | CREATE_SWAP_DIFF_SURFACE | vkCreateSwapchainKHR | TODO | None |
-| Use same device for swapchain | Validates that vkDestroySwapchainKHR() called with the same VkDevice as vkCreateSwapchainKHR() | DESTROY_SWAP_DIFF_DEVICE | vkCreateSwapchainKHR vkDestroySwapchainKHR | TODO | None |
 | Don't acquire too many images | Validates that app never tries to acquire too many swapchain images at a time | APP_ACQUIRES_TOO_MANY_IMAGES | vkAcquireNextImageKHR | TODO | None |
-| Index too large | Validates that an image index is within the number of images in a swapchain | INDEX_TOO_LARGE | vkQueuePresentKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
-| Can't present a non-owned image | Validates that application only presents images that it owns | INDEX_NOT_IN_USE | vkQueuePresentKHR | TODO | None |
 | A VkBool32 must have values of VK_TRUE or VK_FALSE | Validates that a VkBool32 must have values of VK_TRUE or VK_FALSE | BAD_BOOL | vkCreateSwapchainKHR | TODO | None |
 | pCount must be set by the API before the other pointer is non-NULL | Validates that app queries for the value of pCount before trying to set it | PRIOR_COUNT | vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfacePresentModesKHR vkGetSwapchainImagesKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
 | pCount must point to same value regardless of whether other pointer is NULL | Validates that app doesn't change value of pCount returned by a query | INVALID_COUNT | vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfacePresentModesKHR vkGetSwapchainImagesKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
 | Valid sType | Validates that a struct has correct value for sType | WRONG_STYPE | vkCreateSwapchainKHR vkQueuePresentKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
 | Valid pNext | Validates that a struct has NULL for the value of pNext | WRONG_NEXT | vkCreateSwapchainKHR vkQueuePresentKHR | VkWsiEnabledLayerTest.TestEnabledWsi | None |
 | Non-zero value | Validates that a required value should be non-zero | ZERO_VALUE | vkQueuePresentKHR | TODO | None |
-| Compatible Allocator | Validates that pAllocator is compatible (i.e. NULL or not) when an object is created and destroyed | INCOMPATIBLE_ALLOCATOR | vkDestroySurfaceKHR | TODO | None |
 | Valid use of queueFamilyIndex | Validates that a queueFamilyIndex not used before vkGetPhysicalDeviceQueueFamilyProperties() was called | DID_NOT_QUERY_QUEUE_FAMILIES | vkGetPhysicalDeviceSurfaceSupportKHR | TODO | None |
 | Valid queueFamilyIndex value | Validates that a queueFamilyIndex value is less-than pQueueFamilyPropertyCount returned by vkGetPhysicalDeviceQueueFamilyProperties | QUEUE_FAMILY_INDEX_TOO_LARGE | vkGetPhysicalDeviceSurfaceSupportKHR | TODO | None |
 | Supported combination of queue and surface | Validates that the surface associated with a swapchain was seen to support the queueFamilyIndex of a given queue | SURFACE_NOT_SUPPORTED_WITH_QUEUE | vkQueuePresentKHR | TODO | None |
-| Proper synchronization of acquired images | vkAcquireNextImageKHR should be called with a valid semaphore and/or fence | NO_SYNC_FOR_ACQUIRE | vkAcquireNextImageKHR | TODO | None |
 | Potential use before query | Validates that Display Plane Properties are queried before getting supported Display Planes | GET_SUPPORTED_DISPLAYS_WITHOUT_QUERY | vkGetPhysicalDeviceSurfaceSupportKHR | TODO | actually: vkGetDisplayPlaneSupportedDisplaysKHR |
 | Index too large | Validates index is in range of phys device display plane props | PLANE_INDEX_TOO_LARGE | vkGetPhysicalDeviceSurfaceSupportKHR | TODO | actually: vkGetDisplayPlaneSupportedDisplaysKHR |
 | Index too large | Validates index is in range of phys device display plane props | PLANE_INDEX_TOO_LARGE | vkGetPhysicalDeviceSurfaceSupportKHR | TODO | actually: vkGetDisplayPlaneCapabilitiesKHR |

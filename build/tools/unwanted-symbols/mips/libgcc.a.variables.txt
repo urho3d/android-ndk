@@ -1,4 +1,0 @@
-__clz_tab
-__popcount_tab
-__thenan_df
-__thenan_sf

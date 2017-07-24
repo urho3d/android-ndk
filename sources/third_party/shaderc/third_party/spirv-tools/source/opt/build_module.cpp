@@ -15,7 +15,6 @@
 #include "build_module.h"
 
 #include "ir_loader.h"
-#include "libspirv.hpp"
 #include "make_unique.h"
 #include "table.h"
 
@@ -36,8 +35,10 @@ spv_result_t SetSpvHeader(void* builder, spv_endianness_t, uint32_t magic,
 // Processes a parsed instruction for IrLoader. Meets the interface requirement
 // of spvBinaryParse().
 spv_result_t SetSpvInst(void* builder, const spv_parsed_instruction_t* inst) {
-  reinterpret_cast<ir::IrLoader*>(builder)->AddInstruction(inst);
-  return SPV_SUCCESS;
+  if (reinterpret_cast<ir::IrLoader*>(builder)->AddInstruction(inst)) {
+    return SPV_SUCCESS;
+  }
+  return SPV_ERROR_INVALID_BINARY;
 };
 
 }  // annoymous namespace
@@ -64,7 +65,7 @@ std::unique_ptr<ir::Module> BuildModule(spv_target_env env,
 std::unique_ptr<ir::Module> BuildModule(spv_target_env env,
                                         MessageConsumer consumer,
                                         const std::string& text) {
-  SpvTools t(env);
+  SpirvTools t(env);
   t.SetMessageConsumer(consumer);
   std::vector<uint32_t> binary;
   if (!t.Assemble(text, &binary)) return nullptr;

@@ -64,18 +64,65 @@ std::pair<int, string_piece> DecodeLineDirective(string_piece directive) {
   directive = directive.strip("\" \n");
   return std::make_pair(line, directive);
 }
+
+// Returns the Glslang message rules for the given target environment
+// and source language.  We assume only valid combinations are used.
+EShMessages GetMessageRules(shaderc_util::Compiler::TargetEnv env,
+                            shaderc_util::Compiler::SourceLanguage lang) {
+  using shaderc_util::Compiler;
+  EShMessages result = EShMsgCascadingErrors;
+  if (lang == Compiler::SourceLanguage::HLSL) {
+    result = static_cast<EShMessages>(result | EShMsgReadHlsl);
+  }
+  switch (env) {
+    case Compiler::TargetEnv::OpenGLCompat:
+      break;
+    case Compiler::TargetEnv::OpenGL:
+      result = static_cast<EShMessages>(result | EShMsgSpvRules);
+      break;
+    case Compiler::TargetEnv::Vulkan:
+      result =
+          static_cast<EShMessages>(result | EShMsgSpvRules | EShMsgVulkanRules);
+      break;
+  }
+  return result;
+}
+
 }  // anonymous namespace
 
 namespace shaderc_util {
+
+void Compiler::SetLimit(Compiler::Limit limit, int value) {
+  switch (limit) {
+#define RESOURCE(NAME, FIELD, CNAME) \
+  case Limit::NAME:                  \
+    limits_.FIELD = value;           \
+    break;
+#include "libshaderc_util/resources.inc"
+#undef RESOURCE
+  }
+}
+
+int Compiler::GetLimit(Compiler::Limit limit) const {
+  switch (limit) {
+#define RESOURCE(NAME, FIELD, CNAME) \
+  case Limit::NAME:                  \
+    return limits_.FIELD;
+#include "libshaderc_util/resources.inc"
+#undef RESOURCE
+  }
+  return 0;  // Unreachable
+}
+
 std::tuple<bool, std::vector<uint32_t>, size_t> Compiler::Compile(
     const string_piece& input_source_string, EShLanguage forced_shader_stage,
-    const std::string& error_tag,
+    const std::string& error_tag, const char* entry_point_name,
     const std::function<EShLanguage(std::ostream* error_stream,
                                     const string_piece& error_tag)>&
         stage_callback,
     CountingIncluder& includer, OutputType output_type,
     std::ostream* error_stream, size_t* total_warnings, size_t* total_errors,
-    GlslInitializer* initializer) const {
+    GlslangInitializer* initializer) const {
   // Compilation results to be returned:
   // Initialize the result tuple as a failed compilation. In error cases, we
   // should return result_tuple directly without setting its members.
@@ -156,12 +203,14 @@ std::tuple<bool, std::vector<uint32_t>, size_t> Compiler::Compile(
   shader.setStringsWithLengthsAndNames(&shader_strings, &shader_lengths,
                                        &string_names, 1);
   shader.setPreamble(preamble.c_str());
+  shader.setEntryPoint(entry_point_name);
+  shader.setAutoMapBindings(auto_bind_uniforms_);
 
   // TODO(dneto): Generate source-level debug info if requested.
   bool success =
-      shader.parse(&shaderc_util::kDefaultTBuiltInResource, default_version_,
-                   default_profile_, force_version_profile_,
-                   kNotForwardCompatible, message_rules_, includer);
+      shader.parse(&limits_, default_version_, default_profile_,
+                   force_version_profile_, kNotForwardCompatible,
+                   GetMessageRules(target_env_, source_language_), includer);
 
   success &= PrintFilteredErrors(error_tag, error_stream, warnings_as_errors_,
                                  suppress_warnings_, shader.getInfoLog(),
@@ -170,21 +219,40 @@ std::tuple<bool, std::vector<uint32_t>, size_t> Compiler::Compile(
 
   glslang::TProgram program;
   program.addShader(&shader);
-  success = program.link(EShMsgDefault);
+  success = program.link(EShMsgDefault) && program.mapIO();
   success &= PrintFilteredErrors(error_tag, error_stream, warnings_as_errors_,
                                  suppress_warnings_, program.getInfoLog(),
                                  total_warnings, total_errors);
   if (!success) return result_tuple;
 
   // 'spirv' is an alias for the compilation_output_data. This alias is added
-  // to
-  // serve as an input for the call to DissassemblyBinary.
+  // to serve as an input for the call to DissassemblyBinary.
   std::vector<uint32_t>& spirv = compilation_output_data;
   // Note the call to GlslangToSpv also populates compilation_output_data.
   glslang::GlslangToSpv(*program.getIntermediate(used_shader_stage), spirv);
+
+  // Set the tool field (the top 16-bits) in the generator word to
+  // 'Shaderc over Glslang'.
+  const uint32_t shaderc_generator_word = 13; // From SPIR-V XML Registry
+  const uint32_t generator_word_index = 2; // SPIR-V 2.3: Physical layout
+  assert(spirv.size() > generator_word_index);
+  spirv[generator_word_index] =
+      (spirv[generator_word_index] & 0xffff) | (shaderc_generator_word << 16);
+
+  if (!enabled_opt_passes_.empty()) {
+    std::string opt_errors;
+    if (!SpirvToolsOptimize(target_env_, enabled_opt_passes_, &spirv,
+                            &opt_errors)) {
+      *error_stream << "shaderc: internal error: compilation succeeded but "
+                       "failed to optimize: "
+                    << opt_errors << "\n";
+      return result_tuple;
+    }
+  }
+
   if (output_type == OutputType::SpirvAssemblyText) {
     std::string text_or_error;
-    if (!SpirvToolsDisassemble(spirv, &text_or_error)) {
+    if (!SpirvToolsDisassemble(target_env_, spirv, &text_or_error)) {
       *error_stream << "shaderc: internal error: compilation succeeded but "
                        "failed to disassemble: "
                     << text_or_error << "\n";
@@ -209,9 +277,11 @@ void Compiler::AddMacroDefinition(const char* macro, size_t macro_length,
       definition ? std::string(definition, definition_length) : "";
 }
 
-void Compiler::SetMessageRules(EShMessages rules) { message_rules_ = rules; }
+void Compiler::SetTargetEnv(Compiler::TargetEnv env) { target_env_ = env; }
 
-EShMessages Compiler::GetMessageRules() const { return message_rules_; }
+void Compiler::SetSourceLanguage(Compiler::SourceLanguage lang) {
+  source_language_ = lang;
+}
 
 void Compiler::SetForcedVersionProfile(int version, EProfile profile) {
   default_version_ = version;
@@ -221,7 +291,30 @@ void Compiler::SetForcedVersionProfile(int version, EProfile profile) {
 
 void Compiler::SetWarningsAsErrors() { warnings_as_errors_ = true; }
 
-void Compiler::SetGenerateDebugInfo() { generate_debug_info_ = true; }
+void Compiler::SetGenerateDebugInfo() {
+  generate_debug_info_ = true;
+  for (size_t i = 0; i < enabled_opt_passes_.size(); ++i) {
+    if (enabled_opt_passes_[i] == PassId::kStripDebugInfo) {
+      enabled_opt_passes_[i] = PassId::kNullPass;
+    }
+  }
+}
+
+void Compiler::SetOptimizationLevel(Compiler::OptimizationLevel level) {
+  // Clear previous settings first.
+  enabled_opt_passes_.clear();
+
+  switch (level) {
+    case OptimizationLevel::Size:
+      if (!generate_debug_info_) {
+        enabled_opt_passes_.push_back(PassId::kStripDebugInfo);
+      }
+      enabled_opt_passes_.push_back(PassId::kUnifyConstant);
+      break;
+    default:
+      break;
+  }
+}
 
 void Compiler::SetSuppressWarnings() { suppress_warnings_ = true; }
 
@@ -240,14 +333,13 @@ std::tuple<bool, std::string, std::string> Compiler::PreprocessShader(
   // The preprocessor might be sensitive to the target environment.
   // So combine the existing rules with the just-give-me-preprocessor-output
   // flag.
-  const auto rules =
-      static_cast<EShMessages>(EShMsgOnlyPreprocessor | message_rules_);
+  const auto rules = static_cast<EShMessages>(
+      EShMsgOnlyPreprocessor | GetMessageRules(target_env_, source_language_));
 
   std::string preprocessed_shader;
   const bool success = shader.preprocess(
-      &shaderc_util::kDefaultTBuiltInResource, default_version_,
-      default_profile_, force_version_profile_, kNotForwardCompatible, rules,
-      &preprocessed_shader, includer);
+      &limits_, default_version_, default_profile_, force_version_profile_,
+      kNotForwardCompatible, rules, &preprocessed_shader, includer);
 
   if (success) {
     return std::make_tuple(true, preprocessed_shader, shader.getInfoLog());

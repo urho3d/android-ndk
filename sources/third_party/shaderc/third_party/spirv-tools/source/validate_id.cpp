@@ -26,11 +26,13 @@
 #include "instruction.h"
 #include "message.h"
 #include "opcode.h"
+#include "spirv_validator_options.h"
 #include "spirv-tools/libspirv.h"
-#include "val/Function.h"
-#include "val/ValidationState.h"
+#include "val/function.h"
+#include "val/validation_state.h"
 
 using libspirv::ValidationState_t;
+using libspirv::Decoration;
 using std::function;
 using std::ignore;
 using std::make_pair;
@@ -133,6 +135,25 @@ bool idUsage::isValid<SpvOpLine>(const spv_instruction_t* inst,
 }
 
 template <>
+bool idUsage::isValid<SpvOpDecorate>(const spv_instruction_t* inst,
+                                     const spv_opcode_desc) {
+  auto decorationIndex = 2;
+  auto decoration = inst->words[decorationIndex];
+  if (decoration == SpvDecorationSpecId) {
+    auto targetIndex = 1;
+    auto target = module_.FindDef(inst->words[targetIndex]);
+    if (!target || !spvOpcodeIsScalarSpecConstant(target->opcode())) {
+      DIAG(targetIndex) << "OpDecorate SpectId decoration target <id> '"
+                        << inst->words[decorationIndex]
+                        << "' is not a scalar specialization constant.";
+      return false;
+    }
+  }
+  // TODO: Add validations for all decorations.
+  return true;
+}
+
+template <>
 bool idUsage::isValid<SpvOpMemberDecorate>(const spv_instruction_t* inst,
                                            const spv_opcode_desc) {
   auto structTypeIndex = 1;
@@ -147,9 +168,12 @@ bool idUsage::isValid<SpvOpMemberDecorate>(const spv_instruction_t* inst,
   auto member = inst->words[memberIndex];
   auto memberCount = static_cast<uint32_t>(structType->words().size() - 2);
   if (memberCount < member) {
-    DIAG(memberIndex) << "OpMemberDecorate Structure type <id> '"
-                      << inst->words[memberIndex]
-                      << "' member count is less than Member";
+    DIAG(memberIndex) << "Index " << member
+                      << " provided in OpMemberDecorate for struct <id> "
+                      << inst->words[structTypeIndex]
+                      << " is out of bounds. The structure has " << memberCount
+                      << " members. Largest valid index is " << memberCount - 1
+                      << ".";
     return false;
   }
   return true;
@@ -169,11 +193,41 @@ bool idUsage::isValid<SpvOpGroupDecorate>(const spv_instruction_t* inst,
   return true;
 }
 
-#if 0
 template <>
 bool idUsage::isValid<SpvOpGroupMemberDecorate>(
-    const spv_instruction_t *inst, const spv_opcode_desc opcodeEntry) {}
-#endif  // 0
+    const spv_instruction_t* inst, const spv_opcode_desc) {
+  auto decorationGroupIndex = 1;
+  auto decorationGroup = module_.FindDef(inst->words[decorationGroupIndex]);
+  if (!decorationGroup || SpvOpDecorationGroup != decorationGroup->opcode()) {
+    DIAG(decorationGroupIndex)
+        << "OpGroupMemberDecorate Decoration group <id> '"
+        << inst->words[decorationGroupIndex] << "' is not a decoration group.";
+    return false;
+  }
+  // Grammar checks ensures that the number of arguments to this instruction
+  // is an odd number: 1 decoration group + (id,literal) pairs.
+  for (size_t i = 2; i + 1 < inst->words.size(); i = i + 2) {
+    const uint32_t struct_id = inst->words[i];
+    const uint32_t index = inst->words[i + 1];
+    auto struct_instr = module_.FindDef(struct_id);
+    if (!struct_instr || SpvOpTypeStruct != struct_instr->opcode()) {
+      DIAG(i) << "OpGroupMemberDecorate Structure type <id> '" << struct_id
+              << "' is not a struct type.";
+      return false;
+    }
+    const uint32_t num_struct_members =
+        static_cast<uint32_t>(struct_instr->words().size() - 2);
+    if (index >= num_struct_members) {
+      DIAG(i) << "Index " << index
+              << " provided in OpGroupMemberDecorate for struct <id> "
+              << struct_id << " is out of bounds. The structure has "
+              << num_struct_members << " members. Largest valid index is "
+              << num_struct_members - 1 << ".";
+      return false;
+    }
+  }
+  return true;
+}
 
 #if 0
 template <>
@@ -353,15 +407,70 @@ bool idUsage::isValid<SpvOpTypeRuntimeArray>(const spv_instruction_t* inst,
 template <>
 bool idUsage::isValid<SpvOpTypeStruct>(const spv_instruction_t* inst,
                                        const spv_opcode_desc) {
+  ValidationState_t& vstate = const_cast<ValidationState_t&>(module_);
+  const uint32_t struct_id = inst->words[1];
   for (size_t memberTypeIndex = 2; memberTypeIndex < inst->words.size();
        ++memberTypeIndex) {
-    auto memberType = module_.FindDef(inst->words[memberTypeIndex]);
+    auto memberTypeId = inst->words[memberTypeIndex];
+    auto memberType = module_.FindDef(memberTypeId);
     if (!memberType || !spvOpcodeGeneratesType(memberType->opcode())) {
       DIAG(memberTypeIndex) << "OpTypeStruct Member Type <id> '"
                             << inst->words[memberTypeIndex]
                             << "' is not a type.";
       return false;
     }
+    if (SpvOpTypeStruct == memberType->opcode() &&
+        module_.IsStructTypeWithBuiltInMember(memberTypeId)) {
+      DIAG(memberTypeIndex)
+          << "Structure <id> " << memberTypeId
+          << " contains members with BuiltIn decoration. Therefore this "
+             "structure may not be contained as a member of another structure "
+             "type. Structure <id> "
+          << struct_id << " contains structure <id> " << memberTypeId << ".";
+      return false;
+    }
+    if (module_.IsForwardPointer(memberTypeId)) {
+      if (memberType->opcode() != SpvOpTypePointer) {
+        DIAG(memberTypeIndex) << "Found a forward reference to a non-pointer "
+                                 "type in OpTypeStruct instruction.";
+        return false;
+      }
+      // If we're dealing with a forward pointer:
+      // Find out the type that the pointer is pointing to (must be struct)
+      // word 3 is the <id> of the type being pointed to.
+      auto typePointingTo = module_.FindDef(memberType->words()[3]);
+      if (typePointingTo && typePointingTo->opcode() != SpvOpTypeStruct) {
+        // Forward declared operands of a struct may only point to a struct.
+        DIAG(memberTypeIndex)
+            << "A forward reference operand in an OpTypeStruct must be an "
+               "OpTypePointer that points to an OpTypeStruct. "
+               "Found OpTypePointer that points to Op"
+            << spvOpcodeString(static_cast<SpvOp>(typePointingTo->opcode()))
+            << ".";
+        return false;
+      }
+    }
+  }
+  std::unordered_set<uint32_t> built_in_members;
+  for (auto decoration : vstate.id_decorations(struct_id)) {
+    if (decoration.dec_type() == SpvDecorationBuiltIn &&
+        decoration.struct_member_index() != Decoration::kInvalidMember) {
+      built_in_members.insert(decoration.struct_member_index());
+    }
+  }
+  int num_struct_members = static_cast<int>(inst->words.size() - 2);
+  int num_builtin_members = static_cast<int>(built_in_members.size());
+  if (num_builtin_members > 0 && num_builtin_members != num_struct_members) {
+    DIAG(0)
+        << "When BuiltIn decoration is applied to a structure-type member, "
+           "all members of that structure type must also be decorated with "
+           "BuiltIn (No allowed mixing of built-in variables and "
+           "non-built-in variables within a single structure). Structure id "
+        << struct_id << " does not meet this requirement.";
+    return false;
+  }
+  if (num_builtin_members > 0) {
+    vstate.RegisterStructTypeWithBuiltInMember(struct_id);
   }
   return true;
 }
@@ -389,14 +498,25 @@ bool idUsage::isValid<SpvOpTypeFunction>(const spv_instruction_t* inst,
                           << inst->words[returnTypeIndex] << "' is not a type.";
     return false;
   }
+  size_t num_args = 0;
   for (size_t paramTypeIndex = 3; paramTypeIndex < inst->words.size();
-       ++paramTypeIndex) {
+       ++paramTypeIndex, ++num_args) {
     auto paramType = module_.FindDef(inst->words[paramTypeIndex]);
     if (!paramType || !spvOpcodeGeneratesType(paramType->opcode())) {
       DIAG(paramTypeIndex) << "OpTypeFunction Parameter Type <id> '"
                            << inst->words[paramTypeIndex] << "' is not a type.";
       return false;
     }
+  }
+  const uint32_t num_function_args_limit =
+      module_.options()->universal_limits_.max_function_args;
+  if (num_args > num_function_args_limit) {
+    DIAG(returnTypeIndex) << "OpTypeFunction may not take more than "
+                          << num_function_args_limit
+                          << " arguments. OpTypeFunction <id> '"
+                          << inst->words[1] << "' has " << num_args
+                          << " arguments.";
+    return false;
   }
   return true;
 }
@@ -591,7 +711,8 @@ bool idUsage::isValid<SpvOpConstantComposite>(const spv_instruction_t* inst,
            constituentIndex < inst->words.size();
            constituentIndex++, memberIndex++) {
         auto constituent = module_.FindDef(inst->words[constituentIndex]);
-        if (!constituent || !spvOpcodeIsConstantOrUndef(constituent->opcode())) {
+        if (!constituent ||
+            !spvOpcodeIsConstantOrUndef(constituent->opcode())) {
           DIAG(constituentIndex) << "OpConstantComposite Constituent <id> '"
                                  << inst->words[constituentIndex]
                                  << "' is not a constant or undef.";
@@ -710,11 +831,245 @@ bool idUsage::isValid<SpvOpSpecConstantFalse>(const spv_instruction_t* inst,
   return true;
 }
 
-#if 0
 template <>
-bool idUsage::isValid<SpvOpSpecConstantComposite>(
-    const spv_instruction_t *inst, const spv_opcode_desc opcodeEntry) {}
-#endif
+bool idUsage::isValid<SpvOpSampledImage>(const spv_instruction_t* inst,
+                                         const spv_opcode_desc) {
+  auto resultTypeIndex = 2;
+  auto resultID = inst->words[resultTypeIndex];
+  auto sampledImageInstr = module_.FindDef(resultID);
+  // We need to validate 2 things:
+  // * All OpSampledImage instructions must be in the same block in which their
+  // Result <id> are consumed.
+  // * Result <id> from OpSampledImage instructions must not appear as operands
+  // to OpPhi instructions or OpSelect instructions, or any instructions other
+  // than the image lookup and query instructions specified to take an operand
+  // whose type is OpTypeSampledImage.
+  std::vector<uint32_t> consumers = module_.getSampledImageConsumers(resultID);
+  if (!consumers.empty()) {
+    for (auto consumer_id : consumers) {
+      auto consumer_instr = module_.FindDef(consumer_id);
+      auto consumer_opcode = consumer_instr->opcode();
+      if (consumer_instr->block() != sampledImageInstr->block()) {
+        DIAG(resultTypeIndex)
+            << "All OpSampledImage instructions must be in the same block in "
+               "which their Result <id> are consumed. OpSampledImage Result "
+               "Type <id> '"
+            << resultID << "' has a consumer in a different basic "
+                           "block. The consumer instruction <id> is '"
+            << consumer_id << "'.";
+        return false;
+      }
+      // TODO: The following check is incomplete. We should also check that the
+      // Sampled Image is not used by instructions that should not take
+      // SampledImage as an argument. We could find the list of valid
+      // instructions by scanning for "Sampled Image" in the operand description
+      // field in the grammar file.
+      if (consumer_opcode == SpvOpPhi || consumer_opcode == SpvOpSelect) {
+        DIAG(resultTypeIndex)
+            << "Result <id> from OpSampledImage instruction must not appear as "
+               "operands of Op"
+            << spvOpcodeString(static_cast<SpvOp>(consumer_opcode)) << "."
+            << " Found result <id> '" << resultID << "' as an operand of <id> '"
+            << consumer_id << "'.";
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+template <>
+bool idUsage::isValid<SpvOpSpecConstantComposite>(const spv_instruction_t* inst,
+                                                  const spv_opcode_desc) {
+  // The result type must be a composite type.
+  auto resultTypeIndex = 1;
+  auto resultType = module_.FindDef(inst->words[resultTypeIndex]);
+  if (!resultType || !spvOpcodeIsComposite(resultType->opcode())) {
+    DIAG(resultTypeIndex) << "OpSpecConstantComposite Result Type <id> '"
+                          << inst->words[resultTypeIndex]
+                          << "' is not a composite type.";
+    return false;
+  }
+  // Validation checks differ based on the type of composite type.
+  auto constituentCount = inst->words.size() - 3;
+  switch (resultType->opcode()) {
+    // For Vectors, the following must be met:
+    // * Number of constituents in the result type and the vector must match.
+    // * All the components of the vector must have the same type (or specialize
+    // to the same type). OpConstant and OpSpecConstant are allowed.
+    // To check that condition, we check each supplied value argument's type
+    // against the element type of the result type.
+    case SpvOpTypeVector: {
+      auto componentCount = resultType->words()[3];
+      if (componentCount != constituentCount) {
+        DIAG(inst->words.size() - 1)
+            << "OpSpecConstantComposite Constituent <id> count does not match "
+               "Result Type <id> '"
+            << resultType->id() << "'s vector component count.";
+        return false;
+      }
+      auto componentType = module_.FindDef(resultType->words()[2]);
+      assert(componentType);
+      for (size_t constituentIndex = 3; constituentIndex < inst->words.size();
+           constituentIndex++) {
+        auto constituent = module_.FindDef(inst->words[constituentIndex]);
+        if (!constituent ||
+            !spvOpcodeIsConstantOrUndef(constituent->opcode())) {
+          DIAG(constituentIndex) << "OpSpecConstantComposite Constituent <id> '"
+                                 << inst->words[constituentIndex]
+                                 << "' is not a constant or undef.";
+          return false;
+        }
+        auto constituentResultType = module_.FindDef(constituent->type_id());
+        if (!constituentResultType ||
+            componentType->opcode() != constituentResultType->opcode()) {
+          DIAG(constituentIndex) << "OpSpecConstantComposite Constituent <id> '"
+                                 << inst->words[constituentIndex]
+                                 << "'s type does not match Result Type <id> '"
+                                 << resultType->id()
+                                 << "'s vector element type.";
+          return false;
+        }
+      }
+      break;
+    }
+    case SpvOpTypeMatrix: {
+      auto columnCount = resultType->words()[3];
+      if (columnCount != constituentCount) {
+        DIAG(inst->words.size() - 1)
+            << "OpSpecConstantComposite Constituent <id> count does not match "
+               "Result Type <id> '"
+            << resultType->id() << "'s matrix column count.";
+        return false;
+      }
+
+      auto columnType = module_.FindDef(resultType->words()[2]);
+      assert(columnType);
+      auto componentCount = columnType->words()[3];
+      auto componentType = module_.FindDef(columnType->words()[2]);
+      assert(componentType);
+
+      for (size_t constituentIndex = 3; constituentIndex < inst->words.size();
+           constituentIndex++) {
+        auto constituent = module_.FindDef(inst->words[constituentIndex]);
+        auto constituentOpCode = constituent->opcode();
+        if (!constituent ||
+            !(SpvOpSpecConstantComposite == constituentOpCode ||
+              SpvOpConstantComposite == constituentOpCode ||
+              SpvOpUndef == constituentOpCode)) {
+          // The message says "... or undef" because the spec does not say
+          // undef is a constant.
+          DIAG(constituentIndex) << "OpSpecConstantComposite Constituent <id> '"
+                                 << inst->words[constituentIndex]
+                                 << "' is not a constant composite or undef.";
+          return false;
+        }
+        auto vector = module_.FindDef(constituent->type_id());
+        assert(vector);
+        if (columnType->opcode() != vector->opcode()) {
+          DIAG(constituentIndex) << "OpSpecConstantComposite Constituent <id> '"
+                                 << inst->words[constituentIndex]
+                                 << "' type does not match Result Type <id> '"
+                                 << resultType->id()
+                                 << "'s matrix column type.";
+          return false;
+        }
+        auto vectorComponentType = module_.FindDef(vector->words()[2]);
+        assert(vectorComponentType);
+        if (componentType->id() != vectorComponentType->id()) {
+          DIAG(constituentIndex)
+              << "OpSpecConstantComposite Constituent <id> '"
+              << inst->words[constituentIndex]
+              << "' component type does not match Result Type <id> '"
+              << resultType->id() << "'s matrix column component type.";
+          return false;
+        }
+        if (componentCount != vector->words()[3]) {
+          DIAG(constituentIndex)
+              << "OpSpecConstantComposite Constituent <id> '"
+              << inst->words[constituentIndex]
+              << "' vector component count does not match Result Type <id> '"
+              << resultType->id() << "'s vector component count.";
+          return false;
+        }
+      }
+      break;
+    }
+    case SpvOpTypeArray: {
+      auto elementType = module_.FindDef(resultType->words()[2]);
+      assert(elementType);
+      auto length = module_.FindDef(resultType->words()[3]);
+      assert(length);
+      if (length->words()[3] != constituentCount) {
+        DIAG(inst->words.size() - 1)
+            << "OpSpecConstantComposite Constituent count does not match "
+               "Result Type <id> '"
+            << resultType->id() << "'s array length.";
+        return false;
+      }
+      for (size_t constituentIndex = 3; constituentIndex < inst->words.size();
+           constituentIndex++) {
+        auto constituent = module_.FindDef(inst->words[constituentIndex]);
+        if (!constituent ||
+            !spvOpcodeIsConstantOrUndef(constituent->opcode())) {
+          DIAG(constituentIndex) << "OpSpecConstantComposite Constituent <id> '"
+                                 << inst->words[constituentIndex]
+                                 << "' is not a constant or undef.";
+          return false;
+        }
+        auto constituentType = module_.FindDef(constituent->type_id());
+        assert(constituentType);
+        if (elementType->id() != constituentType->id()) {
+          DIAG(constituentIndex) << "OpSpecConstantComposite Constituent <id> '"
+                                 << inst->words[constituentIndex]
+                                 << "'s type does not match Result Type <id> '"
+                                 << resultType->id()
+                                 << "'s array element type.";
+          return false;
+        }
+      }
+      break;
+    }
+    case SpvOpTypeStruct: {
+      auto memberCount = resultType->words().size() - 2;
+      if (memberCount != constituentCount) {
+        DIAG(resultTypeIndex) << "OpSpecConstantComposite Constituent <id> '"
+                              << inst->words[resultTypeIndex]
+                              << "' count does not match Result Type <id> '"
+                              << resultType->id() << "'s struct member count.";
+        return false;
+      }
+      for (uint32_t constituentIndex = 3, memberIndex = 2;
+           constituentIndex < inst->words.size();
+           constituentIndex++, memberIndex++) {
+        auto constituent = module_.FindDef(inst->words[constituentIndex]);
+        if (!constituent ||
+            !spvOpcodeIsConstantOrUndef(constituent->opcode())) {
+          DIAG(constituentIndex) << "OpSpecConstantComposite Constituent <id> '"
+                                 << inst->words[constituentIndex]
+                                 << "' is not a constant or undef.";
+          return false;
+        }
+        auto constituentType = module_.FindDef(constituent->type_id());
+        assert(constituentType);
+
+        auto memberType = module_.FindDef(resultType->words()[memberIndex]);
+        assert(memberType);
+        if (memberType->id() != constituentType->id()) {
+          DIAG(constituentIndex)
+              << "OpSpecConstantComposite Constituent <id> '"
+              << inst->words[constituentIndex]
+              << "' type does not match the Result Type <id> '"
+              << resultType->id() << "'s member type.";
+          return false;
+        }
+      }
+      break;
+    }
+    default: { assert(0 && "Unreachable!"); } break;
+  }
+  return true;
+}
 
 #if 0
 template <>
@@ -723,7 +1078,7 @@ bool idUsage::isValid<SpvOpSpecConstantOp>(const spv_instruction_t *inst) {}
 
 template <>
 bool idUsage::isValid<SpvOpVariable>(const spv_instruction_t* inst,
-                                     const spv_opcode_desc opcodeEntry) {
+                                     const spv_opcode_desc) {
   auto resultTypeIndex = 1;
   auto resultType = module_.FindDef(inst->words[resultTypeIndex]);
   if (!resultType || SpvOpTypePointer != resultType->opcode()) {
@@ -732,13 +1087,19 @@ bool idUsage::isValid<SpvOpVariable>(const spv_instruction_t* inst,
                           << "' is not a pointer type.";
     return false;
   }
-  if (opcodeEntry->numTypes < inst->words.size()) {
-    auto initialiserIndex = 4;
-    auto initialiser = module_.FindDef(inst->words[initialiserIndex]);
-    if (!initialiser || !spvOpcodeIsConstant(initialiser->opcode())) {
+  const auto initialiserIndex = 4;
+  if (initialiserIndex < inst->words.size()) {
+    const auto initialiser = module_.FindDef(inst->words[initialiserIndex]);
+    const auto storageClassIndex = 3;
+    const auto is_module_scope_var =
+        initialiser && (initialiser->opcode() == SpvOpVariable) &&
+        (initialiser->word(storageClassIndex) != SpvStorageClassFunction);
+    const auto is_constant =
+        initialiser && spvOpcodeIsConstant(initialiser->opcode());
+    if (!initialiser || !(is_constant || is_module_scope_var)) {
       DIAG(initialiserIndex) << "OpVariable Initializer <id> '"
                              << inst->words[initialiserIndex]
-                             << "' is not a constant.";
+                             << "' is not a constant or module-scope variable.";
       return false;
     }
   }
@@ -919,17 +1280,178 @@ bool idUsage::isValid<SpvOpCopyMemorySized>(const spv_instruction_t* inst,
   return true;
 }
 
-#if 0
 template <>
-bool idUsage::isValid<SpvOpAccessChain>(const spv_instruction_t *inst,
-                                        const spv_opcode_desc opcodeEntry) {}
-#endif
+bool idUsage::isValid<SpvOpAccessChain>(const spv_instruction_t* inst,
+                                        const spv_opcode_desc) {
+  std::string instr_name =
+      "Op" + std::string(spvOpcodeString(static_cast<SpvOp>(inst->opcode)));
 
-#if 0
+  // The result type must be OpTypePointer. Result Type is at word 1.
+  auto resultTypeIndex = 1;
+  auto resultTypeInstr = module_.FindDef(inst->words[resultTypeIndex]);
+  if (SpvOpTypePointer != resultTypeInstr->opcode()) {
+    DIAG(resultTypeIndex) << "The Result Type of " << instr_name << " <id> '"
+                          << inst->words[2]
+                          << "' must be OpTypePointer. Found Op"
+                          << spvOpcodeString(
+                                 static_cast<SpvOp>(resultTypeInstr->opcode()))
+                          << ".";
+    return false;
+  }
+
+  // Result type is a pointer. Find out what it's pointing to.
+  // This will be used to make sure the indexing results in the same type.
+  // OpTypePointer word 3 is the type being pointed to.
+  auto resultTypePointedTo = module_.FindDef(resultTypeInstr->word(3));
+
+  // Base must be a pointer, pointing to the base of a composite object.
+  auto baseIdIndex = 3;
+  auto baseInstr = module_.FindDef(inst->words[baseIdIndex]);
+  auto baseTypeInstr = module_.FindDef(baseInstr->type_id());
+  if (!baseTypeInstr || SpvOpTypePointer != baseTypeInstr->opcode()) {
+    DIAG(baseIdIndex) << "The Base <id> '" << inst->words[baseIdIndex]
+                      << "' in " << instr_name
+                      << " instruction must be a pointer.";
+    return false;
+  }
+
+  // The result pointer storage class and base pointer storage class must match.
+  // Word 2 of OpTypePointer is the Storage Class.
+  auto resultTypeStorageClass = resultTypeInstr->word(2);
+  auto baseTypeStorageClass = baseTypeInstr->word(2);
+  if (resultTypeStorageClass != baseTypeStorageClass) {
+    DIAG(resultTypeIndex) << "The result pointer storage class and base "
+                             "pointer storage class in "
+                          << instr_name << " do not match.";
+    return false;
+  }
+
+  // The type pointed to by OpTypePointer (word 3) must be a composite type.
+  auto typePointedTo = module_.FindDef(baseTypeInstr->word(3));
+
+  // Check Universal Limit (SPIR-V Spec. Section 2.17).
+  // The number of indexes passed to OpAccessChain may not exceed 255
+  // The instruction includes 4 words + N words (for N indexes)
+  const size_t num_indexes = inst->words.size() - 4;
+  const size_t num_indexes_limit =
+      module_.options()->universal_limits_.max_access_chain_indexes;
+  if (num_indexes > num_indexes_limit) {
+    DIAG(resultTypeIndex) << "The number of indexes in " << instr_name
+                          << " may not exceed " << num_indexes_limit
+                          << ". Found " << num_indexes << " indexes.";
+    return false;
+  }
+  // Indexes walk the type hierarchy to the desired depth, potentially down to
+  // scalar granularity. The first index in Indexes will select the top-level
+  // member/element/component/element of the base composite. All composite
+  // constituents use zero-based numbering, as described by their OpType...
+  // instruction. The second index will apply similarly to that result, and so
+  // on. Once any non-composite type is reached, there must be no remaining
+  // (unused) indexes.
+  for (size_t i = 4; i < inst->words.size(); ++i) {
+    const uint32_t cur_word = inst->words[i];
+    // Earlier ID checks ensure that cur_word definition exists.
+    auto cur_word_instr = module_.FindDef(cur_word);
+    // The index must be a scalar integer type (See OpAccessChain in the Spec.)
+    auto indexTypeInstr = module_.FindDef(cur_word_instr->type_id());
+    if (!indexTypeInstr || SpvOpTypeInt != indexTypeInstr->opcode()) {
+      DIAG(i) << "Indexes passed to " << instr_name
+              << " must be of type integer.";
+      return false;
+    }
+    switch (typePointedTo->opcode()) {
+      case SpvOpTypeMatrix:
+      case SpvOpTypeVector:
+      case SpvOpTypeArray:
+      case SpvOpTypeRuntimeArray: {
+        // In OpTypeMatrix, OpTypeVector, OpTypeArray, and OpTypeRuntimeArray,
+        // word 2 is the Element Type.
+        typePointedTo = module_.FindDef(typePointedTo->word(2));
+        break;
+      }
+      case SpvOpTypeStruct: {
+        // In case of structures, there is an additional constraint on the
+        // index: the index must be an OpConstant.
+        if (SpvOpConstant != cur_word_instr->opcode()) {
+          DIAG(i) << "The <id> passed to " << instr_name
+                  << " to index into a "
+                     "structure must be an OpConstant.";
+          return false;
+        }
+        // Get the index value from the OpConstant (word 3 of OpConstant).
+        // OpConstant could be a signed integer. But it's okay to treat it as
+        // unsigned because a negative constant int would never be seen as
+        // correct as a struct offset, since structs can't have more than 2
+        // billion members.
+        const uint32_t cur_index = cur_word_instr->word(3);
+        // The index points to the struct member we want, therefore, the index
+        // should be less than the number of struct members.
+        const uint32_t num_struct_members =
+            static_cast<uint32_t>(typePointedTo->words().size() - 2);
+        if (cur_index >= num_struct_members) {
+          DIAG(i) << "Index is out of bounds: " << instr_name
+                  << " can not find index " << cur_index
+                  << " into the structure <id> '" << typePointedTo->id()
+                  << "'. This structure has " << num_struct_members
+                  << " members. Largest valid index is "
+                  << num_struct_members - 1 << ".";
+          return false;
+        }
+        // Struct members IDs start at word 2 of OpTypeStruct.
+        auto structMemberId = typePointedTo->word(cur_index + 2);
+        typePointedTo = module_.FindDef(structMemberId);
+        break;
+      }
+      default: {
+        // Give an error. reached non-composite type while indexes still remain.
+        DIAG(i) << instr_name << " reached non-composite type while indexes "
+                                 "still remain to be traversed.";
+        return false;
+      }
+    }
+  }
+  // At this point, we have fully walked down from the base using the indeces.
+  // The type being pointed to should be the same as the result type.
+  if (typePointedTo->id() != resultTypePointedTo->id()) {
+    DIAG(resultTypeIndex)
+        << instr_name << " result type (Op"
+        << spvOpcodeString(static_cast<SpvOp>(resultTypePointedTo->opcode()))
+        << ") does not match the type that results from indexing into the base "
+           "<id> (Op"
+        << spvOpcodeString(static_cast<SpvOp>(typePointedTo->opcode())) << ").";
+    return false;
+  }
+
+  return true;
+}
+
 template <>
 bool idUsage::isValid<SpvOpInBoundsAccessChain>(
-    const spv_instruction_t *inst, const spv_opcode_desc opcodeEntry) {}
-#endif
+    const spv_instruction_t* inst, const spv_opcode_desc opcodeEntry) {
+  return isValid<SpvOpAccessChain>(inst, opcodeEntry);
+}
+
+template <>
+bool idUsage::isValid<SpvOpPtrAccessChain>(const spv_instruction_t* inst,
+                                           const spv_opcode_desc opcodeEntry) {
+  // OpPtrAccessChain's validation rules are similar to OpAccessChain, with one
+  // difference: word 4 must be id of an integer (Element <id>).
+  // The grammar guarantees that there are at least 5 words in the instruction
+  // (i.e. if there are fewer than 5 words, the SPIR-V code will not compile.)
+  int elem_index = 4;
+  // We can remove the Element <id> from the instruction words, and simply call
+  // the validation code of OpAccessChain.
+  spv_instruction_t new_inst = *inst;
+  new_inst.words.erase(new_inst.words.begin() + elem_index);
+  return isValid<SpvOpAccessChain>(&new_inst, opcodeEntry);
+}
+
+template <>
+bool idUsage::isValid<SpvOpInBoundsPtrAccessChain>(
+    const spv_instruction_t* inst, const spv_opcode_desc opcodeEntry) {
+  // Has the same validation rules as OpPtrAccessChain
+  return isValid<SpvOpPtrAccessChain>(inst, opcodeEntry);
+}
 
 #if 0
 template <>
@@ -1177,17 +1699,195 @@ bool idUsage::isValid<OpCompositeConstruct>(
     const spv_instruction_t *inst, const spv_opcode_desc opcodeEntry) {}
 #endif
 
-#if 0
-template <>
-bool idUsage::isValid<OpCompositeExtract>(
-    const spv_instruction_t *inst, const spv_opcode_desc opcodeEntry) {}
-#endif
+// Walks the composite type hierarchy starting from the base.
+// At each step, the iterator is dereferenced to get the next literal index.
+// Indexes walk the type hierarchy to the desired depth, potentially down to
+// scalar granularity. The first index in Indexes will select the top-level
+// member/element/component/element of the base composite. All composite
+// constituents use zero-based numbering, as described by their OpType...
+// instruction. The second index will apply similarly to that result, and so
+// on. Once any non-composite type is reached, there must be no remaining
+// (unused) indexes.
+// Returns true on success and false otherwise.
+// If successful, the final type reached by indexing is returned by reference.
+// If an error occurs, the error string is returned by reference.
+bool walkCompositeTypeHierarchy(
+    const ValidationState_t& module,
+    std::vector<uint32_t>::const_iterator word_iter,
+    std::vector<uint32_t>::const_iterator word_iter_end,
+    const libspirv::Instruction* base,
+    const libspirv::Instruction** result_type_instr,
+    std::function<std::string(void)> instr_name, std::ostream* error) {
+  auto cur_type = base;
+  for (; word_iter != word_iter_end; ++word_iter) {
+    switch (cur_type->opcode()) {
+      case SpvOpTypeMatrix:
+      case SpvOpTypeVector:
+      case SpvOpTypeArray:
+      case SpvOpTypeRuntimeArray: {
+        // In OpTypeMatrix, OpTypeVector, OpTypeArray, and OpTypeRuntimeArray,
+        // word 2 is the Element Type.
+        cur_type = module.FindDef(cur_type->word(2));
+        break;
+      }
+      case SpvOpTypeStruct: {
+        // Get the index into the structure.
+        const uint32_t cur_index = *word_iter;
+        // The index points to the struct member we want, therefore, the index
+        // should be less than the number of struct members.
+        const uint32_t num_struct_members =
+            static_cast<uint32_t>(cur_type->words().size() - 2);
+        if (cur_index >= num_struct_members) {
+          *error << "Index is out of bounds: " << instr_name()
+                 << " can not find index " << cur_index
+                 << " into the structure <id> '" << cur_type->id()
+                 << "'. This structure has " << num_struct_members
+                 << " members. Largest valid index is "
+                 << num_struct_members - 1 << ".";
+          return false;
+        }
+        // Struct members IDs start at word 2 of OpTypeStruct.
+        auto structMemberId = cur_type->word(cur_index + 2);
+        cur_type = module.FindDef(structMemberId);
+        break;
+      }
+      default: {
+        // Give an error. reached non-composite type while indexes still remain.
+        *error << instr_name() << " reached non-composite type while indexes "
+                                  "still remain to be traversed.";
+        return false;
+      }
+    }
+  }
+  *result_type_instr = cur_type;
+  return true;
+}
 
-#if 0
 template <>
-bool idUsage::isValid<OpCompositeInsert>(
-    const spv_instruction_t *inst, const spv_opcode_desc opcodeEntry) {}
-#endif
+bool idUsage::isValid<SpvOpCompositeExtract>(const spv_instruction_t* inst,
+                                             const spv_opcode_desc) {
+  auto instr_name = [&inst]() {
+    std::string name =
+        "Op" + std::string(spvOpcodeString(static_cast<SpvOp>(inst->opcode)));
+    return name;
+  };
+
+  // Remember the result type. Result Type is at word 1.
+  // This will be used to make sure the indexing results in the same type.
+  const size_t resultTypeIndex = 1;
+  auto resultTypeInstr = module_.FindDef(inst->words[resultTypeIndex]);
+
+  // The Composite <id> is at word 3. ID definition checks ensure this id is
+  // already defined.
+  auto baseInstr = module_.FindDef(inst->words[3]);
+  auto curTypeInstr = module_.FindDef(baseInstr->type_id());
+
+  // Check Universal Limit (SPIR-V Spec. Section 2.17).
+  // The number of indexes passed to OpCompositeExtract may not exceed 255.
+  // The instruction includes 4 words + N words (for N indexes)
+  const size_t num_indexes = inst->words.size() - 4;
+  const size_t num_indexes_limit = 255;
+  if (num_indexes > num_indexes_limit) {
+    DIAG(resultTypeIndex) << "The number of indexes in " << instr_name()
+                          << " may not exceed " << num_indexes_limit
+                          << ". Found " << num_indexes << " indexes.";
+    return false;
+  }
+
+  // Walk down the composite type structure. Indexes start at word 4.
+  const libspirv::Instruction* indexedTypeInstr = nullptr;
+  std::ostringstream error;
+  bool success = walkCompositeTypeHierarchy(
+      module_, inst->words.begin() + 4, inst->words.end(), curTypeInstr,
+      &indexedTypeInstr, instr_name, &error);
+  if (!success) {
+    DIAG(resultTypeIndex) << error.str();
+    return success;
+  }
+
+  // At this point, we have fully walked down from the base using the indexes.
+  // The type being pointed to should be the same as the result type.
+  if (indexedTypeInstr->id() != resultTypeInstr->id()) {
+    DIAG(resultTypeIndex)
+        << instr_name() << " result type (Op"
+        << spvOpcodeString(static_cast<SpvOp>(resultTypeInstr->opcode()))
+        << ") does not match the type that results from indexing into the "
+           "composite (Op"
+        << spvOpcodeString(static_cast<SpvOp>(indexedTypeInstr->opcode()))
+        << ").";
+    return false;
+  }
+
+  return true;
+}
+
+template <>
+bool idUsage::isValid<SpvOpCompositeInsert>(const spv_instruction_t* inst,
+                                            const spv_opcode_desc) {
+  auto instr_name = [&inst]() {
+    std::string name =
+        "Op" + std::string(spvOpcodeString(static_cast<SpvOp>(inst->opcode)));
+    return name;
+  };
+
+  // Result Type must be the same as Composite type. Result Type <id> is the
+  // word at index 1. Composite is at word 4.
+  // The grammar guarantees that the instruction has at least 5 words.
+  // ID definition checks ensure these IDs are already defined.
+  const size_t resultTypeIndex = 1;
+  const size_t compositeIndex = 4;
+  auto resultTypeInstr = module_.FindDef(inst->words[resultTypeIndex]);
+  auto compositeInstr = module_.FindDef(inst->words[compositeIndex]);
+  auto compositeTypeInstr = module_.FindDef(compositeInstr->type_id());
+  if (resultTypeInstr != compositeTypeInstr) {
+    DIAG(resultTypeIndex)
+        << "The Result Type must be the same as Composite type in "
+        << instr_name() << ".";
+    return false;
+  }
+
+  // Check Universal Limit (SPIR-V Spec. Section 2.17).
+  // The number of indexes passed to OpCompositeInsert may not exceed 255.
+  // The instruction includes 5 words + N words (for N indexes)
+  const size_t num_indexes = inst->words.size() - 5;
+  const size_t num_indexes_limit = 255;
+  if (num_indexes > num_indexes_limit) {
+    DIAG(resultTypeIndex) << "The number of indexes in " << instr_name()
+                          << " may not exceed " << num_indexes_limit
+                          << ". Found " << num_indexes << " indexes.";
+    return false;
+  }
+
+  // Walk the composite type structure. Indexes start at word 5.
+  const libspirv::Instruction* indexedTypeInstr = nullptr;
+  std::ostringstream error;
+  bool success = walkCompositeTypeHierarchy(
+      module_, inst->words.begin() + 5, inst->words.end(), compositeTypeInstr,
+      &indexedTypeInstr, instr_name, &error);
+  if (!success) {
+    DIAG(resultTypeIndex) << error.str();
+    return success;
+  }
+
+  // At this point, we have fully walked down from the base using the indexes.
+  // The type being pointed to should be the same as the object type that is
+  // about to be inserted.
+  auto objectIdIndex = 3;
+  auto objectInstr = module_.FindDef(inst->words[objectIdIndex]);
+  auto objectTypeInstr = module_.FindDef(objectInstr->type_id());
+  if (indexedTypeInstr->id() != objectTypeInstr->id()) {
+    DIAG(objectIdIndex)
+        << "The Object type (Op"
+        << spvOpcodeString(static_cast<SpvOp>(objectTypeInstr->opcode()))
+        << ") in " << instr_name() << " does not match the type that results "
+                                      "from indexing into the Composite (Op"
+        << spvOpcodeString(static_cast<SpvOp>(indexedTypeInstr->opcode()))
+        << ").";
+    return false;
+  }
+
+  return true;
+}
 
 #if 0
 template <>
@@ -2127,9 +2827,10 @@ bool idUsage::isValid(const spv_instruction_t* inst) {
     TODO(OpUndef)
     CASE(OpMemberName)
     CASE(OpLine)
+    CASE(OpDecorate)
     CASE(OpMemberDecorate)
     CASE(OpGroupDecorate)
-    TODO(OpGroupMemberDecorate)
+    CASE(OpGroupMemberDecorate)
     TODO(OpExtInst)
     CASE(OpEntryPoint)
     CASE(OpExecutionMode)
@@ -2149,15 +2850,18 @@ bool idUsage::isValid(const spv_instruction_t* inst) {
     CASE(OpConstantNull)
     CASE(OpSpecConstantTrue)
     CASE(OpSpecConstantFalse)
-    TODO(OpSpecConstantComposite)
+    CASE(OpSpecConstantComposite)
+    CASE(OpSampledImage)
     TODO(OpSpecConstantOp)
     CASE(OpVariable)
     CASE(OpLoad)
     CASE(OpStore)
     CASE(OpCopyMemory)
     CASE(OpCopyMemorySized)
-    TODO(OpAccessChain)
-    TODO(OpInBoundsAccessChain)
+    CASE(OpAccessChain)
+    CASE(OpInBoundsAccessChain)
+    CASE(OpPtrAccessChain)
+    CASE(OpInBoundsPtrAccessChain)
     TODO(OpArrayLength)
     TODO(OpGenericPtrMemSemantics)
     CASE(OpFunction)
@@ -2181,8 +2885,8 @@ bool idUsage::isValid(const spv_instruction_t* inst) {
     TODO(OpVectorInsertDynamic)
     TODO(OpVectorShuffle)
     TODO(OpCompositeConstruct)
-    TODO(OpCompositeExtract)
-    TODO(OpCompositeInsert)
+    CASE(OpCompositeExtract)
+    CASE(OpCompositeInsert)
     TODO(OpCopyObject)
     TODO(OpTranspose)
     TODO(OpSNegate)
@@ -2347,6 +3051,7 @@ function<bool(unsigned)> getCanBeForwardDeclaredFunction(SpvOp opcode) {
     case SpvOpSelectionMerge:
     case SpvOpDecorate:
     case SpvOpMemberDecorate:
+    case SpvOpTypeStruct:
     case SpvOpBranch:
     case SpvOpLoopMerge:
       out = [](unsigned) { return true; };
@@ -2383,7 +3088,9 @@ function<bool(unsigned)> getCanBeForwardDeclaredFunction(SpvOp opcode) {
       // The Invoke parameter.
       out = [](unsigned index) { return index == 2; };
       break;
-
+    case SpvOpTypeForwardPointer:
+      out = [](unsigned index) { return index == 0; };
+      break;
     default:
       out = [](unsigned) { return false; };
       break;

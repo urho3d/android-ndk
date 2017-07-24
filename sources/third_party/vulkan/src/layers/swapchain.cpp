@@ -382,7 +382,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(VkInstance instance, cons
             // Record the VkSurfaceKHR returned by the ICD:
             my_data->surfaceMap[*pSurface].surface = *pSurface;
             my_data->surfaceMap[*pSurface].pInstance = pInstance;
-            my_data->surfaceMap[*pSurface].usedAllocatorToCreate = (pAllocator != NULL);
             my_data->surfaceMap[*pSurface].numQueueFamilyIndexSupport = 0;
             my_data->surfaceMap[*pSurface].pQueueFamilyIndexSupport = NULL;
             // Point to the associated SwpInstance:
@@ -433,7 +432,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateMirSurfaceKHR(VkInstance instance, const Vk
             // Record the VkSurfaceKHR returned by the ICD:
             my_data->surfaceMap[*pSurface].surface = *pSurface;
             my_data->surfaceMap[*pSurface].pInstance = pInstance;
-            my_data->surfaceMap[*pSurface].usedAllocatorToCreate = (pAllocator != NULL);
             my_data->surfaceMap[*pSurface].numQueueFamilyIndexSupport = 0;
             my_data->surfaceMap[*pSurface].pQueueFamilyIndexSupport = NULL;
             // Point to the associated SwpInstance:
@@ -519,7 +517,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(VkInstance instance, cons
             // Record the VkSurfaceKHR returned by the ICD:
             my_data->surfaceMap[*pSurface].surface = *pSurface;
             my_data->surfaceMap[*pSurface].pInstance = pInstance;
-            my_data->surfaceMap[*pSurface].usedAllocatorToCreate = (pAllocator != NULL);
             my_data->surfaceMap[*pSurface].numQueueFamilyIndexSupport = 0;
             my_data->surfaceMap[*pSurface].pQueueFamilyIndexSupport = NULL;
             // Point to the associated SwpInstance:
@@ -606,7 +603,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(VkInstance instance, const 
             // Record the VkSurfaceKHR returned by the ICD:
             my_data->surfaceMap[*pSurface].surface = *pSurface;
             my_data->surfaceMap[*pSurface].pInstance = pInstance;
-            my_data->surfaceMap[*pSurface].usedAllocatorToCreate = (pAllocator != NULL);
             my_data->surfaceMap[*pSurface].numQueueFamilyIndexSupport = 0;
             my_data->surfaceMap[*pSurface].pQueueFamilyIndexSupport = NULL;
             // Point to the associated SwpInstance:
@@ -691,7 +687,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(VkInstance instance, const Vk
             // Record the VkSurfaceKHR returned by the ICD:
             my_data->surfaceMap[*pSurface].surface = *pSurface;
             my_data->surfaceMap[*pSurface].pInstance = pInstance;
-            my_data->surfaceMap[*pSurface].usedAllocatorToCreate = (pAllocator != NULL);
             my_data->surfaceMap[*pSurface].numQueueFamilyIndexSupport = 0;
             my_data->surfaceMap[*pSurface].pQueueFamilyIndexSupport = NULL;
             // Point to the associated SwpInstance:
@@ -778,7 +773,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(VkInstance instance, const V
             // Record the VkSurfaceKHR returned by the ICD:
             my_data->surfaceMap[*pSurface].surface = *pSurface;
             my_data->surfaceMap[*pSurface].pInstance = pInstance;
-            my_data->surfaceMap[*pSurface].usedAllocatorToCreate = (pAllocator != NULL);
             my_data->surfaceMap[*pSurface].numQueueFamilyIndexSupport = 0;
             my_data->surfaceMap[*pSurface].pQueueFamilyIndexSupport = NULL;
             // Point to the associated SwpInstance:
@@ -1089,7 +1083,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayPlaneSurfaceKHR(VkInstance instance,
             // Record the VkSurfaceKHR returned by the ICD:
             my_data->surfaceMap[*pSurface].surface = *pSurface;
             my_data->surfaceMap[*pSurface].pInstance = pInstance;
-            my_data->surfaceMap[*pSurface].usedAllocatorToCreate = (pAllocator != NULL);
             my_data->surfaceMap[*pSurface].numQueueFamilyIndexSupport = 0;
             my_data->surfaceMap[*pSurface].pQueueFamilyIndexSupport = NULL;
             // Point to the associated SwpInstance:
@@ -1150,12 +1143,6 @@ VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(VkInstance instance, VkSurfaceKHR s
                 }
             }
             pSurface->swapchains.clear();
-        }
-        if ((pAllocator != NULL) != pSurface->usedAllocatorToCreate) {
-            skip_call |=
-                log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_INSTANCE_EXT,
-                        reinterpret_cast<uint64_t>(instance), __LINE__, SWAPCHAIN_INCOMPATIBLE_ALLOCATOR, swapchain_layer_name,
-                        "vkDestroySurfaceKHR() called with incompatible pAllocator from when the object was created.");
         }
         my_data->surfaceMap.erase(surface);
     }
@@ -1850,29 +1837,6 @@ static bool validateCreateSwapchainKHR(VkDevice device, const VkSwapchainCreateI
                              pCreateInfo->clipped);
     }
 
-    // Validate pCreateInfo->oldSwapchain:
-    if (pCreateInfo && pCreateInfo->oldSwapchain) {
-        SwpSwapchain *pOldSwapchain = NULL;
-        {
-            auto it = my_data->swapchainMap.find(pCreateInfo->oldSwapchain);
-            pOldSwapchain = (it == my_data->swapchainMap.end()) ? NULL : &it->second;
-        }
-        if (pOldSwapchain) {
-            if (device != pOldSwapchain->pDevice->device) {
-                skip_call |=
-                    log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT,
-                            reinterpret_cast<uint64_t>(device), __LINE__, SWAPCHAIN_DESTROY_SWAP_DIFF_DEVICE, swapchain_layer_name,
-                            "vkCreateSwapchainKHR() called with a different VkDevice than the VkSwapchainKHR was created with.");
-            }
-            if (pCreateInfo->surface != pOldSwapchain->pSurface->surface) {
-                skip_call |=
-                    log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT,
-                            reinterpret_cast<uint64_t>(device), __LINE__, SWAPCHAIN_CREATE_SWAP_DIFF_SURFACE, swapchain_layer_name,
-                            "vkCreateSwapchainKHR() called with pCreateInfo->oldSwapchain pCreateInfo->surface.");
-            }
-        }
-    }
-
     return skip_call;
 }
 
@@ -1903,7 +1867,6 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(VkDevice device, const VkSwapc
             }
             my_data->swapchainMap[*pSwapchain].pDevice = pDevice;
             my_data->swapchainMap[*pSwapchain].imageCount = 0;
-            my_data->swapchainMap[*pSwapchain].usedAllocatorToCreate = (pAllocator != NULL);
             // Store a pointer to the surface
             SwpPhysicalDevice *pPhysicalDevice = pDevice->pPhysicalDevice;
             SwpInstance *pInstance = (pPhysicalDevice) ? pPhysicalDevice->pInstance : NULL;
@@ -1955,24 +1918,12 @@ VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(VkDevice device, VkSwapchainKHR s
         // Delete the SwpSwapchain associated with this swapchain:
         if (pSwapchain->pDevice) {
             pSwapchain->pDevice->swapchains.erase(swapchain);
-            if (device != pSwapchain->pDevice->device) {
-                skip_call |=
-                    log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT,
-                            reinterpret_cast<uint64_t>(device), __LINE__, SWAPCHAIN_DESTROY_SWAP_DIFF_DEVICE, swapchain_layer_name,
-                            "vkDestroySwapchainKHR() called with a different VkDevice than the VkSwapchainKHR was created with.");
-            }
         }
         if (pSwapchain->pSurface) {
             pSwapchain->pSurface->swapchains.erase(swapchain);
         }
         if (pSwapchain->imageCount) {
             pSwapchain->images.clear();
-        }
-        if ((pAllocator != NULL) != pSwapchain->usedAllocatorToCreate) {
-            skip_call |=
-                log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT,
-                        reinterpret_cast<uint64_t>(device), __LINE__, SWAPCHAIN_INCOMPATIBLE_ALLOCATOR, swapchain_layer_name,
-                        "vkDestroySwapchainKHR() called with incompatible pAllocator from when the object was created.");
         }
         my_data->swapchainMap.erase(swapchain);
     }
@@ -2089,13 +2040,6 @@ VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(VkDevice device, VkSwapchainK
                              "vkAcquireNextImageKHR() called even though the %s extension was not enabled for this VkDevice.",
                              VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     }
-    if ((semaphore == VK_NULL_HANDLE) && (fence == VK_NULL_HANDLE)) {
-        skip_call |=
-            log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_DEVICE_EXT,
-                    reinterpret_cast<uint64_t>(device), __LINE__, SWAPCHAIN_NO_SYNC_FOR_ACQUIRE, swapchain_layer_name,
-                    "vkAcquireNextImageKHR() called with both the semaphore and fence parameters set to VK_NULL_HANDLE (at "
-                    "least one should be used).");
-    }
     SwpSwapchain *pSwapchain = NULL;
     {
         auto it = my_data->swapchainMap.find(swapchain);
@@ -2165,7 +2109,6 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
 
     std::unique_lock<std::mutex> lock(global_lock);
     for (uint32_t i = 0; pPresentInfo && (i < pPresentInfo->swapchainCount); i++) {
-        uint32_t index = pPresentInfo->pImageIndices[i];
         SwpSwapchain *pSwapchain = NULL;
         {
             auto it = my_data->swapchainMap.find(pPresentInfo->pSwapchains[i]);
@@ -2178,24 +2121,6 @@ VKAPI_ATTR VkResult VKAPI_CALL QueuePresentKHR(VkQueue queue, const VkPresentInf
                                      SWAPCHAIN_EXT_NOT_ENABLED_BUT_USED, swapchain_layer_name,
                                      "vkQueuePresentKHR() called even though the %s extension was not enabled for this VkDevice.",
                                      VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-            }
-            if (index >= pSwapchain->imageCount) {
-                skip_call |=
-                    log_msg(my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT,
-                            reinterpret_cast<const uint64_t &>(pPresentInfo->pSwapchains[i]), __LINE__, SWAPCHAIN_INDEX_TOO_LARGE,
-                            swapchain_layer_name,
-                            "vkQueuePresentKHR() called for an index that is too large (i.e. %d).  There are only %d images in "
-                            "this VkSwapchainKHR.",
-                            index, pSwapchain->imageCount);
-            } else {
-                if (!pSwapchain->images[index].acquiredByApp) {
-                    skip_call |= log_msg(
-                        my_data->report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_SWAPCHAIN_KHR_EXT,
-                        reinterpret_cast<const uint64_t &>(pPresentInfo->pSwapchains[i]), __LINE__, SWAPCHAIN_INDEX_NOT_IN_USE,
-                        swapchain_layer_name,
-                        "vkQueuePresentKHR() returned an index (i.e. %d) for an image that is not acquired by the application.",
-                        index);
-                }
             }
             SwpQueue *pQueue = NULL;
             {

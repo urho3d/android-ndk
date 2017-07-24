@@ -2023,6 +2023,8 @@ static inline const char* string_VkStructureType(VkStructureType input_value)
             return "VK_STRUCTURE_TYPE_SUBMIT_INFO";
         case VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR:
             return "VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR";
+        case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
+            return "VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT";
         case VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR:
             return "VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR";
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
@@ -2099,6 +2101,18 @@ static inline const char* string_VkSystemAllocationScope(VkSystemAllocationScope
             return "VK_SYSTEM_ALLOCATION_SCOPE_OBJECT";
         default:
             return "Unhandled VkSystemAllocationScope";
+    }
+}
+
+
+static inline const char* string_VkValidationCheckEXT(VkValidationCheckEXT input_value)
+{
+    switch ((VkValidationCheckEXT)input_value)
+    {
+        case VK_VALIDATION_CHECK_ALL_EXT:
+            return "VK_VALIDATION_CHECK_ALL_EXT";
+        default:
+            return "Unhandled VkValidationCheckEXT";
     }
 }
 

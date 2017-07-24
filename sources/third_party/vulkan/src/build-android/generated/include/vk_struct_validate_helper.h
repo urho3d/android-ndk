@@ -171,6 +171,7 @@ uint32_t vk_validate_vksubresourcelayout(const VkSubresourceLayout* pStruct);
 uint32_t vk_validate_vksurfacecapabilitieskhr(const VkSurfaceCapabilitiesKHR* pStruct);
 uint32_t vk_validate_vksurfaceformatkhr(const VkSurfaceFormatKHR* pStruct);
 uint32_t vk_validate_vkswapchaincreateinfokhr(const VkSwapchainCreateInfoKHR* pStruct);
+uint32_t vk_validate_vkvalidationflagsext(const VkValidationFlagsEXT* pStruct);
 uint32_t vk_validate_vkvertexinputattributedescription(const VkVertexInputAttributeDescription* pStruct);
 uint32_t vk_validate_vkvertexinputbindingdescription(const VkVertexInputBindingDescription* pStruct);
 uint32_t vk_validate_vkviewport(const VkViewport* pStruct);
@@ -1191,6 +1192,12 @@ uint32_t vk_validate_vkswapchaincreateinfokhr(const VkSwapchainCreateInfoKHR* pS
     if (!validate_VkCompositeAlphaFlagBitsKHR(pStruct->compositeAlpha))
         return 0;
     if (!validate_VkPresentModeKHR(pStruct->presentMode))
+        return 0;
+    return 1;
+}
+uint32_t vk_validate_vkvalidationflagsext(const VkValidationFlagsEXT* pStruct)
+{
+    if (!validate_VkStructureType(pStruct->sType))
         return 0;
     return 1;
 }

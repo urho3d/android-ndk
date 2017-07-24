@@ -23,6 +23,7 @@
 #ifndef CORE_VALIDATION_TYPES_H_
 #define CORE_VALIDATION_TYPES_H_
 
+#ifndef NOEXCEPT
 // Check for noexcept support
 #if defined(__clang__)
 #if __has_feature(cxx_noexcept)
@@ -42,6 +43,7 @@
 #define NOEXCEPT noexcept
 #else
 #define NOEXCEPT
+#endif
 #endif
 
 #include "vk_safe_struct.h"
@@ -108,7 +110,7 @@ enum descriptor_req {
     DESCRIPTOR_REQ_MULTI_SAMPLE = DESCRIPTOR_REQ_SINGLE_SAMPLE << 1,
 };
 
-struct DESCRIPTOR_POOL_NODE {
+struct DESCRIPTOR_POOL_STATE : BASE_NODE {
     VkDescriptorPool pool;
     uint32_t maxSets;       // Max descriptor sets allowed in this pool
     uint32_t availableSets; // Available descriptor sets in this pool
@@ -118,7 +120,7 @@ struct DESCRIPTOR_POOL_NODE {
     std::vector<uint32_t> maxDescriptorTypeCount;              // Max # of descriptors of each type in this pool
     std::vector<uint32_t> availableDescriptorTypeCount;        // Available # of descriptors of each type in this pool
 
-    DESCRIPTOR_POOL_NODE(const VkDescriptorPool pool, const VkDescriptorPoolCreateInfo *pCreateInfo)
+    DESCRIPTOR_POOL_STATE(const VkDescriptorPool pool, const VkDescriptorPoolCreateInfo *pCreateInfo)
         : pool(pool), maxSets(pCreateInfo->maxSets), availableSets(pCreateInfo->maxSets), createInfo(*pCreateInfo),
           maxDescriptorTypeCount(VK_DESCRIPTOR_TYPE_RANGE_SIZE, 0), availableDescriptorTypeCount(VK_DESCRIPTOR_TYPE_RANGE_SIZE, 0) {
         if (createInfo.poolSizeCount) { // Shadow type struct from ptr into local struct
@@ -137,69 +139,95 @@ struct DESCRIPTOR_POOL_NODE {
             createInfo.pPoolSizes = NULL; // Make sure this is NULL so we don't try to clean it up
         }
     }
-    ~DESCRIPTOR_POOL_NODE() {
+    ~DESCRIPTOR_POOL_STATE() {
         delete[] createInfo.pPoolSizes;
         // TODO : pSets are currently freed in deletePools function which uses freeShadowUpdateTree function
         //  need to migrate that struct to smart ptrs for auto-cleanup
     }
 };
 
-class BUFFER_NODE : public BASE_NODE {
-  public:
-    using BASE_NODE::in_use;
-    VkBuffer buffer;
+// Generic memory binding struct to track objects bound to objects
+struct MEM_BINDING {
     VkDeviceMemory mem;
-    VkDeviceSize memOffset;
-    VkDeviceSize memSize; // Note: may differ from createInfo::size
-    VkBufferCreateInfo createInfo;
-    BUFFER_NODE() : buffer(VK_NULL_HANDLE), mem(VK_NULL_HANDLE), memOffset(0), memSize(0), createInfo{} { in_use.store(0); };
-    BUFFER_NODE(VkBuffer buff, const VkBufferCreateInfo *pCreateInfo)
-        : buffer(buff), mem(VK_NULL_HANDLE), memOffset(0), memSize(0), createInfo(*pCreateInfo){};
-    BUFFER_NODE(const BUFFER_NODE &rh_obj)
-        : buffer(rh_obj.buffer), mem(rh_obj.mem), memOffset(rh_obj.memOffset), memSize(rh_obj.memSize),
-          createInfo(rh_obj.createInfo){};
+    VkDeviceSize offset;
+    VkDeviceSize size;
 };
 
-struct SAMPLER_NODE : public BASE_NODE {
+inline bool operator==(MEM_BINDING a, MEM_BINDING b) NOEXCEPT { return a.mem == b.mem && a.offset == b.offset && a.size == b.size; }
+
+namespace std {
+template <> struct hash<MEM_BINDING> {
+    size_t operator()(MEM_BINDING mb) const NOEXCEPT {
+        auto intermediate = hash<uint64_t>()(reinterpret_cast<uint64_t &>(mb.mem)) ^ hash<uint64_t>()(mb.offset);
+        return intermediate ^ hash<uint64_t>()(mb.size);
+    }
+};
+}
+
+// Superclass for bindable object state (currently imagesa and buffers)
+class BINDABLE : public BASE_NODE {
+  public:
+    bool sparse; // Is this object being bound with sparse memory or not?
+    // Non-sparse binding data
+    MEM_BINDING binding;
+    // Sparse binding data, initially just tracking MEM_BINDING per mem object
+    //  There's more data for sparse bindings so need better long-term solution
+    // TODO : Need to update solution to track all sparse binding data
+    std::unordered_set<MEM_BINDING> sparse_bindings;
+    BINDABLE() : sparse(false), binding{}, sparse_bindings{}{};
+};
+
+class BUFFER_NODE : public BINDABLE {
+  public:
+    VkBuffer buffer;
+    VkBufferCreateInfo createInfo;
+    BUFFER_NODE(VkBuffer buff, const VkBufferCreateInfo *pCreateInfo) : buffer(buff), createInfo(*pCreateInfo) {
+        if (createInfo.flags & VK_BUFFER_CREATE_SPARSE_BINDING_BIT) {
+            sparse = true;
+        }
+    };
+
+    BUFFER_NODE(BUFFER_NODE const &rh_obj) = delete;
+};
+
+class BUFFER_VIEW_STATE : public BASE_NODE {
+  public:
+    VkBufferView buffer_view;
+    VkBufferViewCreateInfo create_info;
+    BUFFER_VIEW_STATE(VkBufferView bv, const VkBufferViewCreateInfo *ci) : buffer_view(bv), create_info(*ci){};
+    BUFFER_VIEW_STATE(const BUFFER_VIEW_STATE &rh_obj) = delete;
+};
+
+struct SAMPLER_STATE : public BASE_NODE {
     VkSampler sampler;
     VkSamplerCreateInfo createInfo;
 
-    SAMPLER_NODE(const VkSampler *ps, const VkSamplerCreateInfo *pci) : sampler(*ps), createInfo(*pci){};
+    SAMPLER_STATE(const VkSampler *ps, const VkSamplerCreateInfo *pci) : sampler(*ps), createInfo(*pci){};
 };
 
-class IMAGE_NODE : public BASE_NODE {
+class IMAGE_STATE : public BINDABLE {
   public:
-    using BASE_NODE::in_use;
     VkImage image;
     VkImageCreateInfo createInfo;
-    VkDeviceMemory mem;
     bool valid; // If this is a swapchain image backing memory track valid here as it doesn't have DEVICE_MEM_INFO
-    VkDeviceSize memOffset;
-    VkDeviceSize memSize;
-    IMAGE_NODE() : image(VK_NULL_HANDLE), createInfo{}, mem(VK_NULL_HANDLE), valid(false), memOffset(0), memSize(0){};
-    IMAGE_NODE(VkImage img, const VkImageCreateInfo *pCreateInfo)
-        : image(img), createInfo(*pCreateInfo), mem(VK_NULL_HANDLE), valid(false), memOffset(0), memSize(0){};
-    IMAGE_NODE(const IMAGE_NODE &rh_obj)
-        : image(rh_obj.image), createInfo(rh_obj.createInfo), mem(rh_obj.mem), valid(rh_obj.valid), memOffset(rh_obj.memOffset),
-          memSize(rh_obj.memSize) {
-        in_use.store(rh_obj.in_use.load());
+    bool acquired;  // If this is a swapchain image, has it been acquired by the app.
+    IMAGE_STATE(VkImage img, const VkImageCreateInfo *pCreateInfo)
+        : image(img), createInfo(*pCreateInfo), valid(false), acquired(false) {
+        if (createInfo.flags & VK_IMAGE_CREATE_SPARSE_BINDING_BIT) {
+            sparse = true;
+        }
     };
+
+    IMAGE_STATE(IMAGE_STATE const &rh_obj) = delete;
 };
 
-// Simple struct to hold handle and type of object so they can be uniquely identified and looked up in appropriate map
-// TODO : Unify this with VK_OBJECT above
-struct MT_OBJ_HANDLE_TYPE {
-    uint64_t handle;
-    VkDebugReportObjectTypeEXT type;
+class IMAGE_VIEW_STATE : public BASE_NODE {
+  public:
+    VkImageView image_view;
+    VkImageViewCreateInfo create_info;
+    IMAGE_VIEW_STATE(VkImageView iv, const VkImageViewCreateInfo *ci) : image_view(iv), create_info(*ci){};
+    IMAGE_VIEW_STATE(const IMAGE_VIEW_STATE &rh_obj) = delete;
 };
-
-inline bool operator==(MT_OBJ_HANDLE_TYPE a, MT_OBJ_HANDLE_TYPE b) NOEXCEPT { return a.handle == b.handle && a.type == b.type; }
-
-namespace std {
-template <> struct hash<MT_OBJ_HANDLE_TYPE> {
-    size_t operator()(MT_OBJ_HANDLE_TYPE obj) const NOEXCEPT { return hash<uint64_t>()(obj.handle) ^ hash<uint32_t>()(obj.type); }
-};
-}
 
 struct MemRange {
     VkDeviceSize offset;
@@ -220,13 +248,12 @@ struct MEMORY_RANGE {
 };
 
 // Data struct for tracking memory object
-struct DEVICE_MEM_INFO {
+struct DEVICE_MEM_INFO : public BASE_NODE {
     void *object; // Dispatchable object used to create this memory (device of swapchain)
     bool global_valid; // If allocation is mapped, set to "true" to be picked up by subsequently bound ranges
     VkDeviceMemory mem;
     VkMemoryAllocateInfo alloc_info;
-    std::unordered_set<MT_OBJ_HANDLE_TYPE> obj_bindings;         // objects bound to this memory
-    std::unordered_set<VkCommandBuffer> command_buffer_bindings; // cmd buffers referencing this memory
+    std::unordered_set<VK_OBJECT> obj_bindings;         // objects bound to this memory
     std::unordered_map<uint64_t, MEMORY_RANGE> bound_ranges;     // Map of object to its binding range
     // Convenience vectors image/buff handles to speed up iterating over images or buffers independently
     std::unordered_set<uint64_t> bound_images;
@@ -246,17 +273,11 @@ struct DEVICE_MEM_INFO {
 
 class SWAPCHAIN_NODE {
   public:
-    VkSwapchainCreateInfoKHR createInfo;
-    uint32_t *pQueueFamilyIndices;
+    safe_VkSwapchainCreateInfoKHR createInfo;
+    VkSwapchainKHR swapchain;
     std::vector<VkImage> images;
-    SWAPCHAIN_NODE(const VkSwapchainCreateInfoKHR *pCreateInfo) : createInfo(*pCreateInfo), pQueueFamilyIndices(NULL) {
-        if (pCreateInfo->queueFamilyIndexCount && pCreateInfo->imageSharingMode == VK_SHARING_MODE_CONCURRENT) {
-            pQueueFamilyIndices = new uint32_t[pCreateInfo->queueFamilyIndexCount];
-            memcpy(pQueueFamilyIndices, pCreateInfo->pQueueFamilyIndices, pCreateInfo->queueFamilyIndexCount * sizeof(uint32_t));
-            createInfo.pQueueFamilyIndices = pQueueFamilyIndices;
-        }
-    }
-    ~SWAPCHAIN_NODE() { delete[] pQueueFamilyIndices; }
+    SWAPCHAIN_NODE(const VkSwapchainCreateInfoKHR *pCreateInfo, VkSwapchainKHR swapchain)
+        : createInfo(pCreateInfo), swapchain(swapchain) {}
 };
 
 enum DRAW_TYPE {
@@ -271,20 +292,12 @@ enum DRAW_TYPE {
 
 class IMAGE_CMD_BUF_LAYOUT_NODE {
   public:
-    IMAGE_CMD_BUF_LAYOUT_NODE() {}
+    IMAGE_CMD_BUF_LAYOUT_NODE() = default;
     IMAGE_CMD_BUF_LAYOUT_NODE(VkImageLayout initialLayoutInput, VkImageLayout layoutInput)
         : initialLayout(initialLayoutInput), layout(layoutInput) {}
 
     VkImageLayout initialLayout;
     VkImageLayout layout;
-};
-
-struct MT_PASS_ATTACHMENT_INFO {
-    uint32_t attachment;
-    VkAttachmentLoadOp load_op;
-    VkAttachmentStoreOp store_op;
-    VkAttachmentLoadOp stencil_load_op;
-    VkAttachmentStoreOp stencil_store_op;
 };
 
 // Store the DAG.
@@ -294,40 +307,15 @@ struct DAGNode {
     std::vector<uint32_t> next;
 };
 
-struct RENDER_PASS_NODE {
+struct RENDER_PASS_STATE : public BASE_NODE {
     VkRenderPass renderPass;
-    VkRenderPassCreateInfo const *pCreateInfo;
+    safe_VkRenderPassCreateInfo createInfo;
     std::vector<bool> hasSelfDependency;
     std::vector<DAGNode> subpassToNode;
-    std::vector<std::vector<VkFormat>> subpassColorFormats;
-    std::vector<MT_PASS_ATTACHMENT_INFO> attachments;
     std::unordered_map<uint32_t, bool> attachment_first_read;
     std::unordered_map<uint32_t, VkImageLayout> attachment_first_layout;
 
-    RENDER_PASS_NODE(VkRenderPassCreateInfo const *pCreateInfo) : pCreateInfo(pCreateInfo) {
-        uint32_t i;
-
-        subpassColorFormats.reserve(pCreateInfo->subpassCount);
-        for (i = 0; i < pCreateInfo->subpassCount; i++) {
-            const VkSubpassDescription *subpass = &pCreateInfo->pSubpasses[i];
-            std::vector<VkFormat> color_formats;
-            uint32_t j;
-
-            color_formats.reserve(subpass->colorAttachmentCount);
-            for (j = 0; j < subpass->colorAttachmentCount; j++) {
-                const uint32_t att = subpass->pColorAttachments[j].attachment;
-
-                if (att != VK_ATTACHMENT_UNUSED) {
-                    color_formats.push_back(pCreateInfo->pAttachments[att].format);
-                }
-                else {
-                    color_formats.push_back(VK_FORMAT_UNDEFINED);
-                }
-            }
-
-            subpassColorFormats.push_back(color_formats);
-        }
-    }
+    RENDER_PASS_STATE(VkRenderPassCreateInfo const *pCreateInfo) : createInfo(pCreateInfo) {}
 };
 
 // Cmd Buffer Tracking
@@ -402,17 +390,15 @@ typedef VkFlags CBStatusFlags;
 enum CBStatusFlagBits {
     // clang-format off
     CBSTATUS_NONE                   = 0x00000000,   // No status is set
-    CBSTATUS_VIEWPORT_SET           = 0x00000001,   // Viewport has been set
-    CBSTATUS_LINE_WIDTH_SET         = 0x00000002,   // Line width has been set
-    CBSTATUS_DEPTH_BIAS_SET         = 0x00000004,   // Depth bias has been set
-    CBSTATUS_BLEND_CONSTANTS_SET    = 0x00000008,   // Blend constants state has been set
-    CBSTATUS_DEPTH_BOUNDS_SET       = 0x00000010,   // Depth bounds state object has been set
-    CBSTATUS_STENCIL_READ_MASK_SET  = 0x00000020,   // Stencil read mask has been set
-    CBSTATUS_STENCIL_WRITE_MASK_SET = 0x00000040,   // Stencil write mask has been set
-    CBSTATUS_STENCIL_REFERENCE_SET  = 0x00000080,   // Stencil reference has been set
-    CBSTATUS_SCISSOR_SET            = 0x00000100,   // Scissor has been set
-    CBSTATUS_INDEX_BUFFER_BOUND     = 0x00000200,   // Index buffer has been set
-    CBSTATUS_ALL                    = 0x000001FF,   // All dynamic state set (intentionally exclude index buffer)
+    CBSTATUS_LINE_WIDTH_SET         = 0x00000001,   // Line width has been set
+    CBSTATUS_DEPTH_BIAS_SET         = 0x00000002,   // Depth bias has been set
+    CBSTATUS_BLEND_CONSTANTS_SET    = 0x00000004,   // Blend constants state has been set
+    CBSTATUS_DEPTH_BOUNDS_SET       = 0x00000008,   // Depth bounds state object has been set
+    CBSTATUS_STENCIL_READ_MASK_SET  = 0x00000010,   // Stencil read mask has been set
+    CBSTATUS_STENCIL_WRITE_MASK_SET = 0x00000020,   // Stencil write mask has been set
+    CBSTATUS_STENCIL_REFERENCE_SET  = 0x00000040,   // Stencil reference has been set
+    CBSTATUS_INDEX_BUFFER_BOUND     = 0x00000080,   // Index buffer has been set
+    CBSTATUS_ALL_STATE_SET          = 0x0000007F,   // All state set (intentionally exclude index buffer)
     // clang-format on
 };
 
@@ -478,7 +464,7 @@ struct PIPELINE_LAYOUT_NODE {
     }
 };
 
-class PIPELINE_NODE : public BASE_NODE {
+class PIPELINE_STATE : public BASE_NODE {
   public:
     VkPipeline pipeline;
     safe_VkGraphicsPipelineCreateInfo graphicsPipelineCI;
@@ -498,7 +484,7 @@ class PIPELINE_NODE : public BASE_NODE {
     PIPELINE_LAYOUT_NODE pipeline_layout;
 
     // Default constructor
-    PIPELINE_NODE()
+    PIPELINE_STATE()
         : pipeline{}, graphicsPipelineCI{}, computePipelineCI{}, active_shaders(0), duplicate_shaders(0), active_slots(),
           vertexBindingDescriptions(), vertexAttributeDescriptions(), attachments(), blendConstantsEnabled(false), render_pass_ci(),
           pipeline_layout() {}
@@ -551,7 +537,7 @@ class PIPELINE_NODE : public BASE_NODE {
 
 // Track last states that are bound per pipeline bind point (Gfx & Compute)
 struct LAST_BOUND_STATE {
-    PIPELINE_NODE *pipeline_node;
+    PIPELINE_STATE *pipeline_state;
     PIPELINE_LAYOUT_NODE pipeline_layout;
     // Track each set that has been bound
     // Ordered bound set tracking where index is set# that given set is bound to
@@ -560,7 +546,7 @@ struct LAST_BOUND_STATE {
     std::vector<std::vector<uint32_t>> dynamicOffsets;
 
     void reset() {
-        pipeline_node = nullptr;
+        pipeline_state = nullptr;
         pipeline_layout.reset();
         boundDescriptorSets.clear();
         dynamicOffsets.clear();
@@ -588,7 +574,7 @@ struct GLOBAL_CB_NODE : public BASE_NODE {
     uint32_t viewportMask;
     uint32_t scissorMask;
     VkRenderPassBeginInfo activeRenderPassBeginInfo;
-    RENDER_PASS_NODE *activeRenderPass;
+    RENDER_PASS_STATE *activeRenderPass;
     VkSubpassContents activeSubpassContents;
     uint32_t activeSubpass;
     VkFramebuffer activeFramebuffer;
@@ -645,20 +631,23 @@ namespace core_validation {
 struct layer_data;
 cvdescriptorset::DescriptorSet *getSetNode(const layer_data *, VkDescriptorSet);
 cvdescriptorset::DescriptorSetLayout const *getDescriptorSetLayout(layer_data const *, VkDescriptorSetLayout);
-DESCRIPTOR_POOL_NODE *getPoolNode(const layer_data *, const VkDescriptorPool);
+DESCRIPTOR_POOL_STATE *getDescriptorPoolState(const layer_data *, const VkDescriptorPool);
 BUFFER_NODE *getBufferNode(const layer_data *, VkBuffer);
-IMAGE_NODE *getImageNode(const layer_data *, VkImage);
+IMAGE_STATE *getImageState(const layer_data *, VkImage);
 DEVICE_MEM_INFO *getMemObjInfo(const layer_data *, VkDeviceMemory);
-VkBufferViewCreateInfo *getBufferViewInfo(const layer_data *, VkBufferView);
-SAMPLER_NODE *getSamplerNode(const layer_data *, VkSampler);
-VkImageViewCreateInfo *getImageViewData(const layer_data *, VkImageView);
+BUFFER_VIEW_STATE *getBufferViewState(const layer_data *, VkBufferView);
+SAMPLER_STATE *getSamplerState(const layer_data *, VkSampler);
+IMAGE_VIEW_STATE *getImageViewState(const layer_data *, VkImageView);
 VkSwapchainKHR getSwapchainFromImage(const layer_data *, VkImage);
 SWAPCHAIN_NODE *getSwapchainNode(const layer_data *, VkSwapchainKHR);
 void invalidateCommandBuffers(std::unordered_set<GLOBAL_CB_NODE *>, VK_OBJECT);
 bool ValidateMemoryIsBoundToBuffer(const layer_data *, const BUFFER_NODE *, const char *);
-void AddCommandBufferBindingSampler(GLOBAL_CB_NODE *, SAMPLER_NODE *);
-void AddCommandBufferBindingImage(const layer_data *, GLOBAL_CB_NODE *, IMAGE_NODE *);
+bool ValidateMemoryIsBoundToImage(const layer_data *, const IMAGE_STATE *, const char *);
+void AddCommandBufferBindingSampler(GLOBAL_CB_NODE *, SAMPLER_STATE *);
+void AddCommandBufferBindingImage(const layer_data *, GLOBAL_CB_NODE *, IMAGE_STATE *);
+void AddCommandBufferBindingImageView(const layer_data *, GLOBAL_CB_NODE *, IMAGE_VIEW_STATE *);
 void AddCommandBufferBindingBuffer(const layer_data *, GLOBAL_CB_NODE *, BUFFER_NODE *);
+void AddCommandBufferBindingBufferView(const layer_data *, GLOBAL_CB_NODE *, BUFFER_VIEW_STATE *);
 }
 
 #endif // CORE_VALIDATION_TYPES_H_

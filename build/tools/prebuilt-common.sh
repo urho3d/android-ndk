@@ -1305,11 +1305,11 @@ get_llvm_toolchain_binprefix ()
 # $1: Architecture name
 get_default_api_level_for_arch ()
 {
-    # For now, always build the toolchain against API level 9 for 32-bit arch
+    # For now, always build the toolchain against API level 14 for 32-bit arch
     # and API level $FIRST_API64_LEVEL for 64-bit arch
     case $1 in
         *64) echo $FIRST_API64_LEVEL ;;
-        *) echo 9 ;;
+        *) echo 14 ;;
     esac
 }
 

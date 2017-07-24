@@ -348,7 +348,10 @@ get_shim_type_info(uint64_t ttypeIndex, const uint8_t* classInfo,
         call_terminate(native_exception, unwind_exception);
     }
 
-    assert(ttypeEncoding == DW_EH_PE_absptr && "Unexpected TTypeEncoding");
+    assert(((ttypeEncoding == DW_EH_PE_absptr) ||  // LLVM or GCC 4.6
+            (ttypeEncoding == DW_EH_PE_pcrel) ||  // GCC 4.7 baremetal
+            (ttypeEncoding == (DW_EH_PE_pcrel | DW_EH_PE_indirect))) &&  // GCC 4.7 linux
+           "Unexpected TTypeEncoding");
     (void)ttypeEncoding;
 
     const uint8_t* ttypePtr = classInfo - ttypeIndex * sizeof(uintptr_t);
@@ -415,7 +418,10 @@ exception_spec_can_catch(int64_t specIndex, const uint8_t* classInfo,
         call_terminate(false, unwind_exception);
     }
 
-    assert(ttypeEncoding == DW_EH_PE_absptr && "Unexpected TTypeEncoding");
+    assert(((ttypeEncoding == DW_EH_PE_absptr) ||  // LLVM or GCC 4.6
+            (ttypeEncoding == DW_EH_PE_pcrel) ||  // GCC 4.7 baremetal
+            (ttypeEncoding == (DW_EH_PE_pcrel | DW_EH_PE_indirect))) &&  // GCC 4.7 linux
+           "Unexpected TTypeEncoding");
     (void)ttypeEncoding;
 
     // specIndex is negative of 1-based byte offset into classInfo;
@@ -1035,7 +1041,7 @@ static _Unwind_Reason_Code continue_unwind(_Unwind_Exception* unwind_exception,
 }
 
 // ARM register names
-#if !LIBCXXABI_USE_LLVM_UNWINDER
+#if !defined(LIBCXXABI_USE_LLVM_UNWINDER)
 static const uint32_t REG_UCB = 12;  // Register to save _Unwind_Control_Block
 #endif
 static const uint32_t REG_SP = 13;
@@ -1071,7 +1077,7 @@ __gxx_personality_v0(_Unwind_State state,
     bool native_exception = (unwind_exception->exception_class & get_vendor_and_language) ==
                             (kOurExceptionClass & get_vendor_and_language);
 
-#if !LIBCXXABI_USE_LLVM_UNWINDER
+#if !defined(LIBCXXABI_USE_LLVM_UNWINDER)
     // Copy the address of _Unwind_Control_Block to r12 so that
     // _Unwind_GetLanguageSpecificData() and _Unwind_GetRegionStart() can
     // return correct address.

@@ -1,5 +1,9 @@
 LOCAL_PATH:= $(call my-dir)
 
+$(warning ndk_helper is no longer maintained in the NDK. This copy is left for \
+          compatibility purposes only. For an up to date copy, see \
+          https://github.com/googlesamples/android-ndk/tree/master/teapots/common/ndk_helper)
+
 include $(CLEAR_VARS)
 
 LOCAL_MODULE:= ndk_helper

@@ -28,7 +28,6 @@ import zipfile
 THIS_DIR = os.path.realpath(os.path.dirname(__file__))
 
 
-# TODO: Make the x86 toolchain names just be the triple.
 ALL_TOOLCHAINS = (
     'arm-linux-androideabi',
     'aarch64-linux-android',
@@ -78,7 +77,7 @@ def minimum_platform_level(abi):
     if abi in LP64_ABIS:
         return 21
     else:
-        return 9
+        return 14
 
 
 class Timer(object):
@@ -258,9 +257,18 @@ def make_package(name, directory, out_dir):
     os.chdir(os.path.dirname(directory))
     basename = os.path.basename(directory)
     try:
+        # repo.prop files are excluded because in the event that we have a
+        # repo.prop in the root of the directory we're packaging, the repo.prop
+        # file we add later in this function will create a second entry (the
+        # zip format allows multiple files with the same path).
+        #
+        # The one we create here will point back to the tree that was used to
+        # build the package, and the original repo.prop can be reached from
+        # there, so no information is lost.
         subprocess.check_call(
             ['zip', '-x', '*.pyc', '-x', '*.pyo', '-x', '*.swp',
-             '-x', '*.git*', '-0qr', path, basename])
+             '-x', '*.git*', '-x', os.path.join(basename, 'repo.prop'), '-0qr',
+             path, basename])
     finally:
         os.chdir(cwd)
 

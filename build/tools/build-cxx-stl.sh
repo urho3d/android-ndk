@@ -495,7 +495,6 @@ build_stl_libs_for_abi ()
     local BUILDDIR="$2"
     local TYPE="$3"
     local DSTDIR="$4"
-    local FLOAT_ABI=""
     local DEFAULT_CFLAGS DEFAULT_CXXFLAGS
     local SRC OBJ OBJECTS EXTRA_CFLAGS EXTRA_CXXFLAGS EXTRA_LDFLAGS LIB_SUFFIX GCCVER
 
@@ -515,7 +514,6 @@ build_stl_libs_for_abi ()
             EXTRA_CXXFLAGS="-mstackrealign"
             ;;
         mips)
-            # TODO: Remove this once mipsel-linux-android target is changed in clang
             EXTRA_CFLAGS="-mips32"
             EXTRA_CXXFLAGS="-mips32"
             EXTRA_LDFLAGS="-mips32"
@@ -631,7 +629,7 @@ build_stl_libs_for_abi ()
         builder_static_library ${CXX_STL_LIB}_static
     else
         log "Building $DSTDIR/${CXX_STL_LIB}_shared${LIB_SUFFIX}"
-        builder_shared_library ${CXX_STL_LIB}_shared $LIB_SUFFIX "$FLOAT_ABI"
+        builder_shared_library ${CXX_STL_LIB}_shared $LIB_SUFFIX
     fi
 
     builder_end

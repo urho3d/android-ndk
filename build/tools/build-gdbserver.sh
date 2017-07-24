@@ -178,6 +178,17 @@ BUILD_SYSROOT="$BUILD_OUT/sysroot"
 run mkdir -p "$BUILD_SYSROOT"
 run cp -RHL "$SYSROOT"/* "$BUILD_SYSROOT"
 
+# Make sure multilib toolchains have lib64
+if [ ! -d "$BUILD_SYSROOT/usr/lib64" ] ; then
+    mkdir "$BUILD_SYSROOT/usr/lib64"
+fi
+
+# Make sure multilib toolchains know their target
+TARGET_FLAG=
+if [ "$ARCH" = "mips" ] ; then
+    TARGET_FLAG=-mips32
+fi
+
 LIBDIR=$(get_default_libdir_for_arch $ARCH)
 
 # Remove libthread_db to ensure we use exactly the one we want.
@@ -195,7 +206,7 @@ if [ "$NOTHREADS" != "yes" ] ; then
     fi
 
     run cp $LIBTHREAD_DB_DIR/thread_db.h $BUILD_SYSROOT/usr/include/
-    run ${TOOLCHAIN_PREFIX}gcc --sysroot=$BUILD_SYSROOT -o $BUILD_SYSROOT/usr/$LIBDIR/libthread_db.o -c $LIBTHREAD_DB_DIR/libthread_db.c
+    run ${TOOLCHAIN_PREFIX}gcc --sysroot=$BUILD_SYSROOT $TARGET_FLAG -o $BUILD_SYSROOT/usr/$LIBDIR/libthread_db.o -c $LIBTHREAD_DB_DIR/libthread_db.c
     run ${TOOLCHAIN_PREFIX}ar -rD $BUILD_SYSROOT/usr/$LIBDIR/libthread_db.a $BUILD_SYSROOT/usr/$LIBDIR/libthread_db.o
     if [ $? != 0 ] ; then
         dump "ERROR: Could not compile libthread_db.c!"
@@ -223,12 +234,13 @@ CONFIGURE_FLAGS=$CONFIGURE_FLAGS" --disable-inprocess-agent"
 CONFIGURE_FLAGS=$CONFIGURE_FLAGS" --enable-werror=no"
 
 cd $BUILD_OUT &&
-export CC="${TOOLCHAIN_PREFIX}gcc --sysroot=$BUILD_SYSROOT" &&
+export CC="${TOOLCHAIN_PREFIX}gcc --sysroot=$BUILD_SYSROOT $TARGET_FLAG" &&
 export AR="${TOOLCHAIN_PREFIX}ar" &&
 export RANLIB="${TOOLCHAIN_PREFIX}ranlib" &&
 export CFLAGS="-O2 $GDBSERVER_CFLAGS"  &&
 export LDFLAGS="-static -Wl,-z,nocopyreloc -Wl,--no-undefined" &&
 run $SRC_DIR/configure \
+--build=x86_64-linux-gnu \
 --host=$GDBSERVER_HOST \
 $CONFIGURE_FLAGS
 if [ $? != 0 ] ; then

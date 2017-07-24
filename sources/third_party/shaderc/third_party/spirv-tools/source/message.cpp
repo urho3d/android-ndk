@@ -18,27 +18,27 @@
 
 namespace spvtools {
 
-std::string StringifyMessage(MessageLevel level, const char* source,
+std::string StringifyMessage(spv_message_level_t level, const char* source,
                              const spv_position_t& position,
                              const char* message) {
   const char* level_string = nullptr;
   switch (level) {
-    case MessageLevel::Fatal:
+    case SPV_MSG_FATAL:
       level_string = "fatal";
       break;
-    case MessageLevel::InternalError:
+    case SPV_MSG_INTERNAL_ERROR:
       level_string = "internal error";
       break;
-    case MessageLevel::Error:
+    case SPV_MSG_ERROR:
       level_string = "error";
       break;
-    case MessageLevel::Warning:
+    case SPV_MSG_WARNINING:
       level_string = "warning";
       break;
-    case MessageLevel::Info:
+    case SPV_MSG_INFO:
       level_string = "info";
       break;
-    case MessageLevel::Debug:
+    case SPV_MSG_DEBUG:
       level_string = "debug";
       break;
   }
@@ -48,7 +48,6 @@ std::string StringifyMessage(MessageLevel level, const char* source,
   oss << position.line << ":" << position.column << ":";
   oss << position.index << ": ";
   if (message) oss << message;
-  oss << "\n";
   return oss.str();
 }
 

@@ -19,9 +19,10 @@
 #include <vector>
 
 #include "log.h"
-#include "message.h"
 #include "module.h"
 #include "pass.h"
+
+#include "spirv-tools/libspirv.hpp"
 
 namespace spvtools {
 namespace opt {
@@ -36,7 +37,7 @@ class PassManager {
   // The constructed instance will have an empty message consumer, which just
   // ignores all messages from the library. Use SetMessageConsumer() to supply
   // one if messages are of concern.
-  PassManager() : consumer_(IgnoreMessage) {}
+  PassManager() : consumer_(nullptr) {}
 
   // Sets the message consumer to the given |consumer|.
   void SetMessageConsumer(MessageConsumer c) { consumer_ = std::move(c); }

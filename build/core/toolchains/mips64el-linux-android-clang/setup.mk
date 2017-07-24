@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-# this file is used to prepare the NDK to build with the mips64el llvm toolchain
+# this file is used to prepare the NDK to build mips64 with the mips64el llvm toolchain
 # any number of source files
 #
 # its purpose is to define (or re-define) templates used to build
@@ -55,6 +55,8 @@ TARGET_CFLAGS := \
     -Wno-invalid-command-line-argument \
     -Wno-unused-command-line-argument \
     -no-canonical-prefixes \
+
+TARGET_CFLAGS += -fintegrated-as
 
 # Always enable debug info. We strip binaries when needed.
 TARGET_CFLAGS += -g

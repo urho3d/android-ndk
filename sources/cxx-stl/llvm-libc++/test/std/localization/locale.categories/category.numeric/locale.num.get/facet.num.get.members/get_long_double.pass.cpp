@@ -22,6 +22,8 @@
 #include "test_iterators.h"
 #include "hexfloat.h"
 
+#include "float_comparison.h"
+
 typedef std::num_get<char, input_iterator<const char*> > F;
 
 class my_facet
@@ -224,8 +226,9 @@ int main()
             f.get(input_iterator<const char*>(str),
                   input_iterator<const char*>(str+sizeof(str)),
                   ios, err, v);
-        assert(iter.base() == str+sizeof(str)-1);
-        assert(err != ios.failbit);
-        assert(v == 304888344611713860501504000000.0L);
+
+        FloatingPoint<long double> actual(v);
+        FloatingPoint<long double> expected(304888344611713860501504000000.0L);
+        assert(actual.AlmostEquals(expected));
     }
 }

@@ -4,10 +4,12 @@ GLSLANG_LOCAL_PATH := $(THIRD_PARTY_PATH)/glslang
 LOCAL_PATH := $(GLSLANG_LOCAL_PATH)
 
 GLSLANG_OS_FLAGS := -DGLSLANG_OSINCLUDE_UNIX
+# AMD and NV extensions are turned on by default in upstream Glslang.
+GLSLANG_DEFINES:= -DAMD_EXTENSIONS -DNV_EXTENSIONS $(GLSLANG_OS_FLAGS)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE:=SPIRV
-LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti $(GLSLANG_OS_FLAGS)
+LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti -Werror $(GLSLANG_DEFINES)
 LOCAL_EXPORT_C_INCLUDES:=$(GLSLANG_LOCAL_PATH)
 LOCAL_SRC_FILES:= \
 	SPIRV/GlslangToSpv.cpp \
@@ -24,7 +26,7 @@ include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE:=OSDependent
-LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti $(GLSLANG_OS_FLAGS)
+LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti $(GLSLANG_DEFINES)
 LOCAL_EXPORT_C_INCLUDES:=$(GLSLANG_LOCAL_PATH)
 LOCAL_SRC_FILES:=glslang/OSDependent/Unix/ossource.cpp
 LOCAL_C_INCLUDES:=$(GLSLANG_LOCAL_PATH) $(GLSLANG_LOCAL_PATH)/glslang/OSDependent/Unix/
@@ -33,7 +35,7 @@ include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE:=OGLCompiler
-LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti $(GLSLANG_OS_FLAGS)
+LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti $(GLSLANG_DEFINES)
 LOCAL_EXPORT_C_INCLUDES:=$(GLSLANG_LOCAL_PATH)
 LOCAL_SRC_FILES:=OGLCompilersDLL/InitializeDll.cpp
 LOCAL_C_INCLUDES:=$(GLSLANG_LOCAL_PATH)/OGLCompiler
@@ -46,6 +48,7 @@ include $(CLEAR_VARS)
 LOCAL_MODULE:=HLSL
 LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti
 LOCAL_SRC_FILES:= \
+		hlsl/hlslAttributes.cpp \
 		hlsl/hlslGrammar.cpp \
 		hlsl/hlslOpMap.cpp \
 		hlsl/hlslParseables.cpp \
@@ -59,10 +62,10 @@ include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 
-GLSLANG_OUT_PATH=$(abspath $(TARGET_OUT))
+GLSLANG_OUT_PATH=$(if $(call host-path-is-absolute,$(TARGET_OUT)),$(TARGET_OUT),$(abspath $(TARGET_OUT)))
 
 LOCAL_MODULE:=glslang
-LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti $(GLSLANG_OS_FLAGS)
+LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti $(GLSLANG_DEFINES)
 LOCAL_EXPORT_C_INCLUDES:=$(GLSLANG_LOCAL_PATH)
 
 LOCAL_SRC_FILES:= \
@@ -75,6 +78,7 @@ LOCAL_SRC_FILES:= \
 		glslang/MachineIndependent/Intermediate.cpp \
 		glslang/MachineIndependent/intermOut.cpp \
 		glslang/MachineIndependent/IntermTraverse.cpp \
+		glslang/MachineIndependent/iomapper.cpp \
 		glslang/MachineIndependent/limits.cpp \
 		glslang/MachineIndependent/linkValidate.cpp \
 		glslang/MachineIndependent/parseConst.cpp \
@@ -105,15 +109,14 @@ include $(BUILD_STATIC_LIBRARY)
 
 SPVTOOLS_LOCAL_PATH := $(THIRD_PARTY_PATH)/spirv-tools
 LOCAL_PATH := $(SPVTOOLS_LOCAL_PATH)
-SPVTOOLS_OUT_PATH=$(abspath $(TARGET_OUT))
+SPVTOOLS_OUT_PATH=$(if $(call host-path-is-absolute,$(TARGET_OUT)),$(TARGET_OUT),$(abspath $(TARGET_OUT)))
 SPVHEADERS_LOCAL_PATH := $(THIRD_PARTY_PATH)/spirv-tools/external/spirv-headers
 
 # Locations of grammar files.
 SPV_CORE10_GRAMMAR=$(SPVHEADERS_LOCAL_PATH)/include/spirv/1.0/spirv.core.grammar.json
 SPV_CORE11_GRAMMAR=$(SPVHEADERS_LOCAL_PATH)/include/spirv/1.1/spirv.core.grammar.json
 SPV_GLSL_GRAMMAR=$(SPVHEADERS_LOCAL_PATH)/include/spirv/1.0/extinst.glsl.std.450.grammar.json
-# OpenCL grammar has not yet been published to SPIRV-Headers
-SPV_OPENCL_GRAMMAR=$(SPVTOOLS_LOCAL_PATH)/source/extinst-1.0.opencl.std.grammar.json
+SPV_OPENCL_GRAMMAR=$(SPVHEADERS_LOCAL_PATH)/include/spirv/1.0/extinst.opencl.std.100.grammar.json
 
 define gen_spvtools_grammar_tables
 $(call generate-file-dir,$(1)/core.insts-1.0.inc)
@@ -157,6 +160,19 @@ $(SPVTOOLS_LOCAL_PATH)/source/software_version.cpp: $(1)/build-version.inc
 endef
 $(eval $(call gen_spvtools_build_version_inc,$(SPVTOOLS_OUT_PATH)))
 
+define gen_spvtools_generators_inc
+$(call generate-file-dir,$(1)/dummy_filename)
+$(1)/generators.inc: \
+        $(SPVTOOLS_LOCAL_PATH)/utils/generate_registry_tables.py \
+        $(SPVHEADERS_LOCAL_PATH)/include/spirv/spir-v.xml
+		@$(HOST_PYTHON) $(SPVTOOLS_LOCAL_PATH)/utils/generate_registry_tables.py \
+		                --xml=$(SPVHEADERS_LOCAL_PATH)/include/spirv/spir-v.xml \
+				--generator-output=$(1)/generators.inc
+		@echo "[$(TARGET_ARCH_ABI)] Generate       : generators.inc <= spir-v.xml"
+$(SPVTOOLS_LOCAL_PATH)/source/opcode.cpp: $(1)/generators.inc
+endef
+$(eval $(call gen_spvtools_generators_inc,$(SPVTOOLS_OUT_PATH)))
+
 include $(CLEAR_VARS)
 LOCAL_MODULE := SPIRV-Tools
 LOCAL_C_INCLUDES := \
@@ -166,33 +182,65 @@ LOCAL_C_INCLUDES := \
 		$(SPVTOOLS_OUT_PATH)
 LOCAL_EXPORT_C_INCLUDES := \
 		$(SPVTOOLS_LOCAL_PATH)/include
-LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti
+LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti -Werror
 LOCAL_SRC_FILES:= \
 		source/assembly_grammar.cpp \
 		source/binary.cpp \
 		source/diagnostic.cpp \
 		source/disassemble.cpp \
 		source/ext_inst.cpp \
-		source/instruction.cpp \
+		source/libspirv.cpp \
 		source/name_mapper.cpp \
 		source/opcode.cpp \
 		source/operand.cpp \
+		source/parsed_operand.cpp \
 		source/print.cpp \
 		source/software_version.cpp \
 		source/spirv_endian.cpp \
 		source/spirv_target_env.cpp \
+		source/spirv_validator_options.cpp \
 		source/table.cpp \
 		source/text.cpp \
 		source/text_handler.cpp \
 		source/util/parse_number.cpp \
-		source/val/BasicBlock.cpp \
-		source/val/Construct.cpp \
-		source/val/Function.cpp \
-		source/val/Instruction.cpp \
-		source/val/ValidationState.cpp \
+		source/val/basic_block.cpp \
+		source/val/construct.cpp \
+		source/val/function.cpp \
+		source/val/instruction.cpp \
+		source/val/validation_state.cpp \
 		source/validate.cpp \
 		source/validate_cfg.cpp \
+		source/validate_datarules.cpp \
+		source/validate_decorations.cpp \
 		source/validate_id.cpp \
 		source/validate_instruction.cpp \
-		source/validate_layout.cpp
+		source/validate_layout.cpp \
+		source/validate_type_unique.cpp
+include $(BUILD_STATIC_LIBRARY)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := SPIRV-Tools-opt
+LOCAL_C_INCLUDES := \
+		$(SPVTOOLS_LOCAL_PATH)/include \
+		$(SPVTOOLS_LOCAL_PATH)/source \
+		$(SPVTOOLS_LOCAL_PATH)/external/spirv-headers/include
+LOCAL_CXXFLAGS:=-std=c++11 -fno-exceptions -fno-rtti -Werror
+LOCAL_STATIC_LIBRARIES:=SPIRV-Tools
+LOCAL_SRC_FILES:= \
+		source/opt/build_module.cpp \
+		source/opt/def_use_manager.cpp \
+		source/opt/eliminate_dead_constant_pass.cpp \
+		source/opt/fold_spec_constant_op_and_composite_pass.cpp \
+		source/opt/freeze_spec_constant_value_pass.cpp \
+		source/opt/function.cpp \
+		source/opt/instruction.cpp \
+		source/opt/ir_loader.cpp \
+		source/opt/module.cpp \
+		source/opt/optimizer.cpp \
+		source/opt/pass_manager.cpp \
+		source/opt/set_spec_constant_default_value_pass.cpp \
+		source/opt/strip_debug_info_pass.cpp \
+		source/opt/type_manager.cpp \
+		source/opt/types.cpp \
+		source/opt/unify_const_pass.cpp
 include $(BUILD_STATIC_LIBRARY)

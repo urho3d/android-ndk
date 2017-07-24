@@ -59,24 +59,25 @@ libs_in_ldflags := \
 # Remove the system libraries we know about from the warning, it's ok
 # (and actually expected) to link them with -l<name>.
 system_libs := \
-    android \
-    c \
-    dl \
-    jnigraphics \
-    log \
-    m \
-    m_hard \
-    stdc++ \
-    z \
     EGL \
     GLESv1_CM \
     GLESv2 \
     GLESv3 \
-    vulkan \
-    OpenSLES \
     OpenMAXAL \
+    OpenSLES \
+    aaudio \
+    android \
+    atomic \
+    c \
+    camera2ndk \
+    dl \
+    jnigraphics \
+    log \
+    m \
     mediandk \
-    atomic
+    stdc++ \
+    vulkan \
+    z \
 
 libs_in_ldflags := $(filter-out $(addprefix -l,$(system_libs)), $(libs_in_ldflags))
 
@@ -142,6 +143,10 @@ LOCAL_RS_OBJECTS :=
 # always define ANDROID when building binaries
 #
 LOCAL_CFLAGS := -DANDROID $(LOCAL_CFLAGS)
+
+ifneq ($(APP_DEPRECATED_HEADERS),true)
+    LOCAL_CFLAGS += -D__ANDROID_API__=$(TARGET_PLATFORM_LEVEL)
+endif
 
 #
 # Add the default system shared libraries to the build
@@ -220,17 +225,33 @@ endif
 ifneq (,$(filter true,$(NDK_APP_PIE) $(TARGET_PIE)))
   ifeq ($(call module-get-class,$(LOCAL_MODULE)),EXECUTABLE)
     ifeq (,$(filter -static,$(TARGET_LDFLAGS) $(LOCAL_LDFLAGS) $(NDK_APP_LDFLAGS)))
-      LOCAL_CFLAGS += -fPIE
-      LOCAL_LDFLAGS += -fPIE -pie
+      # x86 and x86_64 use large model pic, whereas everything else uses small
+      # model. In the past we've always used -fPIE, but the LLVMgold plugin (for
+      # LTO) complains if the models are mismatched.
+      ifneq (,$(filter x86 x86_64,$(TARGET_ARCH_ABI)))
+        LOCAL_CFLAGS += -fPIE
+        LOCAL_LDFLAGS += -fPIE -pie
+      else
+        LOCAL_CFLAGS += -fpie
+        LOCAL_LDFLAGS += -fpie -pie
+      endif
     endif
   endif
 endif
 
 # http://b.android.com/222239
-# Older x86 devices had stack alignment issues.
-ifneq (,$(call lt,$(APP_PLATFORM_LEVEL),21))
-    ifeq ($(TARGET_ARCH_ABI),x86)
-        LOCAL_CFLAGS += -mstackrealign
+# http://b.android.com/220159 (internal http://b/31809417)
+# x86 devices have stack alignment issues.
+ifeq ($(TARGET_ARCH_ABI),x86)
+    LOCAL_CFLAGS += -mstackrealign
+endif
+
+# https://github.com/android-ndk/ndk/issues/297
+ifeq ($(TARGET_ARCH_ABI),x86)
+    ifneq (,$(call lt,$(APP_PLATFORM_LEVEL),17))
+        ifeq ($(NDK_TOOLCHAIN_VERSION),4.9)
+            LOCAL_CFLAGS += -mstack-protector-guard=global
+        endif
     endif
 endif
 
@@ -421,12 +442,14 @@ ifneq ($(LOCAL_RENDERSCRIPT_INCLUDES_OVERRIDE),)
     LOCAL_RENDERSCRIPT_INCLUDES := $(LOCAL_RENDERSCRIPT_INCLUDES_OVERRIDE)
 else
     LOCAL_RENDERSCRIPT_INCLUDES := \
+        $(RENDERSCRIPT_PLATFORM_HEADER)/scriptc \
         $(RENDERSCRIPT_TOOLCHAIN_HEADER) \
         $(LOCAL_RENDERSCRIPT_INCLUDES)
 endif
 
+# Only enable the compatibility path when LOCAL_RENDERSCRIPT_COMPATIBILITY is defined.
 RS_COMPAT :=
-ifneq ($(call module-is-shared-library,$(LOCAL_MODULE)),)
+ifeq ($(LOCAL_RENDERSCRIPT_COMPATIBILITY),true)
     RS_COMPAT := true
 endif
 
@@ -493,6 +516,14 @@ endif
 
 # Build the sources to object files
 #
+
+# Include RenderScript headers if rs files are found.
+ifneq ($(filter $(all_rs_patterns),$(LOCAL_SRC_FILES)),)
+    LOCAL_C_INCLUDES += \
+        $(RENDERSCRIPT_PLATFORM_HEADER) \
+        $(RENDERSCRIPT_PLATFORM_HEADER)/cpp \
+        $(TARGET_OBJS)/$(LOCAL_MODULE)
+endif
 
 $(foreach src,$(filter %.c,$(LOCAL_SRC_FILES)), $(call compile-c-source,$(src),$(call get-object-name,$(src))))
 $(foreach src,$(filter %.S %.s,$(LOCAL_SRC_FILES)), $(call compile-s-source,$(src),$(call get-object-name,$(src))))
@@ -582,7 +613,8 @@ ar_objects := $(call host-path,$(LOCAL_OBJECTS))
 ifeq ($(LOCAL_SHORT_COMMANDS),true)
     $(call ndk_log,Building static library module '$(LOCAL_MODULE)' with linker list file)
     ar_list_file := $(LOCAL_OBJS_DIR)/archiver.list
-    $(call generate-list-file,$(ar_objects),$(ar_list_file))
+    $(call generate-list-file,\
+        $(call escape-backslashes,$(ar_objects)),$(ar_list_file))
     ar_objects   := @$(call host-path,$(ar_list_file))
     $(LOCAL_BUILT_MODULE): $(ar_list_file)
 endif
@@ -595,7 +627,7 @@ ifeq (true,$(thin_archive))
 endif
 
 $(LOCAL_BUILT_MODULE): PRIVATE_ABI := $(TARGET_ARCH_ABI)
-$(LOCAL_BUILT_MODULE): PRIVATE_AR := $(TARGET_AR) $(ar_flags)
+$(LOCAL_BUILT_MODULE): PRIVATE_AR := $(TARGET_AR) $(ar_flags) $(TARGET_AR_FLAGS)
 $(LOCAL_BUILT_MODULE): PRIVATE_AR_OBJECTS := $(ar_objects)
 $(LOCAL_BUILT_MODULE): PRIVATE_BUILD_STATIC_LIB := $(cmd-build-static-library)
 
@@ -649,6 +681,26 @@ shared_libs := $(call module-filter-shared-libraries,$(all_libs))
 static_libs := $(call module-filter-static-libraries,$(all_libs))
 whole_static_libs := $(call module-extract-whole-static-libs,$(LOCAL_MODULE),$(static_libs))
 static_libs := $(filter-out $(whole_static_libs),$(static_libs))
+all_defined_libs := $(shared_libs) $(static_libs) $(whole_static_libs)
+undefined_libs := $(filter-out $(all_defined_libs),$(all_libs))
+
+ifdef undefined_libs
+    $(call __ndk_warning,Module $(LOCAL_MODULE) depends on undefined modules: $(undefined_libs))
+
+    # https://github.com/android-ndk/ndk/issues/208
+    # ndk-build didn't used to fail the build for a missing dependency. This
+    # seems to have always been the behavior, so there's a good chance that
+    # there are builds out there that depend on this behavior (as of right now,
+    # anything using libc++ on ARM has this problem because of libunwind).
+    #
+    # By default we will abort in this situation because this is so completely
+    # broken. A user may define APP_ALLOW_MISSING_DEPS to "true" in their
+    # Application.mk or on the command line to revert to the old, broken
+    # behavior.
+    ifneq ($(APP_ALLOW_MISSING_DEPS),true)
+        $(call __ndk_error,Aborting (set APP_ALLOW_MISSING_DEPS=true to allow missing dependencies))
+    endif
+endif
 
 $(call -ndk-mod-debug,module $(LOCAL_MODULE) [$(LOCAL_BUILT_MODULE)])
 $(call -ndk-mod-debug,.  all_libs='$(all_libs)')

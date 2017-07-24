@@ -526,7 +526,15 @@ class DirectoryCreationTest : public Test {
     else
       return std::string(temp_dir) + "\\";
 #elif GTEST_OS_LINUX_ANDROID
-    return "/sdcard/";
+    // We can't use a fixed path because we run multiple configurations of this
+    // test on the device simultaneously. This executable has its own directory
+    // though, so we can use this as the temp path.
+    char cwd[PATH_MAX];
+    if (getcwd(cwd, sizeof(cwd)) == NULL) {
+      perror("getcwd");
+      abort();
+    }
+    return cwd;
 #else
     return "/tmp/";
 #endif  // GTEST_OS_WINDOWS_MOBILE

@@ -15,10 +15,10 @@
 #ifndef LIBSPIRV_OPT_PASS_H_
 #define LIBSPIRV_OPT_PASS_H_
 
-#include <memory>
+#include <utility>
 
-#include "message.h"
 #include "module.h"
+#include "spirv-tools/libspirv.hpp"
 
 namespace spvtools {
 namespace opt {
@@ -42,7 +42,10 @@ class Pass {
   // The constructed instance will have an empty message consumer, which just
   // ignores all messages from the library. Use SetMessageConsumer() to supply
   // one if messages are of concern.
-  Pass() : consumer_(IgnoreMessage) {}
+  Pass() : consumer_(nullptr) {}
+
+  // Destructs the pass.
+  virtual ~Pass() = default;
 
   // Returns a descriptive name for this pass.
   virtual const char* name() const = 0;

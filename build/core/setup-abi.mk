@@ -28,11 +28,6 @@ TARGET_OUT := $(NDK_APP_OUT)/$(_app)/$(TARGET_ARCH_ABI)
 
 # For x86 and mips: the minimal platform level is android-9
 TARGET_PLATFORM_SAVED := $(TARGET_PLATFORM)
-ifneq ($(filter %x86 %mips,$(TARGET_ARCH_ABI)),)
-$(foreach _plat,3 4 5 8,\
-    $(eval TARGET_PLATFORM := $$(subst android-$(_plat),android-9,$$(TARGET_PLATFORM)))\
-)
-endif
 
 # For 64-bit ABIs: the minimal platform level is android-21
 ifneq ($(filter $(NDK_KNOWN_DEVICE_ABI64S),$(TARGET_ARCH_ABI)),)
@@ -67,13 +62,18 @@ endif
 ifeq ($(TARGET_ARCH_ABI),armeabi)
   RS_TRIPLE := arm-none-linux-gnueabi
 endif
+ifeq ($(TARGET_ARCH_ABI),arm64-v8a)
+  RS_TRIPLE := aarch64-linux-android
+endif
 ifeq ($(TARGET_ARCH_ABI),mips)
   RS_TRIPLE := mipsel-unknown-linux
 endif
 ifeq ($(TARGET_ARCH_ABI),x86)
   RS_TRIPLE := i686-unknown-linux
 endif
-
+ifeq ($(TARGET_ARCH_ABI),x86_64)
+  RS_TRIPLE := x86_64-unknown-linux
+endif
 
 include $(BUILD_SYSTEM)/setup-toolchain.mk
 

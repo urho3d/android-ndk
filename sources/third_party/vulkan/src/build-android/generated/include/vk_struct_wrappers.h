@@ -5060,6 +5060,40 @@ private:
 
 
 //class declaration
+class vkvalidationflagsext_struct_wrapper
+{
+public:
+    vkvalidationflagsext_struct_wrapper();
+    vkvalidationflagsext_struct_wrapper(VkValidationFlagsEXT* pInStruct);
+    vkvalidationflagsext_struct_wrapper(const VkValidationFlagsEXT* pInStruct);
+
+    virtual ~vkvalidationflagsext_struct_wrapper();
+
+    void display_txt();
+    void display_single_txt();
+    void display_full_txt();
+
+    void set_indent(uint32_t indent) { m_indent = indent; }
+    VkStructureType get_sType() { return m_struct.sType; }
+    void set_sType(VkStructureType inValue) { m_struct.sType = inValue; }
+    const void* get_pNext() { return m_struct.pNext; }
+    uint32_t get_disabledValidationCheckCount() { return m_struct.disabledValidationCheckCount; }
+    void set_disabledValidationCheckCount(uint32_t inValue) { m_struct.disabledValidationCheckCount = inValue; }
+    VkValidationCheckEXT* get_pDisabledValidationChecks() { return m_struct.pDisabledValidationChecks; }
+    void set_pDisabledValidationChecks(VkValidationCheckEXT* inValue) { m_struct.pDisabledValidationChecks = inValue; }
+
+
+private:
+    VkValidationFlagsEXT m_struct;
+    const VkValidationFlagsEXT* m_origStructAddr;
+    uint32_t m_indent;
+    const char m_dummy_prefix;
+    void display_struct_members();
+
+};
+
+
+//class declaration
 class vkvertexinputattributedescription_struct_wrapper
 {
 public:

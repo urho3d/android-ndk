@@ -1575,13 +1575,13 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateDescriptorSets(
     if (threadChecks) {
         startReadObject(my_data, device);
         startWriteObject(my_data, pAllocateInfo->descriptorPool);
-        // Host access to pAllocateInfo->descriptorPool must be externally synchronized
+        // Host access to pAllocateInfo::descriptorPool must be externally synchronized
     }
     result = pTable->AllocateDescriptorSets(device,pAllocateInfo,pDescriptorSets);
     if (threadChecks) {
         finishReadObject(my_data, device);
         finishWriteObject(my_data, pAllocateInfo->descriptorPool);
-        // Host access to pAllocateInfo->descriptorPool must be externally synchronized
+        // Host access to pAllocateInfo::descriptorPool must be externally synchronized
     } else {
         finishMultiThread();
     }
@@ -3222,6 +3222,9 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(
 
 
 
+
+
+
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 
 VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
@@ -3252,6 +3255,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
+
 
 // intercepts
 struct { const char* name; PFN_vkVoidFunction pFunc;} procmap[] = {

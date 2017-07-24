@@ -1466,3 +1466,18 @@ struct safe_VkWin32KeyedMutexAcquireReleaseInfoNV {
     VkWin32KeyedMutexAcquireReleaseInfoNV const *ptr() const { return reinterpret_cast<VkWin32KeyedMutexAcquireReleaseInfoNV const *>(this); }
 };
 #endif
+
+struct safe_VkValidationFlagsEXT {
+    VkStructureType sType;
+    const void* pNext;
+    uint32_t disabledValidationCheckCount;
+    VkValidationCheckEXT* pDisabledValidationChecks;
+    safe_VkValidationFlagsEXT(const VkValidationFlagsEXT* pInStruct);
+    safe_VkValidationFlagsEXT(const safe_VkValidationFlagsEXT& src);
+    safe_VkValidationFlagsEXT();
+    ~safe_VkValidationFlagsEXT();
+    void initialize(const VkValidationFlagsEXT* pInStruct);
+    void initialize(const safe_VkValidationFlagsEXT* src);
+    VkValidationFlagsEXT *ptr() { return reinterpret_cast<VkValidationFlagsEXT *>(this); }
+    VkValidationFlagsEXT const *ptr() const { return reinterpret_cast<VkValidationFlagsEXT const *>(this); }
+};

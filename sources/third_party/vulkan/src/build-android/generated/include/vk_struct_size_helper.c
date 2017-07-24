@@ -1228,6 +1228,15 @@ size_t vk_size_vkswapchaincreateinfokhr(const VkSwapchainCreateInfoKHR* pStruct)
     }
     return structSize;
 }
+size_t vk_size_vkvalidationflagsext(const VkValidationFlagsEXT* pStruct)
+{
+    size_t structSize = 0;
+    if (pStruct) {
+        structSize = sizeof(VkValidationFlagsEXT);
+        structSize += sizeof(VkValidationCheckEXT);
+    }
+    return structSize;
+}
 size_t vk_size_vkvertexinputattributedescription(const VkVertexInputAttributeDescription* pStruct)
 {
     size_t structSize = 0;
@@ -1326,7 +1335,7 @@ size_t vk_size_vkxlibsurfacecreateinfokhr(const VkXlibSurfaceCreateInfoKHR* pStr
     return structSize;
 }
 #endif //VK_USE_PLATFORM_XLIB_KHR
-// CODEGEN : file ../vk_helper.py line #1441
+// CODEGEN : file ../vk_helper.py line #1442
 size_t get_struct_chain_size(const void* pStruct)
 {
     // Just use VkApplicationInfo as struct until actual type is resolved
@@ -1577,7 +1586,7 @@ size_t get_struct_chain_size(const void* pStruct)
     }
     return structSize;
 }
-// CODEGEN : file ../vk_helper.py line #1441
+// CODEGEN : file ../vk_helper.py line #1442
 size_t get_dynamic_struct_size(const void* pStruct)
 {
     // Just use VkApplicationInfo as struct until actual type is resolved

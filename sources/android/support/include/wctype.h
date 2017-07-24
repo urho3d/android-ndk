@@ -40,9 +40,9 @@
 extern "C" {
 #endif
 
-typedef int wint_t;
-typedef int wctrans_t;
-typedef int wctype_t;
+typedef __WINT_TYPE__ wint_t;
+typedef const void* wctrans_t;
+typedef long wctype_t;
 
 #define WEOF ((wint_t)(-1))
 

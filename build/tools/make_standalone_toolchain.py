@@ -180,7 +180,7 @@ def copy_directory_contents(src, dst):
                 shutil.copy2(src_file, dst_dir)
 
 
-def make_clang_scripts(install_dir, triple, windows):
+def make_clang_scripts(install_dir, triple, api, windows, unified_headers):
     """Creates Clang wrapper scripts.
 
     The Clang in standalone toolchains historically was designed to be used as
@@ -214,6 +214,9 @@ def make_clang_scripts(install_dir, triple, windows):
 
     target = '-'.join([arch, 'none', os_name, env])
     flags = '-target {} --sysroot `dirname $0`/../sysroot'.format(target)
+
+    if unified_headers:
+        flags += ' -D__ANDROID_API__={}'.format(api)
 
     clang_path = os.path.join(install_dir, 'bin/clang')
     with open(clang_path, 'w') as clang:
@@ -252,6 +255,9 @@ def make_clang_scripts(install_dir, triple, windows):
 
     if windows:
         flags = '-target {} --sysroot %~dp0\\..\\sysroot'.format(target)
+        if unified_headers:
+            flags += ' -D__ANDROID_API__={}'.format(api)
+
         clangbat_path = os.path.join(install_dir, 'bin/clang.cmd')
         with open(clangbat_path, 'w') as clangbat:
             clangbat.write(textwrap.dedent("""\
@@ -324,10 +330,12 @@ def get_dest_libdir(dst_dir, triple, abi):
     return dst_libdir
 
 
-def copy_gnustl_libs(src_dir, dst_dir, triple, abi):
+def copy_gnustl_libs(src_dir, dst_dir, triple, abi, thumb=False):
     """Copy the gnustl libraries to the toolchain."""
     src_libdir = get_src_libdir(src_dir, abi)
     dst_libdir = get_dest_libdir(dst_dir, triple, abi)
+    if thumb:
+        dst_libdir = os.path.join(dst_libdir, 'thumb')
 
     logger().debug('Copying %s libs to %s', abi, dst_libdir)
 
@@ -344,10 +352,12 @@ def copy_gnustl_libs(src_dir, dst_dir, triple, abi):
                  os.path.join(dst_libdir, 'libstdc++.a'))
 
 
-def copy_stlport_libs(src_dir, dst_dir, triple, abi):
+def copy_stlport_libs(src_dir, dst_dir, triple, abi, thumb=False):
     """Copy the stlport libraries to the toolchain."""
     src_libdir = get_src_libdir(src_dir, abi)
     dst_libdir = get_dest_libdir(dst_dir, triple, abi)
+    if thumb:
+        dst_libdir = os.path.join(dst_libdir, 'thumb')
 
     if not os.path.exists(dst_libdir):
         os.makedirs(dst_libdir)
@@ -357,14 +367,66 @@ def copy_stlport_libs(src_dir, dst_dir, triple, abi):
                  os.path.join(dst_libdir, 'libstdc++.a'))
 
 
-def create_toolchain(install_path, arch, gcc_path, clang_path, sysroot_path,
-                     stl, host_tag):
+def copy_libcxx_libs(src_dir, dst_dir, include_libunwind):
+    shutil.copy2(os.path.join(src_dir, 'libc++_shared.so'), dst_dir)
+    shutil.copy2(os.path.join(src_dir, 'libc++_static.a'), dst_dir)
+    shutil.copy2(os.path.join(src_dir, 'libandroid_support.a'), dst_dir)
+    shutil.copy2(os.path.join(src_dir, 'libc++abi.a'), dst_dir)
+
+    if include_libunwind:
+        shutil.copy2(os.path.join(src_dir, 'libunwind.a'), dst_dir)
+
+    # libc++ is different from the other STLs. It has a libc++.(a|so) that is a
+    # linker script which automatically pulls in the necessary libraries. This
+    # way users don't have to do `-lc++abi -lunwind -landroid_support` on their
+    # own.
+    #
+    # As with the other STLs, we still copy this as libstdc++.a so the compiler
+    # will pick it up by default.
+    #
+    # Unlike the other STLs, also copy libc++.so (another linker script) over
+    # as libstdc++.so.  Since it's a linker script, the linker will still get
+    # the right DT_NEEDED from the SONAME of the actual linked object.
+    #
+    # TODO(danalbert): We should add linker scripts for the other STLs too
+    # since it lets the user avoid the current mess of having to always
+    # manually add `-lstlport_shared` (or whichever STL).
+    shutil.copy2(os.path.join(src_dir, 'libc++.a'),
+                 os.path.join(dst_dir, 'libstdc++.a'))
+    shutil.copy2(os.path.join(src_dir, 'libc++.so'),
+                 os.path.join(dst_dir, 'libstdc++.so'))
+
+
+def create_toolchain(install_path, arch, api, gcc_path, clang_path,
+                     sysroot_path, stl, host_tag, unified_headers):
     """Create a standalone toolchain."""
     copy_directory_contents(gcc_path, install_path)
     copy_directory_contents(clang_path, install_path)
     triple = get_triple(arch)
-    make_clang_scripts(install_path, triple, host_tag.startswith('windows'))
-    shutil.copytree(sysroot_path, os.path.join(install_path, 'sysroot'))
+    make_clang_scripts(
+        install_path, triple, api, host_tag.startswith('windows'),
+        unified_headers)
+
+    if unified_headers:
+        unified_sysroot = os.path.join(NDK_DIR, 'sysroot')
+        install_sysroot = os.path.join(install_path, 'sysroot')
+        shutil.copytree(unified_sysroot, install_sysroot)
+
+        arch_headers = os.path.join(unified_sysroot, 'usr/include', triple)
+        copy_directory_contents(
+            arch_headers, os.path.join(install_sysroot, 'usr/include'))
+
+        lib_path = os.path.join(sysroot_path, 'usr/lib')
+        lib_install = os.path.join(install_sysroot, 'usr/lib')
+        if os.path.exists(lib_path):
+            shutil.copytree(lib_path, lib_install)
+
+        lib64_path = os.path.join(sysroot_path, 'usr/lib64')
+        lib64_install = os.path.join(install_sysroot, 'usr/lib64')
+        if os.path.exists(lib64_path):
+            shutil.copytree(lib64_path, lib64_install)
+    else:
+        shutil.copytree(sysroot_path, os.path.join(install_path, 'sysroot'))
 
     prebuilt_path = os.path.join(NDK_DIR, 'prebuilt', host_tag)
     copy_directory_contents(prebuilt_path, install_path)
@@ -397,6 +459,8 @@ def create_toolchain(install_path, arch, gcc_path, clang_path, sysroot_path,
             if arch == 'arm':
                 copy_gnustl_abi_headers(gnustl_dir, install_path, gcc_ver,
                                         triple, abi, thumb=True)
+                copy_gnustl_libs(gnustl_dir, install_path, triple, abi,
+                                 thumb=True)
     elif stl == 'libc++':
         libcxx_dir = os.path.join(NDK_DIR, 'sources/cxx-stl/llvm-libc++')
         libcxxabi_dir = os.path.join(NDK_DIR, 'sources/cxx-stl/llvm-libc++abi')
@@ -423,38 +487,11 @@ def create_toolchain(install_path, arch, gcc_path, clang_path, sysroot_path,
         for abi in get_abis(arch):
             src_libdir = get_src_libdir(libcxx_dir, abi)
             dest_libdir = get_dest_libdir(install_path, triple, abi)
-            shutil.copy2(os.path.join(src_libdir, 'libc++_shared.so'),
-                         dest_libdir)
-            shutil.copy2(os.path.join(src_libdir, 'libc++_static.a'),
-                         dest_libdir)
-            shutil.copy2(os.path.join(src_libdir, 'libandroid_support.a'),
-                         dest_libdir)
-            shutil.copy2(os.path.join(src_libdir, 'libc++abi.a'), dest_libdir)
-
+            include_libunwind = arch == 'arm'
+            copy_libcxx_libs(src_libdir, dest_libdir, include_libunwind)
             if arch == 'arm':
-                shutil.copy2(os.path.join(src_libdir, 'libunwind.a'),
-                             dest_libdir)
-
-            # libc++ is different from the other STLs. It has a libc++.(a|so)
-            # that is a linker script which automatically pulls in the
-            # necessary libraries. This way users don't have to do
-            # `-lc++abi -lunwind -landroid_support` on their own.
-            #
-            # As with the other STLs, we still copy this as libstdc++.a so the
-            # compiler will pick it up by default.
-            #
-            # Unlike the other STLs, also copy libc++.so (another linker
-            # script) over as libstdc++.so.  Since it's a linker script, the
-            # linker will still get the right DT_NEEDED from the SONAME of the
-            # actual linked object.
-            #
-            # TODO(danalbert): We should add linker scripts for the other STLs
-            # too since it lets the user avoid the current mess of having to
-            # always manually add `-lstlport_shared` (or whichever STL).
-            shutil.copy2(os.path.join(src_libdir, 'libc++.a'),
-                         os.path.join(dest_libdir, 'libstdc++.a'))
-            shutil.copy2(os.path.join(src_libdir, 'libc++.so'),
-                         os.path.join(dest_libdir, 'libstdc++.so'))
+                thumb_libdir = os.path.join(dest_libdir, 'thumb')
+                copy_libcxx_libs(src_libdir, thumb_libdir, include_libunwind)
     elif stl == 'stlport':
         stlport_dir = os.path.join(NDK_DIR, 'sources/cxx-stl/stlport')
         gabixx_dir = os.path.join(NDK_DIR, 'sources/cxx-stl/gabi++')
@@ -483,7 +520,8 @@ def create_toolchain(install_path, arch, gcc_path, clang_path, sysroot_path,
         for abi in get_abis(arch):
             copy_stlport_libs(stlport_dir, install_path, triple, abi)
             if arch == 'arm':
-                copy_stlport_libs(stlport_dir, install_path, triple, abi)
+                copy_stlport_libs(stlport_dir, install_path, triple, abi,
+                                  thumb=True)
     else:
         raise ValueError(stl)
 
@@ -503,10 +541,21 @@ def parse_args():
         '--arch', required=True,
         choices=('arm', 'arm64', 'mips', 'mips64', 'x86', 'x86_64'))
     parser.add_argument(
-        '--api', type=int, help='Target the given API version.')
+        '--api', type=int,
+        help='Target the given API version (example: "--api 24").')
     parser.add_argument(
         '--stl', choices=('gnustl', 'libc++', 'stlport'), default='gnustl',
         help='C++ STL to use.')
+
+    headers_option_group = parser.add_mutually_exclusive_group()
+
+    headers_option_group.add_argument(
+        '--unified-headers', action='store_true', default=True,
+        help='Use unified headers (default).')
+
+    headers_option_group.add_argument(
+        '--deprecated-headers', action='store_false', dest='unified_headers',
+        help='Force the use of the deprecated headers (not recommended).')
 
     parser.add_argument(
         '--force', action='store_true',
@@ -533,9 +582,7 @@ def main():
     args = parse_args()
 
     if args.verbose is None:
-        # Integer comparisons against None are not supported in python3. Short
-        # circuit the checks below here.
-        pass
+        logging.basicConfig(level=logging.WARNING)
     elif args.verbose == 1:
         logging.basicConfig(level=logging.INFO)
     elif args.verbose >= 2:
@@ -544,9 +591,12 @@ def main():
     check_ndk_or_die()
 
     lp32 = args.arch in ('arm', 'mips', 'x86')
-    min_api = 9 if lp32 else 21
+    min_api = 14 if lp32 else 21
     api = args.api
     if api is None:
+        logger().warning(
+            'Defaulting to target API %d (minimum supported target for %s)',
+            min_api, args.arch)
         api = min_api
     elif api < min_api:
         sys.exit('{} is less than minimum platform for {} ({})'.format(
@@ -572,8 +622,8 @@ def main():
         atexit.register(shutil.rmtree, tempdir)
         install_path = os.path.join(tempdir, triple)
 
-    create_toolchain(install_path, args.arch, gcc_path, clang_path,
-                     sysroot_path, args.stl, host_tag)
+    create_toolchain(install_path, args.arch, api, gcc_path, clang_path,
+                     sysroot_path, args.stl, host_tag, args.unified_headers)
 
     if args.install_dir is None:
         if host_tag.startswith('windows'):
