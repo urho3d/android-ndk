@@ -1172,6 +1172,7 @@ static inline uint32_t validate_VkStructureType(VkStructureType input_value)
         case VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO:
         case VK_STRUCTURE_TYPE_SUBMIT_INFO:
         case VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR:
+        case VK_STRUCTURE_TYPE_VALIDATION_FLAGS_EXT:
         case VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR:
         case VK_STRUCTURE_TYPE_WIN32_KEYED_MUTEX_ACQUIRE_RELEASE_INFO_NV:
         case VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR:
@@ -1215,6 +1216,18 @@ static inline uint32_t validate_VkSystemAllocationScope(VkSystemAllocationScope 
         case VK_SYSTEM_ALLOCATION_SCOPE_DEVICE:
         case VK_SYSTEM_ALLOCATION_SCOPE_INSTANCE:
         case VK_SYSTEM_ALLOCATION_SCOPE_OBJECT:
+            return 1;
+        default:
+            return 0;
+    }
+}
+
+
+static inline uint32_t validate_VkValidationCheckEXT(VkValidationCheckEXT input_value)
+{
+    switch ((VkValidationCheckEXT)input_value)
+    {
+        case VK_VALIDATION_CHECK_ALL_EXT:
             return 1;
         default:
             return 0;

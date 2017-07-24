@@ -19,19 +19,19 @@
 
 #include "enum_set.h"
 #include "message.h"
-#include "spirv-tools/libspirv.h"
+#include "spirv-tools/libspirv.hpp"
 
 namespace libspirv {
 
 // The known SPIR-V extensions.
 // TODO(dneto): Consider auto-generating this list?
 enum class Extension {
-  kSPV_KHR_shader_ballot
+  kSPV_KHR_shader_ballot,
 };
 
 using ExtensionSet = EnumSet<Extension>;
 
-} // namespace libspirv
+}  // namespace libspirv
 
 typedef struct spv_opcode_desc_t {
   const char* name;

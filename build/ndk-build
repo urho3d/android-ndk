@@ -39,6 +39,7 @@
 #
 PROGDIR=`dirname $0`
 PROGDIR=`cd $PROGDIR && pwd -P`
+ANDROID_NDK_ROOT=$PROGDIR/..
 
 # Check if absolute NDK path contain space
 #
@@ -152,7 +153,7 @@ esac
 # on 32-bit ones. This gives us more freedom in packaging the NDK.
 LOG_MESSAGE=
 if [ $HOST_ARCH = x86_64 ]; then
-  if [ ! -d $PROGDIR/prebuilt/$HOST_TAG ]; then
+  if [ ! -d $ANDROID_NDK_ROOT/prebuilt/$HOST_TAG ]; then
     HOST_ARCH=x86
     LOG_MESSAGE="(no 64-bit prebuilt binaries detected)"
   fi
@@ -179,7 +180,7 @@ else
     # Otherwise use the prebuilt version for our host tag, if it exists
     # Note: we intentionally do not provide prebuilt make binaries for Cygwin
     # or MSys.
-    GNUMAKE=$PROGDIR/prebuilt/$HOST_TAG/bin/make
+    GNUMAKE=$ANDROID_NDK_ROOT/prebuilt/$HOST_TAG/bin/make
     if [ ! -f "$GNUMAKE" ]; then
         # Otherwise, use 'make' and check that it is available
         GNUMAKE=`which make 2> /dev/null`
@@ -224,7 +225,7 @@ if [ "$OSTYPE" = "cygwin" ] ; then
 fi
 
 if [ "$NDK_ANALYZE" = 1 ]; then
-    . $PROGDIR/build/tools/dev-defaults.sh  # for DEFAULT_LLVM_VERSION
+    . $PROGDIR/tools/dev-defaults.sh  # for DEFAULT_LLVM_VERSION
 
     # Return flags send in env. or command line which are enough to retrive APP_ABI and TOOLCHAIN_PREFIX later
     gen_flags ()
@@ -261,8 +262,8 @@ if [ "$NDK_ANALYZE" = 1 ]; then
     APP_ABIS=`get_build_var APP_ABI`
     for ABI in $APP_ABIS; do
         TOOLCHAIN_PREFIX=`get_build_var_for_abi TOOLCHAIN_PREFIX $ABI`
-        LLVM_PATH=$PROGDIR/toolchains/llvm-${DEFAULT_LLVM_VERSION}/prebuilt
-        perl $LLVM_PATH/tools/scan-build/scan-build \
+        LLVM_PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$HOST_TAG
+        perl $LLVM_PATH/tools/scan-build/bin/scan-build \
             --use-analyzer $LLVM_PATH/bin/${ABI}/analyzer \
             --use-cc ${TOOLCHAIN_PREFIX}gcc \
             --use-c++ ${TOOLCHAIN_PREFIX}g++ \

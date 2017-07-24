@@ -32,6 +32,7 @@ libcxxabi_src_files := \
     src/cxa_vector.cpp \
     src/cxa_virtual.cpp \
     src/exception.cpp \
+    src/fallback_malloc.cpp \
     src/private_typeinfo.cpp \
     src/stdexcept.cpp \
     src/typeinfo.cpp

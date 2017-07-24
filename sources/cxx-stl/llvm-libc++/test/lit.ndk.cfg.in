@@ -14,7 +14,7 @@ top = os.getenv('ANDROID_BUILD_TOP')
 libcxx_dir = os.path.join(ndk, 'sources/cxx-stl/llvm-libc++')
 
 config.cxx_under_test = os.path.join(
-    ndk, "toolchains/llvm/prebuilt/linux-x86_64/bin/clang++")
+    ndk, "toolchains/llvm/prebuilt/%HOST_TAG%/bin/clang++")
 config.std = "c++11"
 config.libcxx_src_root = libcxx_dir
 config.libcxx_obj_root = libcxx_dir
@@ -29,9 +29,11 @@ config.cxx_abi = "libcxxabi"
 config.use_sanitizer = ""
 config.configuration_variant = "libcxx.ndk"
 config.target_triple = "%TRIPLE%"
-config.sysroot = os.path.join(ndk, "platforms/android-21/arch-%ARCH%/")
+config.use_pie = "%USE_PIE%"
+config.target_api = %API%
+config.arch = "%ARCH%"
 config.gcc_toolchain = os.path.join(
-    ndk, "toolchains/%TOOLCHAIN%-4.9/prebuilt/linux-x86_64")
+    ndk, "toolchains/%TOOLCHAIN%-4.9/prebuilt/%HOST_TAG%")
 
 # Let the main config do the real work.
 lit_config.load_config(

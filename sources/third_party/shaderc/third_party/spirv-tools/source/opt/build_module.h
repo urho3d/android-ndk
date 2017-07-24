@@ -17,11 +17,9 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
-#include "message.h"
 #include "module.h"
-#include "spirv-tools/libspirv.h"
+#include "spirv-tools/libspirv.hpp"
 
 namespace spvtools {
 

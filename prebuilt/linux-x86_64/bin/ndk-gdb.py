@@ -374,6 +374,18 @@ def get_app_data_dir(args, package_name):
         error("Could not find application's data directory. Are you sure that "
               "the application is installed and debuggable?")
     data_dir = stdout.strip()
+
+    # Applications with minSdkVersion >= 24 will have their data directories
+    # created with rwx------ permissions, preventing adbd from forwarding to
+    # the gdbserver socket. To be safe, if we're on a device >= 24, always
+    # chmod the directory.
+    if get_api_level(args.props) >= 24:
+        chmod_cmd = ["/system/bin/chmod", "a+x", data_dir]
+        chmod_cmd = gdbrunner.get_run_as_cmd(package_name, chmod_cmd)
+        (rc, _, _) = args.device.shell_nocheck(chmod_cmd)
+        if rc != 0:
+            error("Failed to make application data directory world executable")
+
     log("Found application data directory: {}".format(data_dir))
     return data_dir
 

@@ -23,6 +23,11 @@
  * Author: Courtney Goeltzenleuchter <courtney@LunarG.com>
  * Author: Tobin Ehlis <tobin@lunarg.com>
  */
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //#includes, #defines, globals and such...
 #include <stdio.h>
 #include <stdlib.h>
@@ -169,6 +174,7 @@ size_t vk_size_vksubresourcelayout(const VkSubresourceLayout* pStruct);
 size_t vk_size_vksurfacecapabilitieskhr(const VkSurfaceCapabilitiesKHR* pStruct);
 size_t vk_size_vksurfaceformatkhr(const VkSurfaceFormatKHR* pStruct);
 size_t vk_size_vkswapchaincreateinfokhr(const VkSwapchainCreateInfoKHR* pStruct);
+size_t vk_size_vkvalidationflagsext(const VkValidationFlagsEXT* pStruct);
 size_t vk_size_vkvertexinputattributedescription(const VkVertexInputAttributeDescription* pStruct);
 size_t vk_size_vkvertexinputbindingdescription(const VkVertexInputBindingDescription* pStruct);
 size_t vk_size_vkviewport(const VkViewport* pStruct);
@@ -188,3 +194,7 @@ size_t vk_size_vkxcbsurfacecreateinfokhr(const VkXcbSurfaceCreateInfoKHR* pStruc
 #ifdef VK_USE_PLATFORM_XLIB_KHR
 size_t vk_size_vkxlibsurfacecreateinfokhr(const VkXlibSurfaceCreateInfoKHR* pStruct);
 #endif //VK_USE_PLATFORM_XLIB_KHR
+
+#ifdef __cplusplus
+}
+#endif

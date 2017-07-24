@@ -105,6 +105,45 @@ __function_type_info::~__function_type_info()
 {
 }
 
+// __qualified_function_type_info
+
+__qualified_function_type_info::~__qualified_function_type_info()
+{
+}
+
+// Determine if a function pointer conversion can convert a pointer (or pointer
+// to member) to type x into a pointer (or pointer to member) to type y.
+static bool is_function_pointer_conversion(const std::type_info* x,
+                                           const std::type_info* y)
+{
+    const unsigned int discardable_quals =
+        __qualified_function_type_info::__noexcept_mask |
+        __qualified_function_type_info::__transaction_safe_mask |
+        __qualified_function_type_info::__noreturn_mask;
+
+    // If x has only discardable qualifiers and y is unqualified, then
+    // conversion is permitted.
+    const __qualified_function_type_info* qual_x =
+        dynamic_cast<const __qualified_function_type_info *>(x);
+    if (!qual_x)
+        return false;
+    if ((qual_x->__qualifiers & ~discardable_quals) == 0 &&
+        is_equal(qual_x->__base_type, y, false))
+        return true;
+
+    // Otherwise, x's qualifiers must be the same as y's, plus some discardable
+    // ones.
+    const __qualified_function_type_info* qual_y =
+        dynamic_cast<const __qualified_function_type_info *>(y);
+    if (!qual_y)
+        return false;
+    if (qual_y->__qualifiers & ~qual_x->__qualifiers)
+        return false;
+    if (qual_x->__qualifiers & ~qual_y->__qualifiers & ~discardable_quals)
+        return false;
+    return is_equal(qual_x->__base_type, qual_y->__base_type, false);
+}
+
 // __enum_type_info
 
 __enum_type_info::~__enum_type_info()
@@ -171,8 +210,12 @@ __pointer_to_member_type_info::~__pointer_to_member_type_info()
 // catch (D2& d2) : adjustedPtr == &d2  (d2 is base class of thrown object)
 // catch (D2* d2) : adjustedPtr == d2
 // catch (D2*& d2) : adjustedPtr == d2
-// 
+//
 // catch (...) : adjustedPtr == & of the exception
+//
+// If the thrown type is nullptr_t and the caught type is a pointer to
+// member type, adjustedPtr points to a statically-allocated null pointer
+// representation of that type.
 
 // Handles bullet 1
 bool
@@ -337,12 +380,11 @@ __vmi_class_type_info::has_unambiguous_public_base(__dynamic_cast_info* info,
     }
 }
 
-// Handles bullets 1 and 4 for both pointers and member pointers
+// Handles bullet 1 for both pointers and member pointers
 bool
 __pbase_type_info::can_catch(const __shim_type_info* thrown_type,
                              void*&) const
 {
-    if (is_equal(thrown_type, &typeid(std::nullptr_t), false)) return true;
     bool use_strcmp = this->__flags & (__incomplete_class_mask |
                                        __incomplete_mask);
     if (!use_strcmp) {
@@ -367,7 +409,13 @@ bool
 __pointer_type_info::can_catch(const __shim_type_info* thrown_type,
                                void*& adjustedPtr) const
 {
-    // bullets 1 and 4
+    // bullet 4
+    if (is_equal(thrown_type, &typeid(std::nullptr_t), false)) {
+      adjustedPtr = nullptr;
+      return true;
+    }
+
+    // bullet 1
     if (__pbase_type_info::can_catch(thrown_type, adjustedPtr)) {
         if (adjustedPtr != NULL)
             adjustedPtr = *static_cast<void**>(adjustedPtr);
@@ -386,6 +434,10 @@ __pointer_type_info::can_catch(const __shim_type_info* thrown_type,
         return false;
     if (is_equal(__pointee, thrown_pointer_type->__pointee, false))
         return true;
+    // bullet 3C
+    if (is_function_pointer_conversion(thrown_pointer_type->__pointee,
+                                       __pointee))
+      return true;
     // bullet 3A
     if (is_equal(__pointee, &typeid(void), false)) {
         // pointers to functions cannot be converted to void*.
@@ -468,7 +520,22 @@ bool __pointer_type_info::can_catch_nested(
 
 bool __pointer_to_member_type_info::can_catch(
     const __shim_type_info* thrown_type, void*& adjustedPtr) const {
-    // bullets 1 and 4
+    // bullet 4
+    if (is_equal(thrown_type, &typeid(std::nullptr_t), false)) {
+      // We assume that the pointer to member representation is the same for
+      // all pointers to data members and for all pointers to member functions.
+      struct X {};
+      if (dynamic_cast<const __function_type_info*>(__pointee)) {
+        static int (X::*const null_ptr_rep)() = nullptr;
+        adjustedPtr = const_cast<int (X::**)()>(&null_ptr_rep);
+      } else {
+        static int X::*const null_ptr_rep = nullptr;
+        adjustedPtr = const_cast<int X::**>(&null_ptr_rep);
+      }
+      return true;
+    }
+
+    // bullet 1
     if (__pbase_type_info::can_catch(thrown_type, adjustedPtr))
         return true;
 
@@ -478,7 +545,9 @@ bool __pointer_to_member_type_info::can_catch(
         return false;
     if (thrown_pointer_type->__flags & ~__flags)
         return false;
-    if (!is_equal(__pointee, thrown_pointer_type->__pointee, false))
+    if (!is_equal(__pointee, thrown_pointer_type->__pointee, false) &&
+        !is_function_pointer_conversion(thrown_pointer_type->__pointee,
+                                        __pointee))
         return false;
     if (is_equal(__context, thrown_pointer_type->__context, false))
         return true;
@@ -592,13 +661,11 @@ bool __pointer_to_member_type_info::can_catch_nested(
 // If there is a public path from (dynamic_ptr, dynamic_type) to
 //    (static_ptr, static_type), then return dynamic_ptr.
 // Else return nullptr.
-extern "C"
-void*
-__dynamic_cast(const void* static_ptr,
-               const __class_type_info* static_type,
-               const __class_type_info* dst_type,
-               std::ptrdiff_t src2dst_offset)
-{
+
+extern "C" _LIBCXXABI_FUNC_VIS void *
+__dynamic_cast(const void *static_ptr, const __class_type_info *static_type,
+               const __class_type_info *dst_type,
+               std::ptrdiff_t src2dst_offset) {
     // Possible future optimization:  Take advantage of src2dst_offset
     // Currently clang always sets src2dst_offset to -1 (no hint).
 

@@ -60,64 +60,7 @@ ifndef APP_PROJECT_PATH
     APP_PROJECT_PATH := $(NDK_PROJECT_PATH)
 endif
 
-ifeq (null,$(APP_PROJECT_PATH))
-
-ifndef APP_PLATFORM
-    APP_PLATFORM := android-9
-    $(call ndk_log,  Defaulted to APP_PLATFORM=$(APP_PLATFORM))
-endif
-
-else
-
-# check whether APP_PLATFORM is defined. If not, look for project.properties in
-# the $(APP_PROJECT_PATH) and extract the value with awk's help. If nothing is here,
-# revert to the default value (i.e. "android-3").
-#
-APP_PLATFORM := $(strip $(APP_PLATFORM))
-ifndef APP_PLATFORM
-    _local_props := $(strip $(wildcard $(APP_PROJECT_PATH)/project.properties))
-    ifndef _local_props
-        # NOTE: project.properties was called default.properties before
-        _local_props := $(strip $(wildcard $(APP_PROJECT_PATH)/default.properties))
-    endif
-    ifdef _local_props
-        APP_PLATFORM := $(strip $(shell $(HOST_AWK) -f $(BUILD_AWK)/extract-platform.awk $(call host-path,$(_local_props))))
-        $(call ndk_log,  Found APP_PLATFORM=$(APP_PLATFORM) in $(_local_props))
-    else
-        APP_PLATFORM := android-9
-        $(call ndk_log,  Defaulted to APP_PLATFORM=$(APP_PLATFORM))
-    endif
-endif
-
-ifeq ($(APP_PLATFORM),android-L)
-$(call __ndk_warning,WARNING: android-L is renamed as android-21)
-override APP_PLATFORM := android-21
-endif
-
-endif # APP_PROJECT_PATH == null
-
-# SPECIAL CASES:
-# 1) android-6 and android-7 are the same thing as android-5
-# 2) android-10 and android-11 are the same thing as android-9
-# 3) android-20 is the same thing as android-19
-# ADDITIONAL CASES for remote server where total number of files is limited
-# 5) android-13 is the same thing as android-12
-# 6) android-15 is the same thing as android-14
-# 7) android-17 is the same thing as android-16
-APP_PLATFORM_LEVEL := $(strip $(subst android-,,$(APP_PLATFORM)))
-ifneq (,$(filter 6 7,$(APP_PLATFORM_LEVEL)))
-    override APP_PLATFORM := android-5
-endif
-ifneq (,$(filter 10 11,$(APP_PLATFORM_LEVEL)))
-    override APP_PLATFORM := android-9
-endif
-ifneq (,$(filter 20,$(APP_PLATFORM_LEVEL)))
-    override APP_PLATFORM := android-19
-endif
-
-ifneq ($(strip $(subst android-,,$(APP_PLATFORM))),$(APP_PLATFORM_LEVEL))
-    $(call ndk_log,  Adjusting APP_PLATFORM android-$(APP_PLATFORM_LEVEL) to $(APP_PLATFORM))
-endif
+include $(BUILD_SYSTEM)/setup-app-platform.mk
 
 # If APP_PIE isn't defined, set it to true for android-$(NDK_FIRST_PIE_PLATFORM_LEVEL) and above
 #
@@ -132,33 +75,6 @@ ifndef APP_PIE
     endif
 endif
 
-# Check that the value of APP_PLATFORM corresponds to a known platform
-# If not, we're going to use the max supported platform value.
-#
-_bad_platform := $(strip $(filter-out $(NDK_ALL_PLATFORMS),$(APP_PLATFORM)))
-ifdef _bad_platform
-    $(call ndk_log,Application $(_app) targets unknown platform '$(_bad_platform)')
-    override APP_PLATFORM := android-$(NDK_MAX_PLATFORM_LEVEL)
-    $(call ndk_log,Switching to $(APP_PLATFORM))
-endif
-
-ifneq (null,$(APP_PROJECT_PATH))
-
-# Check platform level (after adjustment) against android:minSdkVersion in AndroidManifest.xml
-#
-APP_MANIFEST := $(strip $(wildcard $(APP_PROJECT_PATH)/AndroidManifest.xml))
-APP_PLATFORM_LEVEL := $(strip $(subst android-,,$(APP_PLATFORM)))
-ifdef APP_MANIFEST
-  APP_MIN_PLATFORM_LEVEL := $(strip $(shell $(HOST_AWK) -f $(BUILD_AWK)/extract-minsdkversion.awk $(call host-path,$(APP_MANIFEST))))
-  ifdef APP_MIN_PLATFORM_LEVEL
-    ifneq (,$(call gt,$(APP_PLATFORM_LEVEL),$(APP_MIN_PLATFORM_LEVEL)))
-      $(call __ndk_info,WARNING: APP_PLATFORM $(APP_PLATFORM) is larger than android:minSdkVersion $(APP_MIN_PLATFORM_LEVEL) in $(APP_MANIFEST))
-    endif
-  endif
-endif
-
-endif # APP_PROJECT_PATH == null
-
 # Check that the value of APP_ABI corresponds to known ABIs
 # 'all' is a special case that means 'all supported ABIs'
 #
@@ -172,19 +88,6 @@ endif # APP_PROJECT_PATH == null
 APP_ABI := $(subst $(comma),$(space),$(strip $(APP_ABI)))
 ifndef APP_ABI
     APP_ABI := $(NDK_DEFAULT_ABIS)
-endif
-ifneq ($(APP_ABI),all)
-    _bad_abis := $(strip $(filter-out $(NDK_ALL_ABIS),$(APP_ABIS)))
-    ifdef _bad_abis
-        ifneq ($(filter $(_bad_abis),armeabi-v7a-hard),)
-            $(call __ndk_info,armeabi-v7a-hard is no longer supported. Use armeabi-v7a.)
-            $(call __ndk_info,See https://android.googlesource.com/platform/ndk/+/master/docs/HardFloatAbi.md)
-        endif
-        $(call __ndk_info,Application $(_app) targets unknown ABI '$(_bad_abis)')
-        $(call __ndk_info,Please fix the APP_ABI definition in $(_application_mk))
-        $(call __ndk_info,to use a set of the following values: $(NDK_ALL_ABIS))
-        $(call __ndk_error,Aborting)
-    endif
 endif
 
 # If APP_BUILD_SCRIPT is defined, check that the file exists.
@@ -234,7 +137,7 @@ else
   # NOTE: To make unit-testing simpler, handle the case where there is no manifest.
   APP_DEBUGGABLE := false
   ifdef APP_MANIFEST
-    APP_DEBUGGABLE := $(shell $(HOST_AWK) -f $(BUILD_AWK)/extract-debuggable.awk $(call host-path,$(APP_MANIFEST)))
+    APP_DEBUGGABLE := $(shell $(HOST_PYTHON) $(BUILD_PY)/extract_manifest.py debuggable $(call host-path,$(APP_MANIFEST)))
   endif
   ifeq ($(NDK_LOG),1)
     ifeq ($(APP_DEBUGGABLE),true)

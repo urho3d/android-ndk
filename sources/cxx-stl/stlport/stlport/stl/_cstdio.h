@@ -94,7 +94,10 @@ using _STLP_VENDOR_CSTD::fwrite;
  using _STLP_VENDOR_CSTD::putchar;
 #    endif
 
+#    if __cplusplus <= 201103L
 using _STLP_VENDOR_CSTD::gets;
+#    endif
+
 #    if !defined (_WIN32_WCE) || (_WIN32_WCE < 400)
 using _STLP_VENDOR_CSTD::perror;
 #    endif

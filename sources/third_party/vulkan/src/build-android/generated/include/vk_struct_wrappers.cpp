@@ -6854,6 +6854,52 @@ void vkswapchaincreateinfokhr_struct_wrapper::display_full_txt()
 }
 
 
+// vkvalidationflagsext_struct_wrapper class definition
+vkvalidationflagsext_struct_wrapper::vkvalidationflagsext_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
+vkvalidationflagsext_struct_wrapper::vkvalidationflagsext_struct_wrapper(VkValidationFlagsEXT* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkvalidationflagsext_struct_wrapper::vkvalidationflagsext_struct_wrapper(const VkValidationFlagsEXT* pInStruct) : m_indent(0), m_dummy_prefix('\0')
+{
+    m_struct = *pInStruct;
+    m_origStructAddr = pInStruct;
+}
+vkvalidationflagsext_struct_wrapper::~vkvalidationflagsext_struct_wrapper() {}
+// Output 'structname = struct_address' on a single line
+void vkvalidationflagsext_struct_wrapper::display_single_txt()
+{
+    printf(" %*sVkValidationFlagsEXT = 0x%p", m_indent, "", (void*)m_origStructAddr);
+}
+
+// Private helper function that displays the members of the wrapped struct
+void vkvalidationflagsext_struct_wrapper::display_struct_members()
+{
+    printf("%*s    %ssType = %s\n", m_indent, "", &m_dummy_prefix, string_VkStructureType(m_struct.sType));
+    printf("%*s    %spNext = 0x%p\n", m_indent, "", &m_dummy_prefix, (m_struct.pNext));
+    printf("%*s    %sdisabledValidationCheckCount = %u\n", m_indent, "", &m_dummy_prefix, (m_struct.disabledValidationCheckCount));
+    printf("%*s    %spDisabledValidationChecks = 0x%s\n", m_indent, "", &m_dummy_prefix, string_VkValidationCheckEXT(*m_struct.pDisabledValidationChecks));
+}
+
+// Output all struct elements, each on their own line
+void vkvalidationflagsext_struct_wrapper::display_txt()
+{
+    printf("%*sVkValidationFlagsEXT struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+}
+
+// Output all struct elements, and for any structs pointed to, print complete contents
+void vkvalidationflagsext_struct_wrapper::display_full_txt()
+{
+    printf("%*sVkValidationFlagsEXT struct contents at 0x%p:\n", m_indent, "", (void*)m_origStructAddr);
+    this->display_struct_members();
+    if (m_struct.pNext) {
+        dynamic_display_full_txt(m_struct.pNext, m_indent);
+    }
+}
+
+
 // vkvertexinputattributedescription_struct_wrapper class definition
 vkvertexinputattributedescription_struct_wrapper::vkvertexinputattributedescription_struct_wrapper() : m_struct(), m_indent(0), m_dummy_prefix('\0'), m_origStructAddr(NULL) {}
 vkvertexinputattributedescription_struct_wrapper::vkvertexinputattributedescription_struct_wrapper(VkVertexInputAttributeDescription* pInStruct) : m_indent(0), m_dummy_prefix('\0')

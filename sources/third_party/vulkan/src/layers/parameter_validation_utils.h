@@ -28,6 +28,9 @@
 #include "vulkan/vulkan.h"
 #include "vk_enum_string_helper.h"
 #include "vk_layer_logging.h"
+#include "vk_validation_error_messages.h"
+
+#include "parameter_name.h"
 
 #include "parameter_name.h"
 
@@ -174,7 +177,7 @@ bool validate_array(debug_report_data *report_data, const char *apiName, const P
     bool skip_call = false;
 
     // Count parameters not tagged as optional cannot be 0
-    if ((count == 0) && countRequired) {
+    if (countRequired && (count == 0)) {
         skip_call |= log_msg(report_data, VK_DEBUG_REPORT_ERROR_BIT_EXT, VK_DEBUG_REPORT_OBJECT_TYPE_UNKNOWN_EXT, 0, __LINE__,
                             REQUIRED_PARAMETER, LayerName, "%s: parameter %s must be greater than 0", apiName,
                             countName.get_name().c_str());
@@ -795,7 +798,7 @@ static std::string get_result_description(VkResult result) {
 * @param value VkResult value to validate.
 */
 static void validate_result(debug_report_data *report_data, const char *apiName, VkResult result) {
-    if (result < 0) {
+    if (result < 0 && result != VK_ERROR_VALIDATION_FAILED_EXT) {
         std::string resultName = string_VkResult(result);
 
         if (resultName == UnsupportedResultString) {

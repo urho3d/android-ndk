@@ -42,7 +42,7 @@ load-plugins=
 # Some of these should be cleaned up, but disable them for now so I can check
 # this in. The too-many-* refactoring warnings will probably remain on for all
 # time, but naming and docstrings can and should be fixed.
-disable=missing-docstring,invalid-name,too-many-locals,fixme,too-many-arguments,too-many-branches,too-many-statements,too-few-public-methods,too-many-public-methods,locally-disabled
+disable=missing-docstring,invalid-name,fixme,design,locally-disabled,too-many-lines
 
 
 [REPORTS]
@@ -139,7 +139,7 @@ ignore-mixin-members=yes
 
 # List of classes names for which member attributes should not be checked
 # (useful for classes with attributes dynamically set).
-ignored-classes=SQLObject
+ignored-classes=SQLObject,SyncManager
 
 # When zope mode is activated, add a predefined set of Zope acquired attributes
 # to generated-members.

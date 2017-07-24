@@ -1,3 +1,4 @@
+include(AddLLVM) # for add_lit_testsuite
 macro(pythonize_bool var)
   if (${var})
     set(${var} True)
@@ -10,12 +11,12 @@ if (NOT DEFINED LIBCXX_ENABLE_SHARED)
   set(LIBCXX_ENABLE_SHARED ON)
 endif()
 
-pythonize_bool(LLVM_BUILD_32_BITS)
+pythonize_bool(LIBCXXABI_BUILD_32_BITS)
 pythonize_bool(LIBCXX_ENABLE_SHARED)
 pythonize_bool(LIBCXXABI_ENABLE_SHARED)
 pythonize_bool(LIBCXXABI_ENABLE_THREADS)
+pythonize_bool(LIBCXXABI_ENABLE_EXCEPTIONS)
 pythonize_bool(LIBCXXABI_USE_LLVM_UNWINDER)
-pythonize_bool(LIBCXXABI_HAS_CXA_THREAD_ATEXIT_IMPL)
 set(LIBCXXABI_TARGET_INFO "libcxx.test.target_info.LocalTI" CACHE STRING
     "TargetInfo to use when setting up test environment.")
 set(LIBCXXABI_EXECUTOR "None" CACHE STRING
@@ -33,15 +34,17 @@ else()
   set(LIBCXXABI_TEST_DEPS cxxabi_static)
 endif()
 
-if (NOT LIBCXXABI_BUILT_STANDALONE)
+if (NOT LIBCXXABI_STANDALONE_BUILD)
   list(APPEND LIBCXXABI_TEST_DEPS cxx)
+  if (LIBCXXABI_USE_LLVM_UNWINDER)
+    list(APPEND LIBCXXABI_TEST_DEPS unwind)
+  endif()
 endif()
 
-if (LIBCXXABI_USE_LLVM_UNWINDER)
-  list(APPEND LIBCXXABI_TEST_DEPS unwind)
-endif()
-
-add_lit_testsuite(check-libcxxabi "Running libcxxabi tests"
+add_lit_testsuite(check-cxxabi "Running libcxxabi tests"
   ${CMAKE_CURRENT_BINARY_DIR}
   DEPENDS ${LIBCXXABI_TEST_DEPS}
   )
+
+# TODO: This is a legacy target name and should be removed at some point.
+add_custom_target(check-libcxxabi DEPENDS check-cxxabi)

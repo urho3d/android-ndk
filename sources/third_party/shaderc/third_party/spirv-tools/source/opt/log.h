@@ -20,7 +20,7 @@
 #include <utility>
 #include <vector>
 
-#include "message.h"
+#include "spirv-tools/libspirv.hpp"
 
 // Asserts the given condition is true. Otherwise, sends a message to the
 // consumer and exits the problem with failure code. Accepts the following
@@ -54,18 +54,18 @@
 
 // Logs an error message to the consumer saying the given feature is
 // unimplemented.
-#define SPIRV_UNIMPLEMENTED(consumer, feature)                     \
-  do {                                                             \
-    spvtools::Log(consumer, MessageLevel::InternalError, __FILE__, \
-                  {__LINE__, 0, 0}, "unimplemented: " feature);    \
+#define SPIRV_UNIMPLEMENTED(consumer, feature)                  \
+  do {                                                          \
+    spvtools::Log(consumer, SPV_MSG_INTERNAL_ERROR, __FILE__,   \
+                  {__LINE__, 0, 0}, "unimplemented: " feature); \
   } while (0)
 
 // Logs an error message to the consumer saying the code location
 // should be unreachable.
-#define SPIRV_UNREACHABLE(consumer)                                \
-  do {                                                             \
-    spvtools::Log(consumer, MessageLevel::InternalError, __FILE__, \
-                  {__LINE__, 0, 0}, "unreachable");                \
+#define SPIRV_UNREACHABLE(consumer)                           \
+  do {                                                        \
+    spvtools::Log(consumer, SPV_MSG_INTERNAL_ERROR, __FILE__, \
+                  {__LINE__, 0, 0}, "unreachable");           \
   } while (0)
 
 // Helper macros for concatenating arguments.
@@ -78,19 +78,20 @@
 namespace spvtools {
 
 // Calls the given |consumer| by supplying  the |message|. The |message| is from
-// the given |file| and |location| and of the given severity |level|.
-inline void Log(const MessageConsumer& consumer, MessageLevel level,
-                const char* file, const spv_position_t& position,
+// the given |source| and |location| and of the given severity |level|.
+inline void Log(const MessageConsumer& consumer, spv_message_level_t level,
+                const char* source, const spv_position_t& position,
                 const char* message) {
-  if (consumer != nullptr) consumer(level, file, position, message);
+  if (consumer != nullptr) consumer(level, source, position, message);
 }
 
 // Calls the given |consumer| by supplying the message composed according to the
-// given |format|. The |message| is from the given |file| and |location| and of
-// the given severity |level|.
+// given |format|. The |message| is from the given |source| and |location| and
+// of the given severity |level|.
 template <typename... Args>
-void Logf(const MessageConsumer& consumer, MessageLevel level, const char* file,
-          const spv_position_t& position, const char* format, Args&&... args) {
+void Logf(const MessageConsumer& consumer, spv_message_level_t level,
+          const char* source, const spv_position_t& position,
+          const char* format, Args&&... args) {
 #if defined(_MSC_VER) && _MSC_VER < 1900
 // Sadly, snprintf() is not supported until Visual Studio 2015!
 #define snprintf _snprintf
@@ -103,7 +104,7 @@ void Logf(const MessageConsumer& consumer, MessageLevel level, const char* file,
       snprintf(message, kInitBufferSize, format, std::forward<Args>(args)...);
 
   if (size >= 0 && size < kInitBufferSize) {
-    Log(consumer, level, file, position, message);
+    Log(consumer, level, source, position, message);
     return;
   }
 
@@ -111,15 +112,33 @@ void Logf(const MessageConsumer& consumer, MessageLevel level, const char* file,
     std::vector<char> longer_message(size + 1);
     snprintf(longer_message.data(), longer_message.size(), format,
              std::forward<Args>(args)...);
-    Log(consumer, level, file, position, longer_message.data());
+    Log(consumer, level, source, position, longer_message.data());
     return;
   }
 
-  Log(consumer, level, file, position, "cannot compose log message");
+  Log(consumer, level, source, position, "cannot compose log message");
 
 #if defined(_MSC_VER) && _MSC_VER < 1900
 #undef snprintf
 #endif
+}
+
+// Calls the given |consumer| by supplying  the given error |message|. The
+// |message| is from the given |source| and |location|.
+inline void Error(const MessageConsumer& consumer, const char* source,
+                  const spv_position_t& position, const char* message) {
+  Log(consumer, SPV_MSG_ERROR, source, position, message);
+}
+
+// Calls the given |consumer| by supplying the error message composed according
+// to the given |format|. The |message| is from the given |source| and
+// |location|.
+template <typename... Args>
+inline void Errorf(const MessageConsumer& consumer, const char* source,
+                   const spv_position_t& position, const char* format,
+                   Args&&... args) {
+  Logf(consumer, SPV_MSG_ERROR, source, position, format,
+       std::forward<Args>(args)...);
 }
 
 }  // namespace spvtools
@@ -135,7 +154,7 @@ void Logf(const MessageConsumer& consumer, MessageLevel level, const char* file,
 #define SPIRV_ASSERT_1(consumer, condition)                             \
   do {                                                                  \
     if (!(condition)) {                                                 \
-      spvtools::Log(consumer, MessageLevel::InternalError, __FILE__,    \
+      spvtools::Log(consumer, SPV_MSG_INTERNAL_ERROR, __FILE__,         \
                     {__LINE__, 0, 0}, "assertion failed: " #condition); \
       std::exit(EXIT_FAILURE);                                          \
     }                                                                   \
@@ -144,20 +163,20 @@ void Logf(const MessageConsumer& consumer, MessageLevel level, const char* file,
 #define SPIRV_ASSERT_2(consumer, condition, message)                 \
   do {                                                               \
     if (!(condition)) {                                              \
-      spvtools::Log(consumer, MessageLevel::InternalError, __FILE__, \
+      spvtools::Log(consumer, SPV_MSG_INTERNAL_ERROR, __FILE__,      \
                     {__LINE__, 0, 0}, "assertion failed: " message); \
       std::exit(EXIT_FAILURE);                                       \
     }                                                                \
   } while (0)
 
-#define SPIRV_ASSERT_more(consumer, condition, format, ...)           \
-  do {                                                                \
-    if (!(condition)) {                                               \
-      spvtools::Logf(consumer, MessageLevel::InternalError, __FILE__, \
-                     {__LINE__, 0, 0}, "assertion failed: " format,   \
-                     __VA_ARGS__);                                    \
-      std::exit(EXIT_FAILURE);                                        \
-    }                                                                 \
+#define SPIRV_ASSERT_more(consumer, condition, format, ...)         \
+  do {                                                              \
+    if (!(condition)) {                                             \
+      spvtools::Logf(consumer, SPV_MSG_INTERNAL_ERROR, __FILE__,    \
+                     {__LINE__, 0, 0}, "assertion failed: " format, \
+                     __VA_ARGS__);                                  \
+      std::exit(EXIT_FAILURE);                                      \
+    }                                                               \
   } while (0)
 
 #define SPIRV_ASSERT_3(consumer, condition, format, ...) \
@@ -169,16 +188,16 @@ void Logf(const MessageConsumer& consumer, MessageLevel level, const char* file,
 #define SPIRV_ASSERT_5(consumer, condition, format, ...) \
   SPIRV_ASSERT_more(consumer, condition, format, __VA_ARGS__)
 
-#define SPIRV_DEBUG_1(consumer, message)                                     \
-  do {                                                                       \
-    spvtools::Log(consumer, MessageLevel::Debug, __FILE__, {__LINE__, 0, 0}, \
-                  message);                                                  \
+#define SPIRV_DEBUG_1(consumer, message)                               \
+  do {                                                                 \
+    spvtools::Log(consumer, SPV_MSG_DEBUG, __FILE__, {__LINE__, 0, 0}, \
+                  message);                                            \
   } while (0)
 
-#define SPIRV_DEBUG_more(consumer, format, ...)                               \
-  do {                                                                        \
-    spvtools::Logf(consumer, MessageLevel::Debug, __FILE__, {__LINE__, 0, 0}, \
-                   format, __VA_ARGS__);                                      \
+#define SPIRV_DEBUG_more(consumer, format, ...)                         \
+  do {                                                                  \
+    spvtools::Logf(consumer, SPV_MSG_DEBUG, __FILE__, {__LINE__, 0, 0}, \
+                   format, __VA_ARGS__);                                \
   } while (0)
 
 #define SPIRV_DEBUG_2(consumer, format, ...) \

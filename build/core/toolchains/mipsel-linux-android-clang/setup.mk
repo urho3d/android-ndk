@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-# this file is used to prepare the NDK to build with the mipsel llvm toolchain
+# this file is used to prepare the NDK to build 32-bit mips with the mips64el llvm toolchain
 # any number of source files
 #
 # its purpose is to define (or re-define) templates used to build
@@ -30,7 +30,7 @@
 LLVM_TOOLCHAIN_PREBUILT_ROOT := $(call get-toolchain-root,llvm)
 LLVM_TOOLCHAIN_PREFIX := $(LLVM_TOOLCHAIN_PREBUILT_ROOT)/bin/
 
-TOOLCHAIN_NAME := mipsel-linux-android
+TOOLCHAIN_NAME := mips64el-linux-android
 BINUTILS_ROOT := $(call get-binutils-root,$(NDK_ROOT),$(TOOLCHAIN_NAME))
 TOOLCHAIN_ROOT := $(call get-toolchain-root,$(TOOLCHAIN_NAME)-4.9)
 TOOLCHAIN_PREFIX := $(TOOLCHAIN_ROOT)/bin/$(TOOLCHAIN_NAME)-
@@ -59,8 +59,10 @@ TARGET_CFLAGS := \
 # Always enable debug info. We strip binaries when needed.
 TARGET_CFLAGS += -g
 
+# Hardcode GCC lib path to help clang use mips64el multilib GCC
 TARGET_LDFLAGS += \
     -gcc-toolchain $(call host-path,$(TOOLCHAIN_ROOT)) \
+    -L$(call host-path,$(TOOLCHAIN_ROOT))/lib/gcc/mips64el-linux-android/4.9.x/32/mips-r1 \
     -target $(LLVM_TRIPLE) \
     -no-canonical-prefixes \
 

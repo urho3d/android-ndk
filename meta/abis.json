@@ -1,0 +1,23 @@
+{
+  "armeabi": {
+    "deprecated": false
+  },
+  "armeabi-v7a": {
+    "deprecated": false
+  },
+  "arm64-v8a": {
+    "deprecated": false
+  },
+  "mips": {
+    "deprecated": false
+  },
+  "mips64": {
+    "deprecated": false
+  },
+  "x86": {
+    "deprecated": false
+  },
+  "x86_64": {
+    "deprecated": false
+  }
+}

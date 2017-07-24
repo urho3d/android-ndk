@@ -51,8 +51,7 @@ libcxx_sources := \
 
 libcxx_sources := $(libcxx_sources:%=src/%)
 
-# For now, this library can only be used to build C++11 binaries.
-libcxx_export_cxxflags := -std=c++11
+libcxx_export_cxxflags :=
 
 ifeq (,$(filter clang%,$(NDK_TOOLCHAIN_VERSION)))
 # Add -fno-strict-aliasing because __list_imp::_end_ breaks TBAA rules by declaring
@@ -61,7 +60,7 @@ ifeq (,$(filter clang%,$(NDK_TOOLCHAIN_VERSION)))
 libcxx_export_cxxflags += -fno-strict-aliasing
 endif
 
-libcxx_cxxflags := $(libcxx_export_cxxflags)
+libcxx_cxxflags := -std=c++11 $(libcxx_export_cxxflags)
 libcxx_cflags := -D__STDC_FORMAT_MACROS -DLIBCXX_BUILDING_LIBCXXABI
 
 libcxx_ldflags :=
@@ -76,15 +75,19 @@ ifneq ($(LIBCXX_FORCE_REBUILD),true)
 
 $(call ndk_log,Using prebuilt libc++ libraries)
 
-android_support_c_includes := $(LOCAL_PATH)/../../android/support/include
 libcxxabi_c_includes := $(LOCAL_PATH)/../llvm-libc++abi/include
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := c++_static
 LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/lib$(LOCAL_MODULE)$(TARGET_LIB_EXTENSION)
-LOCAL_EXPORT_C_INCLUDES := $(libcxx_export_includes) $(android_support_c_includes)
+LOCAL_EXPORT_C_INCLUDES := $(libcxx_export_includes)
 LOCAL_EXPORT_CPPFLAGS := $(libcxx_export_cxxflags)
 LOCAL_EXPORT_LDFLAGS := $(libcxx_export_ldflags)
+
+# We use the LLVM unwinder for all the 32-bit ARM targets.
+ifneq (,$(filter armeabi%,$(TARGET_ARCH_ABI)))
+    LOCAL_EXPORT_STATIC_LIBRARIES += libunwind
+endif
 include $(PREBUILT_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
@@ -93,9 +96,18 @@ LOCAL_SRC_FILES := libs/$(TARGET_ARCH_ABI)/lib$(LOCAL_MODULE)$(TARGET_SONAME_EXT
 LOCAL_EXPORT_C_INCLUDES := \
     $(libcxx_export_includes) \
     $(libcxxabi_c_includes) \
-    $(android_support_c_includes)
+
+# This doesn't affect the prebuilt itself since this is a prebuilt library, but
+# the build system needs to know about the dependency so we can sort the
+# exported includes properly.
+LOCAL_STATIC_LIBRARIES := libandroid_support
 LOCAL_EXPORT_CPPFLAGS := $(libcxx_export_cxxflags)
 LOCAL_EXPORT_LDFLAGS := $(libcxx_export_ldflags)
+
+# We use the LLVM unwinder for all the 32-bit ARM targets.
+ifneq (,$(filter armeabi%,$(TARGET_ARCH_ABI)))
+    LOCAL_EXPORT_STATIC_LIBRARIES += libunwind
+endif
 include $(PREBUILT_SHARED_LIBRARY)
 
 ifneq (,$(filter armeabi%,$(TARGET_ARCH_ABI)))
@@ -114,12 +126,10 @@ else
 
 $(call ndk_log,Rebuilding libc++ libraries from sources)
 
-android_support_c_includes := $(LOCAL_PATH)/../../ndk/sources/android/support/include
-
 include $(CLEAR_VARS)
 LOCAL_MODULE := c++_static
 LOCAL_SRC_FILES := $(libcxx_sources)
-LOCAL_C_INCLUDES := $(libcxx_includes) $(android_support_c_includes)
+LOCAL_C_INCLUDES := $(libcxx_includes)
 LOCAL_CFLAGS := $(libcxx_cflags)
 LOCAL_CPPFLAGS := $(libcxx_cxxflags)
 LOCAL_CPP_FEATURES := rtti exceptions
@@ -127,12 +137,19 @@ LOCAL_EXPORT_C_INCLUDES := $(libcxx_export_includes)
 LOCAL_EXPORT_CPPFLAGS := $(libcxx_export_cxxflags)
 LOCAL_EXPORT_LDFLAGS := $(libcxx_export_ldflags)
 LOCAL_STATIC_LIBRARIES := libc++abi android_support
+
+# We use the LLVM unwinder for all the 32-bit ARM targets.
+ifneq (,$(filter armeabi%,$(TARGET_ARCH_ABI)))
+    LOCAL_STATIC_LIBRARIES += libunwind
+    LOCAL_EXPORT_STATIC_LIBRARIES += libunwind
+endif
+
 include $(BUILD_STATIC_LIBRARY)
 
 include $(CLEAR_VARS)
 LOCAL_MODULE := c++_shared
 LOCAL_WHOLE_STATIC_LIBRARIES := c++_static libc++abi
-LOCAL_EXPORT_C_INCLUDES := $(libcxx_export_includes) $(android_support_c_includes)
+LOCAL_EXPORT_C_INCLUDES := $(libcxx_export_includes)
 LOCAL_EXPORT_CPPFLAGS := $(libcxx_export_cxxflags)
 LOCAL_EXPORT_LDFLAGS := $(libcxx_export_ldflags)
 LOCAL_STATIC_LIBRARIES := android_support
@@ -145,6 +162,7 @@ LOCAL_LDFLAGS += -Wl,--as-needed
 # We use the LLVM unwinder for all the 32-bit ARM targets.
 ifneq (,$(filter armeabi%,$(TARGET_ARCH_ABI)))
     LOCAL_STATIC_LIBRARIES += libunwind
+    LOCAL_EXPORT_STATIC_LIBRARIES += libunwind
 endif
 
 # But only need -latomic for armeabi.

@@ -5494,3 +5494,57 @@ void safe_VkWin32KeyedMutexAcquireReleaseInfoNV::initialize(const safe_VkWin32Ke
     }
 }
 #endif
+
+safe_VkValidationFlagsEXT::safe_VkValidationFlagsEXT(const VkValidationFlagsEXT* pInStruct) : 
+	sType(pInStruct->sType),
+	pNext(pInStruct->pNext),
+	disabledValidationCheckCount(pInStruct->disabledValidationCheckCount),
+	pDisabledValidationChecks(nullptr)
+{
+    if (pInStruct->pDisabledValidationChecks) {
+        pDisabledValidationChecks = new VkValidationCheckEXT(*pInStruct->pDisabledValidationChecks);
+    }
+}
+
+safe_VkValidationFlagsEXT::safe_VkValidationFlagsEXT() : 
+	pDisabledValidationChecks(nullptr)
+{}
+
+safe_VkValidationFlagsEXT::safe_VkValidationFlagsEXT(const safe_VkValidationFlagsEXT& src)
+{
+    sType = src.sType;
+    pNext = src.pNext;
+    disabledValidationCheckCount = src.disabledValidationCheckCount;
+    pDisabledValidationChecks = nullptr;
+    if (src.pDisabledValidationChecks) {
+        pDisabledValidationChecks = new VkValidationCheckEXT(*src.pDisabledValidationChecks);
+    }
+}
+
+safe_VkValidationFlagsEXT::~safe_VkValidationFlagsEXT()
+{
+    if (pDisabledValidationChecks)
+        delete pDisabledValidationChecks;
+}
+
+void safe_VkValidationFlagsEXT::initialize(const VkValidationFlagsEXT* pInStruct)
+{
+    sType = pInStruct->sType;
+    pNext = pInStruct->pNext;
+    disabledValidationCheckCount = pInStruct->disabledValidationCheckCount;
+    pDisabledValidationChecks = nullptr;
+    if (pInStruct->pDisabledValidationChecks) {
+        pDisabledValidationChecks = new VkValidationCheckEXT(*pInStruct->pDisabledValidationChecks);
+    }
+}
+
+void safe_VkValidationFlagsEXT::initialize(const safe_VkValidationFlagsEXT* src)
+{
+    sType = src->sType;
+    pNext = src->pNext;
+    disabledValidationCheckCount = src->disabledValidationCheckCount;
+    pDisabledValidationChecks = nullptr;
+    if (src->pDisabledValidationChecks) {
+        pDisabledValidationChecks = new VkValidationCheckEXT(*src->pDisabledValidationChecks);
+    }
+}

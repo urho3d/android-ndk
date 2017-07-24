@@ -32,6 +32,9 @@ class ArgParser(build_support.ArgParser):
         self.add_argument(
             '--arch', choices=build_support.ALL_ARCHITECTURES,
             help='Architectures to build. Builds all if not present.')
+        self.add_argument(
+            '--build-number',
+            help='NDK build number.')
 
 
 def main(args):
@@ -45,6 +48,8 @@ def main(args):
     build_cmd = [
         'bash', 'gen-platforms.sh', '--fast-copy', arch_arg, ndk_dir_arg,
     ]
+    if args.build_number is not None:
+        build_cmd.append('--build-number={}'.format(args.build_number))
 
     if args.host != 'linux':
         build_cmd.append('--case-insensitive')

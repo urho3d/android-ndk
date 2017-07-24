@@ -230,12 +230,12 @@ const std::map<VkFormat, VULKAN_FORMAT_INFO> vk_format_table = {
 };
 
 // Return true if format is a depth or stencil format
-bool vk_format_is_depth_or_stencil(VkFormat format) {
+VK_LAYER_EXPORT bool vk_format_is_depth_or_stencil(VkFormat format) {
     return (vk_format_is_depth_and_stencil(format) || vk_format_is_depth_only(format) || vk_format_is_stencil_only(format));
 }
 
 // Return true if format contains depth and stencil information
-bool vk_format_is_depth_and_stencil(VkFormat format) {
+VK_LAYER_EXPORT bool vk_format_is_depth_and_stencil(VkFormat format) {
     bool is_ds = false;
 
     switch (format) {
@@ -251,10 +251,10 @@ bool vk_format_is_depth_and_stencil(VkFormat format) {
 }
 
 // Return true if format is a stencil-only format
-bool vk_format_is_stencil_only(VkFormat format) { return (format == VK_FORMAT_S8_UINT); }
+VK_LAYER_EXPORT bool vk_format_is_stencil_only(VkFormat format) { return (format == VK_FORMAT_S8_UINT); }
 
 // Return true if format is a depth-only format
-bool vk_format_is_depth_only(VkFormat format) {
+VK_LAYER_EXPORT bool vk_format_is_depth_only(VkFormat format) {
     bool is_depth = false;
 
     switch (format) {
@@ -271,7 +271,7 @@ bool vk_format_is_depth_only(VkFormat format) {
 }
 
 // Return true if format is of time UNORM
-bool vk_format_is_norm(VkFormat format) {
+VK_LAYER_EXPORT bool vk_format_is_norm(VkFormat format) {
     bool is_norm = false;
 
     switch (format) {
@@ -346,10 +346,10 @@ bool vk_format_is_norm(VkFormat format) {
 };
 
 // Return true if format is an integer format
-bool vk_format_is_int(VkFormat format) { return (vk_format_is_sint(format) || vk_format_is_uint(format)); }
+VK_LAYER_EXPORT bool vk_format_is_int(VkFormat format) { return (vk_format_is_sint(format) || vk_format_is_uint(format)); }
 
 // Return true if format is an unsigned integer format
-bool vk_format_is_uint(VkFormat format) {
+VK_LAYER_EXPORT bool vk_format_is_uint(VkFormat format) {
     bool is_uint = false;
 
     switch (format) {
@@ -384,7 +384,7 @@ bool vk_format_is_uint(VkFormat format) {
 }
 
 // Return true if format is a signed integer format
-bool vk_format_is_sint(VkFormat format) {
+VK_LAYER_EXPORT bool vk_format_is_sint(VkFormat format) {
     bool is_sint = false;
 
     switch (format) {
@@ -419,7 +419,7 @@ bool vk_format_is_sint(VkFormat format) {
 }
 
 // Return true if format is a floating-point format
-bool vk_format_is_float(VkFormat format) {
+VK_LAYER_EXPORT bool vk_format_is_float(VkFormat format) {
     bool is_float = false;
 
     switch (format) {
@@ -449,7 +449,7 @@ bool vk_format_is_float(VkFormat format) {
 }
 
 // Return true if format is in the SRGB colorspace
-bool vk_format_is_srgb(VkFormat format) {
+VK_LAYER_EXPORT bool vk_format_is_srgb(VkFormat format) {
     bool is_srgb = false;
 
     switch (format) {
@@ -491,10 +491,12 @@ bool vk_format_is_srgb(VkFormat format) {
 }
 
 // Return true if format is compressed
-bool vk_format_is_compressed(VkFormat format) {
+VK_LAYER_EXPORT bool vk_format_is_compressed(VkFormat format) {
     switch (format) {
     case VK_FORMAT_BC1_RGB_UNORM_BLOCK:
     case VK_FORMAT_BC1_RGB_SRGB_BLOCK:
+    case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:
+    case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:
     case VK_FORMAT_BC2_UNORM_BLOCK:
     case VK_FORMAT_BC2_SRGB_BLOCK:
     case VK_FORMAT_BC3_UNORM_BLOCK:
@@ -550,8 +552,101 @@ bool vk_format_is_compressed(VkFormat format) {
         return false;
     }
 }
+
+// Return compressed block sizes for block compressed formats
+VK_LAYER_EXPORT VkExtent2D vk_format_compressed_block_size(VkFormat format) {
+    VkExtent2D block_size = { 1, 1 };
+    switch (format) {
+    case VK_FORMAT_BC1_RGB_UNORM_BLOCK:
+    case VK_FORMAT_BC1_RGB_SRGB_BLOCK:
+    case VK_FORMAT_BC1_RGBA_UNORM_BLOCK:
+    case VK_FORMAT_BC1_RGBA_SRGB_BLOCK:
+    case VK_FORMAT_BC2_UNORM_BLOCK:
+    case VK_FORMAT_BC2_SRGB_BLOCK:
+    case VK_FORMAT_BC3_UNORM_BLOCK:
+    case VK_FORMAT_BC3_SRGB_BLOCK:
+    case VK_FORMAT_BC4_UNORM_BLOCK:
+    case VK_FORMAT_BC4_SNORM_BLOCK:
+    case VK_FORMAT_BC5_UNORM_BLOCK:
+    case VK_FORMAT_BC5_SNORM_BLOCK:
+    case VK_FORMAT_BC6H_UFLOAT_BLOCK:
+    case VK_FORMAT_BC6H_SFLOAT_BLOCK:
+    case VK_FORMAT_BC7_UNORM_BLOCK:
+    case VK_FORMAT_BC7_SRGB_BLOCK:
+    case VK_FORMAT_ETC2_R8G8B8_UNORM_BLOCK:
+    case VK_FORMAT_ETC2_R8G8B8_SRGB_BLOCK:
+    case VK_FORMAT_ETC2_R8G8B8A1_UNORM_BLOCK:
+    case VK_FORMAT_ETC2_R8G8B8A1_SRGB_BLOCK:
+    case VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK:
+    case VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK:
+    case VK_FORMAT_EAC_R11_UNORM_BLOCK:
+    case VK_FORMAT_EAC_R11_SNORM_BLOCK:
+    case VK_FORMAT_EAC_R11G11_UNORM_BLOCK:
+    case VK_FORMAT_EAC_R11G11_SNORM_BLOCK:
+    case VK_FORMAT_ASTC_4x4_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_4x4_SRGB_BLOCK:
+        block_size = { 4, 4 };
+        break;
+    case VK_FORMAT_ASTC_5x4_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_5x4_SRGB_BLOCK:
+        block_size = { 5, 4 };
+        break;
+    case VK_FORMAT_ASTC_5x5_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_5x5_SRGB_BLOCK:
+        block_size = { 5, 5 };
+        break;
+    case VK_FORMAT_ASTC_6x5_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_6x5_SRGB_BLOCK:
+        block_size = { 6, 5 };
+        break;
+    case VK_FORMAT_ASTC_6x6_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_6x6_SRGB_BLOCK:
+        block_size = { 6, 6 };
+        break;
+    case VK_FORMAT_ASTC_8x5_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_8x5_SRGB_BLOCK:
+        block_size = { 8, 5 };
+        break;
+    case VK_FORMAT_ASTC_8x6_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_8x6_SRGB_BLOCK:
+        block_size = { 8, 6 };
+        break;
+    case VK_FORMAT_ASTC_8x8_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_8x8_SRGB_BLOCK:
+        block_size = { 8, 8 };
+        break;
+    case VK_FORMAT_ASTC_10x5_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_10x5_SRGB_BLOCK:
+        block_size = { 10, 5 };
+        break;
+    case VK_FORMAT_ASTC_10x6_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_10x6_SRGB_BLOCK:
+        block_size = { 10, 6 };
+        break;
+    case VK_FORMAT_ASTC_10x8_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_10x8_SRGB_BLOCK:
+        block_size = { 10, 8 };
+        break;
+    case VK_FORMAT_ASTC_10x10_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_10x10_SRGB_BLOCK:
+        block_size = { 10, 10 };
+        break;
+    case VK_FORMAT_ASTC_12x10_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_12x10_SRGB_BLOCK:
+        block_size = { 12, 10 };
+        break;
+    case VK_FORMAT_ASTC_12x12_UNORM_BLOCK:
+    case VK_FORMAT_ASTC_12x12_SRGB_BLOCK:
+        block_size = { 12, 12 };
+        break;
+    default:
+        break;
+    }
+    return block_size;
+}
+
 // Return format class of the specified format
-VkFormatCompatibilityClass vk_format_get_compatibility_class(VkFormat format) {
+VK_LAYER_EXPORT VkFormatCompatibilityClass vk_format_get_compatibility_class(VkFormat format) {
     auto item = vk_format_table.find(format);
     if (item != vk_format_table.end()) {
         return item->second.format_class;
@@ -560,7 +655,7 @@ VkFormatCompatibilityClass vk_format_get_compatibility_class(VkFormat format) {
 }
 
 // Return size, in bytes, of a pixel of the specified format
-size_t vk_format_get_size(VkFormat format) {
+VK_LAYER_EXPORT size_t vk_format_get_size(VkFormat format) {
     auto item = vk_format_table.find(format);
     if (item != vk_format_table.end()) {
         return item->second.size;
@@ -578,7 +673,7 @@ unsigned int vk_format_get_channel_count(VkFormat format) {
 }
 
 // Perform a zero-tolerant modulo operation
-VkDeviceSize vk_safe_modulo(VkDeviceSize dividend, VkDeviceSize divisor) {
+VK_LAYER_EXPORT VkDeviceSize vk_safe_modulo(VkDeviceSize dividend, VkDeviceSize divisor) {
     VkDeviceSize result = 0;
     if (divisor != 0) {
         result = dividend % divisor;
@@ -595,7 +690,7 @@ static const uint8_t UTF8_THREE_BYTE_MASK = 0xF8;
 static const uint8_t UTF8_DATA_BYTE_CODE = 0x80;
 static const uint8_t UTF8_DATA_BYTE_MASK = 0xC0;
 
-VkStringErrorFlags vk_string_validate(const int max_length, const char *utf8) {
+VK_LAYER_EXPORT VkStringErrorFlags vk_string_validate(const int max_length, const char *utf8) {
     VkStringErrorFlags result = VK_STRING_ERROR_NONE;
     int num_char_bytes = 0;
     int i, j;
@@ -630,7 +725,7 @@ VkStringErrorFlags vk_string_validate(const int max_length, const char *utf8) {
 }
 
 // Utility function for finding a text string in another string
-bool white_list(const char *item, const char *list) {
+VK_LAYER_EXPORT bool white_list(const char *item, const char *list) {
     std::string candidate(item);
     std::string white_list(list);
     return (white_list.find(candidate) != std::string::npos);
@@ -647,8 +742,8 @@ bool white_list(const char *item, const char *list) {
 // If a vk_layer_settings.txt file is present and an application defines a debug callback, both callbacks
 // will be active.  If no vk_layer_settings.txt file is present, creating an application-defined debug
 // callback will cause the default callbacks to be unregisterd and removed.
-void layer_debug_actions(debug_report_data *report_data, std::vector<VkDebugReportCallbackEXT> &logging_callback,
-                         const VkAllocationCallbacks *pAllocator, const char *layer_identifier) {
+VK_LAYER_EXPORT void layer_debug_actions(debug_report_data *report_data, std::vector<VkDebugReportCallbackEXT> &logging_callback,
+                                         const VkAllocationCallbacks *pAllocator, const char *layer_identifier) {
 
     VkDebugReportCallbackEXT callback = VK_NULL_HANDLE;
 

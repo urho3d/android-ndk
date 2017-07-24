@@ -26,20 +26,25 @@
 #include "counting_includer.h"
 #include "file_finder.h"
 #include "mutex.h"
+#include "resources.h"
 #include "string_piece.h"
 
 namespace shaderc_util {
+
+// To break recursive including. This header is already included in
+// spirv_tools_wrapper.h, so cannot include spirv_tools_wrapper.h here.
+enum class PassId;
 
 // Initializes glslang on creation, and destroys it on completion.
 // This object is expected to be a singleton, so that internal
 // glslang state can be correctly handled.
 // TODO(awoloszyn): Once glslang no longer has static global mutable state
 //                  remove this class.
-class GlslInitializer {
+class GlslangInitializer {
  public:
-  GlslInitializer() { glslang::InitializeProcess(); }
+  GlslangInitializer() { glslang::InitializeProcess(); }
 
-  ~GlslInitializer() { glslang::FinalizeProcess(); }
+  ~GlslangInitializer() { glslang::FinalizeProcess(); }
 
   // Calls release on GlslangInitializer used to intialize this object
   // when it is destroyed.
@@ -59,11 +64,11 @@ class GlslInitializer {
     InitializationToken(const InitializationToken&) = delete;
 
    private:
-    InitializationToken(GlslInitializer* initializer)
+    InitializationToken(GlslangInitializer* initializer)
         : initializer_(initializer) {}
 
-    friend class GlslInitializer;
-    GlslInitializer* initializer_;
+    friend class GlslangInitializer;
+    GlslangInitializer* initializer_;
   };
 
   // Obtains exclusive access to the glslang state. The state remains
@@ -88,6 +93,40 @@ using MacroDictionary = std::unordered_map<std::string, std::string>;
 // Holds all of the state required to compile source GLSL into SPIR-V.
 class Compiler {
  public:
+  // Source language
+  enum class SourceLanguage {
+    GLSL,  // The default
+    HLSL,
+  };
+
+  // Target environment.
+  enum class TargetEnv {
+    Vulkan,
+    OpenGL,
+    OpenGLCompat,
+  };
+
+  enum class OutputType {
+    SpirvBinary,  // A binary module, as defined by the SPIR-V specification.
+    SpirvAssemblyText,  // Assembly syntax defined by the SPIRV-Tools project.
+    PreprocessedText,   // Preprocessed source code.
+  };
+
+  // Supported optimization levels.
+  enum class OptimizationLevel {
+    Zero,  // No optimization.
+    Size,  // Optimization towards reducing code size.
+  };
+
+  // Resource limits.  These map to the "max*" fields in glslang::TBuiltInResource.
+  enum class Limit {
+#define RESOURCE(NAME,FIELD,CNAME) NAME,
+#include "resources.inc"
+#undef RESOURCE
+  };
+
+  // Creates an default compiler instance targeting at Vulkan environment. Uses
+  // version 110 and no profile specification as the default for GLSL.
   Compiler()
       // The default version for glsl is 110, or 100 if you are using an es
       // profile. But we want to default to a non-es profile.
@@ -97,11 +136,19 @@ class Compiler {
         warnings_as_errors_(false),
         suppress_warnings_(false),
         generate_debug_info_(false),
-        message_rules_(GetDefaultRules()) {}
+        enabled_opt_passes_(),
+        target_env_(TargetEnv::Vulkan),
+        source_language_(SourceLanguage::GLSL),
+        limits_(kDefaultTBuiltInResource),
+        auto_bind_uniforms_(false) {}
 
   // Requests that the compiler place debug information into the object code,
   // such as identifier names and line numbers.
   void SetGenerateDebugInfo();
+
+  // Sets the optimization level to the given level. Only the last one takes
+  // effect if multiple calls of this method exist.
+  void SetOptimizationLevel(OptimizationLevel level);
 
   // When a warning is encountered it treat it as an error.
   void SetWarningsAsErrors();
@@ -116,34 +163,43 @@ class Compiler {
   void AddMacroDefinition(const char* macro, size_t macro_length,
                           const char* definition, size_t definition_length);
 
-  // Sets message rules to be used when generating compiler warnings/errors
-  void SetMessageRules(EShMessages rules);
+  // Sets the target environment.
+  void SetTargetEnv(TargetEnv env);
 
-  // Gets the message rules when generating compiler warnings/error.
-  EShMessages GetMessageRules() const;
+  // Sets the souce language.
+  void SetSourceLanguage(SourceLanguage lang);
 
   // Forces (without any verification) the default version and profile for
   // subsequent CompileShader() calls.
   void SetForcedVersionProfile(int version, EProfile profile);
 
-  enum class OutputType {
-    SpirvBinary,  // A binary module, as defined by the SPIR-V specification.
-    SpirvAssemblyText,  // Assembly syntax defined by the SPIRV-Tools project.
-    PreprocessedText,   // Preprocessed source code.
-  };
+  // Sets a resource limit.
+  void SetLimit(Limit limit, int value);
+
+  // Returns the current limit.
+  int GetLimit(Limit limit) const;
+
+  // Set whether the compiler automatically assigns bindings to
+  // uniform variables that don't have explicit bindings.
+  void SetAutoBindUniforms(bool auto_bind) { auto_bind_uniforms_ = auto_bind; }
+
   // Compiles the shader source in the input_source_string parameter.
   //
   // If the forced_shader stage parameter is not EShLangCount then
   // the shader is assumed to be of the given stage.
+  //
+  // For HLSL compilation, entry_point_name is the null-terminated string for
+  // the entry point.  For GLSL compilation, entry_point_name is ignored, and
+  // compilation assumes the entry point is named "main".
   //
   // The stage_callback function will be called if a shader_stage has
   // not been forced and the stage can not be determined
   // from the shader text. Any #include directives are parsed with the given
   // includer.
   //
-  // The initializer parameter must be a valid GlslInitializer object.
+  // The initializer parameter must be a valid GlslangInitializer object.
   // Acquire will be called on the initializer and the result will be
-  // destoryed before the function ends.
+  // destroyed before the function ends.
   //
   // The output_type parameter determines what kind of output should be
   // produced.
@@ -161,14 +217,14 @@ class Compiler {
   // binary code, the size is the number of bytes of valid data in the vector.
   // If the output is a text string, the size equals the length of that string.
   std::tuple<bool, std::vector<uint32_t>, size_t> Compile(
-      const shaderc_util::string_piece& input_source_string,
-      EShLanguage forced_shader_stage, const std::string& error_tag,
-      const std::function<EShLanguage(
-          std::ostream* error_stream,
-          const shaderc_util::string_piece& error_tag)>& stage_callback,
+      const string_piece& input_source_string, EShLanguage forced_shader_stage,
+      const std::string& error_tag, const char* entry_point_name,
+      const std::function<EShLanguage(std::ostream* error_stream,
+                                      const string_piece& error_tag)>&
+          stage_callback,
       CountingIncluder& includer, OutputType output_type,
       std::ostream* error_stream, size_t* total_warnings, size_t* total_errors,
-      GlslInitializer* initializer) const;
+      GlslangInitializer* initializer) const;
 
   static EShMessages GetDefaultRules() {
     return static_cast<EShMessages>(EShMsgSpvRules | EShMsgVulkanRules |
@@ -193,10 +249,8 @@ class Compiler {
   // to be default_version_/default_profile_ regardless of the #version
   // directive in the source code.
   std::tuple<bool, std::string, std::string> PreprocessShader(
-      const std::string& error_tag,
-      const shaderc_util::string_piece& shader_source,
-      const shaderc_util::string_piece& shader_preamble,
-      CountingIncluder& includer) const;
+      const std::string& error_tag, const string_piece& shader_source,
+      const string_piece& shader_preamble, CountingIncluder& includer) const;
 
   // Cleans up the preamble in a given preprocessed shader.
   //
@@ -212,11 +266,11 @@ class Compiler {
   // delete the #extension directive we injected via preamble. Otherwise, we
   // need to adjust it if there exists a #version directive in the original
   // shader source code.
-  std::string CleanupPreamble(
-      const shaderc_util::string_piece& preprocessed_shader,
-      const shaderc_util::string_piece& error_tag,
-      const shaderc_util::string_piece& pound_extension,
-      int num_include_directives, bool is_for_next_line) const;
+  std::string CleanupPreamble(const string_piece& preprocessed_shader,
+                              const string_piece& error_tag,
+                              const string_piece& pound_extension,
+                              int num_include_directives,
+                              bool is_for_next_line) const;
 
   // Determines version and profile from command line, or the source code.
   // Returns the decoded version and profile pair on success. Otherwise,
@@ -230,8 +284,7 @@ class Compiler {
   // EShLangCount.  If errors occur, the second element in the pair is the
   // error message.  Otherwise, it's an empty string.
   std::pair<EShLanguage, std::string> GetShaderStageFromSourceCode(
-      shaderc_util::string_piece filename,
-      const std::string& preprocessed_shader) const;
+      string_piece filename, const std::string& preprocessed_shader) const;
 
   // Determines version and profile from command line, or the source code.
   // Returns the decoded version and profile pair on success. Otherwise,
@@ -264,11 +317,25 @@ class Compiler {
   // output.
   bool generate_debug_info_;
 
-  // Sets the glslang EshMessages bitmask for determining which dialect of GLSL
-  // and which SPIR-V codegen semantics are used. This impacts the warning &
-  // error
-  // messages as well as the set of available builtins
-  EShMessages message_rules_;
+  // Optimization passes to be applied.
+  std::vector<PassId> enabled_opt_passes_;
+
+  // The target environment to compile with. This controls the glslang
+  // EshMessages bitmask, which determines which dialect of GLSL and which
+  // SPIR-V codegen semantics are used. This impacts the warning & error
+  // messages as well as the set of available builtins, as per the
+  // implementation of glslang.
+  TargetEnv target_env_;
+
+  // The source language.  Defaults to GLSL.
+  SourceLanguage source_language_;
+
+  // The resource limits to be used.
+  TBuiltInResource limits_;
+
+  // True if the compiler should automatically bind uniforms that don't
+  // have explicit bindings.
+  bool auto_bind_uniforms_;
 };
 
 // Converts a string to a vector of uint32_t by copying the content of a given

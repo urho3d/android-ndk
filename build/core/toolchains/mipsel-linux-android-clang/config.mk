@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-# config file for the mipsel llvm toolchain for the Android NDK the real meat is
+# config file for 32-bit mips with the mips64el llvm toolchain for the Android NDK the real meat is
 # in the setup.mk file adjacent to this one
 #
 TOOLCHAIN_ARCH := mips

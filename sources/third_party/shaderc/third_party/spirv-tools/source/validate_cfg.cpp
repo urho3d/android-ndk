@@ -14,10 +14,10 @@
 
 #include "validate.h"
 
-#include <cassert>
-
 #include <algorithm>
+#include <cassert>
 #include <functional>
+#include <iostream>
 #include <map>
 #include <string>
 #include <tuple>
@@ -26,10 +26,11 @@
 #include <utility>
 #include <vector>
 
-#include "val/BasicBlock.h"
-#include "val/Construct.h"
-#include "val/Function.h"
-#include "val/ValidationState.h"
+#include "spirv_validator_options.h"
+#include "val/basic_block.h"
+#include "val/construct.h"
+#include "val/function.h"
+#include "val/validation_state.h"
 
 using std::find;
 using std::function;
@@ -198,7 +199,7 @@ void printDominatorList(const BasicBlock& b) {
 spv_result_t FirstBlockAssert(ValidationState_t& _, uint32_t target) {
   if (_.current_function().IsFirstBlock(target)) {
     return _.diag(SPV_ERROR_INVALID_CFG)
-           << "First block " << _.getIdName(target) << " of funciton "
+           << "First block " << _.getIdName(target) << " of function "
            << _.getIdName(_.current_function().id()) << " is targeted by block "
            << _.getIdName(_.current_function().current_block()->id());
   }
@@ -278,14 +279,8 @@ tuple<string, string, string> ConstructNames(ConstructType type) {
 string ConstructErrorString(const Construct& construct,
                             const string& header_string,
                             const string& exit_string,
-                            bool post_dominate = false) {
-  string construct_name, header_name, exit_name, dominate_text;
-  if (post_dominate) {
-    dominate_text = "is not post dominated by";
-  } else {
-    dominate_text = "does not dominate";
-  }
-
+                            const string& dominate_text) {
+  string construct_name, header_name, exit_name;
   tie(construct_name, header_name, exit_name) =
       ConstructNames(construct.type());
 
@@ -345,22 +340,29 @@ spv_result_t StructuredControlFlowChecks(
                     exit_name + ". This may be a bug in the validator.";
     }
 
-    // If the merge block is reachable then it's dominated by the header.
-    if (merge && merge->reachable() &&
-        find(merge->dom_begin(), merge->dom_end(), header) ==
-            merge->dom_end()) {
-      return _.diag(SPV_ERROR_INVALID_CFG)
-             << ConstructErrorString(construct, _.getIdName(header->id()),
-                                     _.getIdName(merge->id()));
+    // If the exit block is reachable then it's dominated by the
+    // header.
+    if (merge && merge->reachable()) {
+      if (!header->dominates(*merge)) {
+        return _.diag(SPV_ERROR_INVALID_CFG) << ConstructErrorString(
+                   construct, _.getIdName(header->id()),
+                   _.getIdName(merge->id()), "does not dominate");
+      }
+      // If it's really a merge block for a selection or loop, then it must be
+      // *strictly* dominated by the header.
+      if (construct.ExitBlockIsMergeBlock() && (header == merge)) {
+        return _.diag(SPV_ERROR_INVALID_CFG) << ConstructErrorString(
+                   construct, _.getIdName(header->id()),
+                   _.getIdName(merge->id()), "does not strictly dominate");
+      }
     }
     // Check post-dominance for continue constructs.  But dominance and
     // post-dominance only make sense when the construct is reachable.
     if (header->reachable() && construct.type() == ConstructType::kContinue) {
-      if (find(header->pdom_begin(), header->pdom_end(), merge) ==
-          merge->pdom_end()) {
-        return _.diag(SPV_ERROR_INVALID_CFG)
-               << ConstructErrorString(construct, _.getIdName(header->id()),
-                                       _.getIdName(merge->id()), true);
+      if (!merge->postdominates(*header)) {
+        return _.diag(SPV_ERROR_INVALID_CFG) << ConstructErrorString(
+                   construct, _.getIdName(header->id()),
+                   _.getIdName(merge->id()), "is not post dominated by");
       }
     }
     // TODO(umar):  an OpSwitch block dominates all its defined case
@@ -435,10 +437,10 @@ spv_result_t PerformCfgChecks(ValidationState_t& _) {
     }
     UpdateContinueConstructExitBlocks(function, back_edges);
 
-    // Check if the order of blocks in the binary appear before the blocks they
-    // dominate
     auto& blocks = function.ordered_blocks();
-    if (blocks.empty() == false) {
+    if (!blocks.empty()) {
+      // Check if the order of blocks in the binary appear before the blocks
+      // they dominate
       for (auto block = begin(blocks) + 1; block != end(blocks); ++block) {
         if (auto idom = (*block)->immediate_dominator()) {
           if (idom != function.pseudo_entry_block() &&
@@ -447,6 +449,19 @@ spv_result_t PerformCfgChecks(ValidationState_t& _) {
                    << "Block " << _.getIdName((*block)->id())
                    << " appears in the binary before its dominator "
                    << _.getIdName(idom->id());
+          }
+        }
+      }
+      // If we have structed control flow, check that no block has a control
+      // flow nesting depth larger than the limit.
+      if (_.HasCapability(SpvCapabilityShader)) {
+        const int control_flow_nesting_depth_limit =
+            _.options()->universal_limits_.max_control_flow_nesting_depth;
+        for (auto block = begin(blocks); block != end(blocks); ++block) {
+          if (function.GetBlockDepth(*block) >
+              control_flow_nesting_depth_limit) {
+            return _.diag(SPV_ERROR_INVALID_CFG)
+                   << "Maximum Control Flow nesting depth exceeded.";
           }
         }
       }
@@ -513,7 +528,7 @@ spv_result_t CfgPass(ValidationState_t& _,
     case SpvOpReturn:
     case SpvOpReturnValue:
     case SpvOpUnreachable:
-      _.current_function().RegisterBlockEnd({}, opcode);
+      _.current_function().RegisterBlockEnd(vector<uint32_t>(), opcode);
       break;
     default:
       break;

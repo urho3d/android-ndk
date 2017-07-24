@@ -109,7 +109,7 @@ cmd-strip = $(PRIVATE_STRIP) --strip-unneeded $(call host-path,$1)
 # The command objcopy --add-gnu-debuglink= will be needed for Valgrind
 cmd-add-gnu-debuglink = $(PRIVATE_OBJCOPY) --add-gnu-debuglink=$(strip $(call host-path,$2)) $(call host-path,$1)
 
-TARGET_LIBGCC = -lgcc
+TARGET_LIBGCC = -lgcc -Wl,--exclude-libs,libgcc.a
 TARGET_LDLIBS := -lc -lm
 
 #
@@ -151,9 +151,9 @@ TARGET_LDFLAGS :=
 # Use *-gcc-ar instead of *-ar for better LTO support, except for
 # gcc4.6 which doesn't have gcc-ar
 ifneq (clang,$(NDK_TOOLCHAIN_VERSION))
-TARGET_AR       = $(TOOLCHAIN_PREFIX)gcc-ar
+    TARGET_AR = $(TOOLCHAIN_PREFIX)gcc-ar
 else
-TARGET_AR       = $(TOOLCHAIN_PREFIX)ar
+    TARGET_AR = $(TOOLCHAIN_PREFIX)ar
 endif
 
 TARGET_ARFLAGS := crsD

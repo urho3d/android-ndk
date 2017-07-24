@@ -13,7 +13,7 @@
 # limitations under the License.
 #
 
-# config file for the mips64el gcc-4.9 toolchain for the Android NDK
+# config file for mips64 with the mips64el gcc-4.9 toolchain for the Android NDK
 # the real meat is in the setup.mk file adjacent to this one
 #
 TOOLCHAIN_ARCH := mips64

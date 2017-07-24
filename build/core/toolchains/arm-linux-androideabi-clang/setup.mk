@@ -64,6 +64,9 @@ TARGET_LDFLAGS += \
 
 ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
     LLVM_TRIPLE := armv7-none-linux-androideabi
+    ifneq ($(APP_DEPRECATED_HEADERS),true)
+        LLVM_TRIPLE := $(LLVM_TRIPLE)$(APP_PLATFORM_LEVEL)
+    endif
 
     TARGET_CFLAGS += -target $(LLVM_TRIPLE) \
                      -march=armv7-a \
@@ -76,6 +79,9 @@ ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
     GCCLIB_SUBDIR := armv7-a
 else ifeq ($(TARGET_ARCH_ABI),armeabi)
     LLVM_TRIPLE := armv5te-none-linux-androideabi
+    ifneq ($(APP_DEPRECATED_HEADERS),true)
+        LLVM_TRIPLE := $(LLVM_TRIPLE)$(APP_PLATFORM_LEVEL)
+    endif
 
     TARGET_CFLAGS += -target $(LLVM_TRIPLE) \
                      -march=armv5te \
@@ -88,6 +94,9 @@ else ifeq ($(TARGET_ARCH_ABI),armeabi)
 else
     $(call __ndk_error,Unsupported ABI: $(TARGET_ARCH_ABI))
 endif
+
+# Append the platform level for __attribute__((availability)).
+LLVM_TRIPLE := $(LLVM_TRIPLE)$(APP_PLATFORM_LEVEL)
 
 GCCLIB_ROOT := $(call get-gcclibs-path,$(NDK_ROOT),$(TOOLCHAIN_NAME))
 

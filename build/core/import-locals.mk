@@ -26,7 +26,7 @@ $(call assert-defined,LOCAL_MODULE)
 # and 'zoo'
 #
 
-all_depends := $(call module-get-all-dependencies,$(LOCAL_MODULE))
+all_depends := $(call module-get-all-dependencies-topo,$(LOCAL_MODULE))
 all_depends := $(filter-out $(LOCAL_MODULE),$(all_depends))
 
 imported_CFLAGS     := $(call module-get-listed-export,$(all_depends),CFLAGS)
@@ -36,6 +36,8 @@ imported_RENDERSCRIPT_FLAGS := $(call module-get-listed-export,$(all_depends),RE
 imported_ASMFLAGS   := $(call module-get-listed-export,$(all_depends),ASMFLAGS)
 imported_C_INCLUDES := $(call module-get-listed-export,$(all_depends),C_INCLUDES)
 imported_LDFLAGS    := $(call module-get-listed-export,$(all_depends),LDFLAGS)
+imported_SHARED_LIBRARIES := $(call module-get-listed-export,$(all_depends),SHARED_LIBRARIES)
+imported_STATIC_LIBRARIES := $(call module-get-listed-export,$(all_depends),STATIC_LIBRARIES)
 
 ifdef NDK_DEBUG_IMPORTS
     $(info Imports for module $(LOCAL_MODULE):)
@@ -46,6 +48,8 @@ ifdef NDK_DEBUG_IMPORTS
     $(info   ASMFLAGS='$(imported_ASMFLAGS)')
     $(info   C_INCLUDES='$(imported_C_INCLUDES)')
     $(info   LDFLAGS='$(imported_LDFLAGS)')
+    $(info   SHARED_LIBRARIES='$(imported_SHARED_LIBRARIES)')
+    $(info   STATIC_LIBRARIES='$(imported_STATIC_LIBRARIES)')
     $(info All depends='$(all_depends)')
 endif
 
@@ -59,6 +63,13 @@ LOCAL_CPPFLAGS   := $(strip $(imported_CPPFLAGS) $(LOCAL_CPPFLAGS))
 LOCAL_RENDERSCRIPT_FLAGS := $(strip $(imported_RENDERSCRIPT_FLAGS) $(LOCAL_RENDERSCRIPT_FLAGS))
 LOCAL_ASMFLAGS := $(strip $(imported_ASMFLAGS) $(LOCAL_ASMFLAGS))
 LOCAL_LDFLAGS    := $(strip $(imported_LDFLAGS) $(LOCAL_LDFLAGS))
+
+__ndk_modules.$(LOCAL_MODULE).STATIC_LIBRARIES += \
+    $(strip $(call strip-lib-prefix,$(imported_STATIC_LIBRARIES)))
+__ndk_modules.$(LOCAL_MODULE).SHARED_LIBRARIES += \
+    $(strip $(call strip-lib-prefix,$(imported_SHARED_LIBRARIES)))
+$(call module-add-static-depends,$(LOCAL_MODULE),$(imported_STATIC_LIBRARIES))
+$(call module-add-shared-depends,$(LOCAL_MODULE),$(imported_SHARED_LIBRARIES))
 
 #
 # The imported include directories are appended to their LOCAL_XXX value

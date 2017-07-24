@@ -163,6 +163,7 @@ char* vk_print_vksubresourcelayout(const VkSubresourceLayout* pStruct, const cha
 char* vk_print_vksurfacecapabilitieskhr(const VkSurfaceCapabilitiesKHR* pStruct, const char* prefix);
 char* vk_print_vksurfaceformatkhr(const VkSurfaceFormatKHR* pStruct, const char* prefix);
 char* vk_print_vkswapchaincreateinfokhr(const VkSwapchainCreateInfoKHR* pStruct, const char* prefix);
+char* vk_print_vkvalidationflagsext(const VkValidationFlagsEXT* pStruct, const char* prefix);
 char* vk_print_vkvertexinputattributedescription(const VkVertexInputAttributeDescription* pStruct, const char* prefix);
 char* vk_print_vkvertexinputbindingdescription(const VkVertexInputBindingDescription* pStruct, const char* prefix);
 char* vk_print_vkviewport(const VkViewport* pStruct, const char* prefix);
@@ -3575,6 +3576,36 @@ char* vk_print_vkswapchaincreateinfokhr(const VkSwapchainCreateInfoKHR* pStruct,
     str = (char*)malloc(len);
     snprintf(str, len, "%ssType = %s\n%spNext = 0x%p\n%sflags = %u\n%ssurface = 0x%p\n%sminImageCount = %u\n%simageFormat = %s\n%simageColorSpace = %s\n%simageExtent = 0x%p\n%simageArrayLayers = %u\n%simageUsage = %u\n%simageSharingMode = %s\n%squeueFamilyIndexCount = %u\n%spQueueFamilyIndices = 0x%p\n%spreTransform = %s\n%scompositeAlpha = %s\n%spresentMode = %s\n%sclipped = %s\n%soldSwapchain = 0x%p\n", prefix, string_VkStructureType(pStruct->sType), prefix, (pStruct->pNext), prefix, (pStruct->flags), prefix, (void*)(pStruct->surface), prefix, (pStruct->minImageCount), prefix, string_VkFormat(pStruct->imageFormat), prefix, string_VkColorSpaceKHR(pStruct->imageColorSpace), prefix, (void*)&(pStruct->imageExtent), prefix, (pStruct->imageArrayLayers), prefix, (pStruct->imageUsage), prefix, string_VkSharingMode(pStruct->imageSharingMode), prefix, (pStruct->queueFamilyIndexCount), prefix, (void*)(pStruct->pQueueFamilyIndices), prefix, string_VkSurfaceTransformFlagBitsKHR(pStruct->preTransform), prefix, string_VkCompositeAlphaFlagBitsKHR(pStruct->compositeAlpha), prefix, string_VkPresentModeKHR(pStruct->presentMode), prefix, (pStruct->clipped) ? "TRUE" : "FALSE", prefix, (void*)(pStruct->oldSwapchain));
     for (int32_t stp_index = 1; stp_index >= 0; stp_index--) {
+        if (0 < strlen(stp_strs[stp_index])) {
+            strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
+            free(stp_strs[stp_index]);
+        }
+    }
+    free(extra_indent);
+    return str;
+}
+char* vk_print_vkvalidationflagsext(const VkValidationFlagsEXT* pStruct, const char* prefix)
+{
+    char* str;
+    size_t len;
+    char* tmpStr;
+    char* extra_indent = (char*)malloc(strlen(prefix) + 3);
+    strcpy(extra_indent, "  ");
+    strncat(extra_indent, prefix, strlen(prefix));
+    char* stp_strs[1];
+    if (pStruct->pNext) {
+        tmpStr = dynamic_display((void*)pStruct->pNext, prefix);
+        len = 256+strlen(tmpStr);
+        stp_strs[0] = (char*)malloc(len);
+        snprintf(stp_strs[0], len, " %spNext (0x%p)\n%s", prefix, (void*)pStruct->pNext, tmpStr);
+        free(tmpStr);
+    }
+    else
+        stp_strs[0] = "";
+    len = strlen(stp_strs[0]) + sizeof(char)*1024;
+    str = (char*)malloc(len);
+    snprintf(str, len, "%ssType = %s\n%spNext = 0x%p\n%sdisabledValidationCheckCount = %u\n%spDisabledValidationChecks = 0x%s\n", prefix, string_VkStructureType(pStruct->sType), prefix, (pStruct->pNext), prefix, (pStruct->disabledValidationCheckCount), prefix, string_VkValidationCheckEXT(*pStruct->pDisabledValidationChecks));
+    for (int32_t stp_index = 0; stp_index >= 0; stp_index--) {
         if (0 < strlen(stp_strs[stp_index])) {
             strncat(str, stp_strs[stp_index], strlen(stp_strs[stp_index]));
             free(stp_strs[stp_index]);
