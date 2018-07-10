@@ -19,12 +19,14 @@
 #include <sstream>
 #include <cassert>
 
+#include "test_macros.h"
 #include "count_new.hpp"
 
 int main()
 {
+    globalMemCounter.reset();
     typedef std::wbuffer_convert<std::codecvt_utf8<wchar_t> > B;
-#if _LIBCPP_STD_VER > 11
+#if TEST_STD_VER > 11
     static_assert(!std::is_convertible<std::streambuf*, B>::value, "");
     static_assert( std::is_constructible<B, std::streambuf*>::value, "");
 #endif

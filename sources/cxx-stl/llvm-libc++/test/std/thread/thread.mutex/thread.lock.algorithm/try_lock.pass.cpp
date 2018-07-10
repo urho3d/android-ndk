@@ -7,7 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// XFAIL: libcpp-no-exceptions
 // UNSUPPORTED: libcpp-has-no-threads
 
 // <mutex>
@@ -17,6 +16,8 @@
 
 #include <mutex>
 #include <cassert>
+
+#include "test_macros.h"
 
 class L0
 {
@@ -63,7 +64,7 @@ public:
 
     bool try_lock()
     {
-        throw 1;
+        TEST_THROW(1);
         return locked_;
     }
 
@@ -95,6 +96,7 @@ int main()
         assert(!l0.locked());
         assert(!l1.locked());
     }
+#ifndef TEST_HAS_NO_EXCEPTIONS
     {
         L0 l0;
         L2 l1;
@@ -123,7 +125,8 @@ int main()
             assert(!l1.locked());
         }
     }
-#ifndef _LIBCPP_HAS_NO_VARIADICS
+#endif
+#if TEST_STD_VER >= 11
     {
         L0 l0;
         L0 l1;
@@ -142,6 +145,7 @@ int main()
         assert(!l1.locked());
         assert(!l2.locked());
     }
+#ifndef TEST_HAS_NO_EXCEPTIONS
     {
         L2 l0;
         L2 l1;
@@ -167,6 +171,7 @@ int main()
         assert(!l1.locked());
         assert(!l2.locked());
     }
+#endif
     {
         L0 l0;
         L0 l1;
@@ -194,6 +199,7 @@ int main()
         assert(!l1.locked());
         assert(!l2.locked());
     }
+#ifndef TEST_HAS_NO_EXCEPTIONS
     {
         L0 l0;
         L0 l1;
@@ -242,6 +248,7 @@ int main()
             assert(!l2.locked());
         }
     }
+#endif
     {
         L1 l0;
         L1 l1;
@@ -269,6 +276,7 @@ int main()
         assert(!l1.locked());
         assert(!l2.locked());
     }
+#ifndef TEST_HAS_NO_EXCEPTIONS
     {
         L1 l0;
         L1 l1;
@@ -458,6 +466,7 @@ int main()
             assert(!l2.locked());
         }
     }
+#endif  // TEST_HAS_NO_EXCEPTIONS
     {
         L0 l0;
         L0 l1;
@@ -513,5 +522,5 @@ int main()
         assert(!l2.locked());
         assert(!l3.locked());
     }
-#endif  // _LIBCPP_HAS_NO_VARIADICS
+#endif  // TEST_STD_VER >= 11
 }

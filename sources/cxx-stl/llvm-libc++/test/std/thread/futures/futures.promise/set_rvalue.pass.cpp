@@ -6,9 +6,9 @@
 // Source Licenses. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-//
-// XFAIL: libcpp-no-exceptions
-// UNSUPPORTED: libcpp-has-no-threads
+
+// UNSUPPORTED: c++98, c++03
+// UNSUPPORTED: libcpp-has-no-threads, libcpp-no-exceptions
 
 // <future>
 
@@ -20,8 +20,6 @@
 #include <memory>
 #include <cassert>
 
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
-
 struct A
 {
     A() {}
@@ -29,11 +27,8 @@ struct A
     A(A&&) {throw 9;}
 };
 
-#endif  // _LIBCPP_HAS_NO_RVALUE_REFERENCES
-
 int main()
 {
-#ifndef _LIBCPP_HAS_NO_RVALUE_REFERENCES
     {
         typedef std::unique_ptr<int> T;
         T i(new int(3));
@@ -66,5 +61,4 @@ int main()
             assert(j == 9);
         }
     }
-#endif  // _LIBCPP_HAS_NO_RVALUE_REFERENCES
 }

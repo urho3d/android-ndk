@@ -21,32 +21,9 @@
  * Author: Mark Lobodzinski <mark@lunarg.com>
  */
 
-// Check for noexcept support
-#if defined(__clang__)
-#if __has_feature(cxx_noexcept)
-#define HAS_NOEXCEPT
-#endif
-#else
-#if defined(__GXX_EXPERIMENTAL_CXX0X__) && __GNUC__ * 10 + __GNUC_MINOR__ >= 46
-#define HAS_NOEXCEPT
-#else
-#if defined(_MSC_FULL_VER) && _MSC_FULL_VER >= 190023026 && defined(_HAS_EXCEPTIONS) && _HAS_EXCEPTIONS
-#define HAS_NOEXCEPT
-#endif
-#endif
-#endif
-
-#ifdef HAS_NOEXCEPT
-#define NOEXCEPT noexcept
-#else
-#define NOEXCEPT
-#endif
-
-// Enable mem_tracker merged code
-#define MTMERGE 1
-
 #pragma once
 #include "core_validation_error_enums.h"
+#include "vk_validation_error_messages.h"
 #include "core_validation_types.h"
 #include "descriptor_sets.h"
 #include "vk_layer_logging.h"
@@ -59,8 +36,6 @@
 #include <vector>
 #include <list>
 #include <deque>
-
-#if MTMERGE
 
 /*
  * MTMTODO : Update this comment
@@ -93,140 +68,105 @@
 // TODO : Is there a way to track when Cmd Buffer finishes & remove mem references at that point?
 // TODO : Could potentially store a list of freed mem allocs to flag when they're incorrectly used
 
-struct MT_FB_ATTACHMENT_INFO {
-    VkImage image;
-    VkDeviceMemory mem;
-};
-
-struct MT_DESCRIPTOR_SET_INFO {
-    std::vector<VkImageView> images;
-    std::vector<VkBuffer> buffers;
-};
-
-// Track Swapchain Information
-struct MT_SWAP_CHAIN_INFO {
-    VkSwapchainCreateInfoKHR createInfo;
-    std::vector<VkImage> images;
-};
-#endif
-
-struct SHADER_DS_MAPPING {
-    uint32_t slotCount;
-    VkDescriptorSetLayoutCreateInfo *pShaderMappingSlot;
-};
-
 struct GENERIC_HEADER {
     VkStructureType sType;
     const void *pNext;
 };
 
-struct IMAGE_LAYOUT_NODE {
-    VkImageLayout layout;
-    VkFormat format;
-};
-
-class PHYS_DEV_PROPERTIES_NODE {
-  public:
-    VkPhysicalDeviceProperties properties;
-    VkPhysicalDeviceFeatures features;
-    std::vector<VkQueueFamilyProperties> queue_family_properties;
+enum SyncScope {
+    kSyncScopeInternal,
+    kSyncScopeExternalTemporary,
+    kSyncScopeExternalPermanent,
 };
 
 enum FENCE_STATE { FENCE_UNSIGNALED, FENCE_INFLIGHT, FENCE_RETIRED };
 
 class FENCE_NODE {
-  public:
+   public:
     VkFence fence;
     VkFenceCreateInfo createInfo;
     std::pair<VkQueue, uint64_t> signaler;
     FENCE_STATE state;
+    SyncScope scope;
 
     // Default constructor
-    FENCE_NODE() : state(FENCE_UNSIGNALED) {}
+    FENCE_NODE() : state(FENCE_UNSIGNALED), scope(kSyncScopeInternal) {}
 };
 
 class SEMAPHORE_NODE : public BASE_NODE {
-  public:
-    using BASE_NODE::in_use;
+   public:
     std::pair<VkQueue, uint64_t> signaler;
     bool signaled;
+    SyncScope scope;
 };
 
-class EVENT_NODE : public BASE_NODE {
-  public:
-    using BASE_NODE::in_use;
+class EVENT_STATE : public BASE_NODE {
+   public:
     int write_in_use;
     bool needsSignaled;
     VkPipelineStageFlags stageMask;
 };
 
-class QUEUE_NODE {
-  public:
+class QUEUE_STATE {
+   public:
     VkQueue queue;
     uint32_t queueFamilyIndex;
     std::unordered_map<VkEvent, VkPipelineStageFlags> eventToStageMap;
-    std::unordered_map<QueryObject, bool> queryToStateMap; // 0 is unavailable, 1 is available
+    std::unordered_map<QueryObject, bool> queryToStateMap;  // 0 is unavailable, 1 is available
 
     uint64_t seq;
     std::deque<CB_SUBMISSION> submissions;
 };
 
 class QUERY_POOL_NODE : public BASE_NODE {
-  public:
+   public:
     VkQueryPoolCreateInfo createInfo;
-};
-
-class FRAMEBUFFER_NODE : BASE_NODE {
-  public:
-    using BASE_NODE::in_use;
-    using BASE_NODE::cb_bindings;
-    VkFramebuffer framebuffer;
-    safe_VkFramebufferCreateInfo createInfo;
-    safe_VkRenderPassCreateInfo renderPassCreateInfo;
-    std::unordered_set<VkCommandBuffer> referencingCmdBuffers;
-    std::vector<MT_FB_ATTACHMENT_INFO> attachments;
-    FRAMEBUFFER_NODE(VkFramebuffer fb, const VkFramebufferCreateInfo *pCreateInfo, const VkRenderPassCreateInfo *pRPCI)
-        : framebuffer(fb), createInfo(pCreateInfo), renderPassCreateInfo(pRPCI){};
-};
-
-typedef struct stencil_data {
-    uint32_t compareMask;
-    uint32_t writeMask;
-    uint32_t reference;
-} CBStencilData;
-
-// Track command pools and their command buffers
-struct COMMAND_POOL_NODE {
-    VkCommandPoolCreateFlags createFlags;
-    uint32_t queueFamilyIndex;
-    // TODO: why is this std::list?
-    std::list<VkCommandBuffer> commandBuffers; // container of cmd buffers allocated from this pool
-};
-
-// Stuff from Device Limits Layer
-enum CALL_STATE {
-    UNCALLED,      // Function has not been called
-    QUERY_COUNT,   // Function called once to query a count
-    QUERY_DETAILS, // Function called w/ a count to query details
-};
-
-struct INSTANCE_STATE {
-    // Track the call state and array size for physical devices
-    CALL_STATE vkEnumeratePhysicalDevicesState;
-    uint32_t physical_devices_count;
-    INSTANCE_STATE() : vkEnumeratePhysicalDevicesState(UNCALLED), physical_devices_count(0) {};
 };
 
 struct PHYSICAL_DEVICE_STATE {
     // Track the call state and array sizes for various query functions
-    CALL_STATE vkGetPhysicalDeviceQueueFamilyPropertiesState;
-    uint32_t queueFamilyPropertiesCount;
-    CALL_STATE vkGetPhysicalDeviceLayerPropertiesState;
-    CALL_STATE vkGetPhysicalDeviceExtensionPropertiesState;
-    CALL_STATE vkGetPhysicalDeviceFeaturesState;
-    PHYSICAL_DEVICE_STATE()
-        : vkGetPhysicalDeviceQueueFamilyPropertiesState(UNCALLED),
-        vkGetPhysicalDeviceLayerPropertiesState(UNCALLED),
-        vkGetPhysicalDeviceExtensionPropertiesState(UNCALLED),
-        vkGetPhysicalDeviceFeaturesState(UNCALLED) {};
+    CALL_STATE vkGetPhysicalDeviceQueueFamilyPropertiesState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceLayerPropertiesState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceExtensionPropertiesState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceFeaturesState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceSurfaceCapabilitiesKHRState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceSurfacePresentModesKHRState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceSurfaceFormatsKHRState = UNCALLED;
+    CALL_STATE vkGetPhysicalDeviceDisplayPlanePropertiesKHRState = UNCALLED;
+    VkPhysicalDeviceFeatures features = {};
+    VkPhysicalDevice phys_device = VK_NULL_HANDLE;
+    uint32_t queue_family_count = 0;
+    std::vector<VkQueueFamilyProperties> queue_family_properties;
+    VkSurfaceCapabilitiesKHR surfaceCapabilities = {};
+    std::vector<VkPresentModeKHR> present_modes;
+    std::vector<VkSurfaceFormatKHR> surface_formats;
+    uint32_t display_plane_property_count = 0;
+};
+
+struct GpuQueue {
+    VkPhysicalDevice gpu;
+    uint32_t queue_family_index;
+};
+
+inline bool operator==(GpuQueue const &lhs, GpuQueue const &rhs) {
+    return (lhs.gpu == rhs.gpu && lhs.queue_family_index == rhs.queue_family_index);
+}
+
+namespace std {
+template <>
+struct hash<GpuQueue> {
+    size_t operator()(GpuQueue gq) const throw() {
+        return hash<uint64_t>()((uint64_t)(gq.gpu)) ^ hash<uint32_t>()(gq.queue_family_index);
+    }
+};
+}  // namespace std
+
+struct SURFACE_STATE {
+    VkSurfaceKHR surface = VK_NULL_HANDLE;
+    SWAPCHAIN_NODE *swapchain = nullptr;
+    SWAPCHAIN_NODE *old_swapchain = nullptr;
+    std::unordered_map<GpuQueue, bool> gpu_queue_support;
+
+    SURFACE_STATE() {}
+    SURFACE_STATE(VkSurfaceKHR surface) : surface(surface) {}
 };

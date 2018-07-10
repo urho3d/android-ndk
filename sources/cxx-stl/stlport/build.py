@@ -45,6 +45,7 @@ def main(args):
 
     print('Building stlport for ABIs: {}'.format(' '.join(abis)))
 
+    build_dir = os.path.join(args.out_dir, 'stlport')
     abis_arg = '--abis={}'.format(','.join(abis))
     ndk_dir_arg = '--ndk-dir={}'.format(build_support.ndk_path())
     script = build_support.ndk_path('build/tools/build-cxx-stl.sh')
@@ -52,6 +53,7 @@ def main(args):
         'bash', script, '--stl=stlport', abis_arg, ndk_dir_arg,
         build_support.jobs_arg(), build_support.toolchain_path(),
         '--with-debug-info', '--llvm-version=3.6',
+        '--build-dir={}'.format(build_dir),
     ]
 
     build_support.build(build_cmd, args)

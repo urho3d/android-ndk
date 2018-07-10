@@ -16,8 +16,8 @@
 #define LIBSPIRV_OPCODE_H_
 
 #include "instruction.h"
+#include "latest_version_spirv_header.h"
 #include "spirv-tools/libspirv.h"
-#include "spirv/1.1/spirv.h"
 #include "table.h"
 
 // Returns the name of a registered SPIR-V generator as a null-terminated
@@ -37,12 +37,14 @@ void spvOpcodeSplit(const uint32_t word, uint16_t* word_count,
 
 // Finds the named opcode in the given opcode table. On success, returns
 // SPV_SUCCESS and writes a handle of the table entry into *entry.
-spv_result_t spvOpcodeTableNameLookup(const spv_opcode_table table,
+spv_result_t spvOpcodeTableNameLookup(spv_target_env,
+                                      const spv_opcode_table table,
                                       const char* name, spv_opcode_desc* entry);
 
 // Finds the opcode by enumerant in the given opcode table. On success, returns
 // SPV_SUCCESS and writes a handle of the table entry into *entry.
-spv_result_t spvOpcodeTableValueLookup(const spv_opcode_table table,
+spv_result_t spvOpcodeTableValueLookup(spv_target_env,
+                                       const spv_opcode_table table,
                                        const SpvOp opcode,
                                        spv_opcode_desc* entry);
 
@@ -61,12 +63,19 @@ const char* spvOpcodeString(const SpvOp opcode);
 // non-zero otherwise.
 int32_t spvOpcodeIsScalarType(const SpvOp opcode);
 
+// Determines if the given opcode is a specialization constant. Returns zero if
+// false, non-zero otherwise.
+int32_t spvOpcodeIsSpecConstant(const SpvOp opcode);
+
 // Determines if the given opcode is a constant. Returns zero if false, non-zero
 // otherwise.
 int32_t spvOpcodeIsConstant(const SpvOp opcode);
 
 // Returns true if the given opcode is a constant or undef.
 bool spvOpcodeIsConstantOrUndef(const SpvOp opcode);
+
+// Returns true if the given opcode is a scalar specialization constant.
+bool spvOpcodeIsScalarSpecConstant(const SpvOp opcode);
 
 // Determines if the given opcode is a composite type. Returns zero if false,
 // non-zero otherwise.
@@ -76,8 +85,40 @@ int32_t spvOpcodeIsComposite(const SpvOp opcode);
 // addressing model. Returns zero if false, non-zero otherwise.
 int32_t spvOpcodeReturnsLogicalPointer(const SpvOp opcode);
 
+// Returns whether the given opcode could result in a pointer or a variable
+// pointer when using the logical addressing model.
+bool spvOpcodeReturnsLogicalVariablePointer(const SpvOp opcode);
+
 // Determines if the given opcode generates a type. Returns zero if false,
 // non-zero otherwise.
 int32_t spvOpcodeGeneratesType(SpvOp opcode);
 
+// Returns true if the opcode adds a decoration to an id.
+bool spvOpcodeIsDecoration(const SpvOp opcode);
+
+// Returns true if the opcode is a load from memory into a result id.  This
+// function only considers core instructions.
+bool spvOpcodeIsLoad(const SpvOp opcode);
+
+// Returns true if the opcode is an atomic operation.
+bool spvOpcodeIsAtomicOp(const SpvOp opcode);
+
+// Returns true if the given opcode is a branch instruction.
+bool spvOpcodeIsBranch(SpvOp opcode);
+
+// Returns true if the given opcode is a return instruction.
+bool spvOpcodeIsReturn(SpvOp opcode);
+
+// Returns true if the given opcode is a return instruction or it aborts
+// execution.
+bool spvOpcodeIsReturnOrAbort(SpvOp opcode);
+
+// Returns true if the given opcode is a basic block terminator.
+bool spvOpcodeIsBlockTerminator(SpvOp opcode);
+
+// Returns true if the given opcode always defines an opaque type.
+bool spvOpcodeIsBaseOpaqueType(SpvOp opcode);
+
+// Returns true if the given opcode is a non-uniform group operation.
+bool spvOpcodeIsNonUniformGroupOperation(SpvOp opcode);
 #endif  // LIBSPIRV_OPCODE_H_

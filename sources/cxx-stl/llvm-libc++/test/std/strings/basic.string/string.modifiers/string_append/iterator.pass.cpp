@@ -178,4 +178,46 @@ int main()
     test_exceptions(S(), TIter(s, s+10, 6, TIter::TAComparison), TIter());
 	}
 #endif
+
+	{ // test appending to self
+    typedef std::string S;
+	S s_short = "123/";
+	S s_long  = "Lorem ipsum dolor sit amet, consectetur/";
+
+	s_short.append(s_short.begin(), s_short.end());
+	assert(s_short == "123/123/");
+	s_short.append(s_short.begin(), s_short.end());
+	assert(s_short == "123/123/123/123/");
+	s_short.append(s_short.begin(), s_short.end());
+	assert(s_short == "123/123/123/123/123/123/123/123/");
+
+	s_long.append(s_long.begin(), s_long.end());
+	assert(s_long == "Lorem ipsum dolor sit amet, consectetur/Lorem ipsum dolor sit amet, consectetur/");
+	}
+
+	{ // test appending a different type
+    typedef std::string S;
+	const uint8_t p[] = "ABCD";
+
+	S s;
+	s.append(p, p + 4);
+	assert(s == "ABCD");
+	}
+
+  { // test with a move iterator that returns char&&
+    typedef forward_iterator<const char*> It;
+    typedef std::move_iterator<It> MoveIt;
+    const char p[] = "ABCD";
+    std::string s;
+    s.append(MoveIt(It(std::begin(p))), MoveIt(It(std::end(p) - 1)));
+    assert(s == "ABCD");
+  }
+  { // test with a move iterator that returns char&&
+    typedef const char* It;
+    typedef std::move_iterator<It> MoveIt;
+    const char p[] = "ABCD";
+    std::string s;
+    s.append(MoveIt(It(std::begin(p))), MoveIt(It(std::end(p) - 1)));
+    assert(s == "ABCD");
+  }
 }

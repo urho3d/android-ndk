@@ -4,7 +4,7 @@
 namespace threading {
 
 /*
-** Copyright (c) 2015-2016 The Khronos Group Inc.
+** Copyright (c) 2015-2017 The Khronos Group Inc.
 **
 ** Licensed under the Apache License, Version 2.0 (the "License");
 ** you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDevices(
     VkPhysicalDevice*                           pPhysicalDevices)
 {
     dispatch_key key = get_dispatch_key(instance);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -81,6 +81,30 @@ VKAPI_ATTR void VKAPI_CALL DestroyDevice(
     VkDevice                                    device,
     const VkAllocationCallbacks*                pAllocator);
 
+// declare only
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceExtensionProperties(
+    const char*                                 pLayerName,
+    uint32_t*                                   pPropertyCount,
+    VkExtensionProperties*                      pProperties);
+
+// declare only
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceExtensionProperties(
+    VkPhysicalDevice                            physicalDevice,
+    const char*                                 pLayerName,
+    uint32_t*                                   pPropertyCount,
+    VkExtensionProperties*                      pProperties);
+
+// declare only
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateInstanceLayerProperties(
+    uint32_t*                                   pPropertyCount,
+    VkLayerProperties*                          pProperties);
+
+// declare only
+VKAPI_ATTR VkResult VKAPI_CALL EnumerateDeviceLayerProperties(
+    VkPhysicalDevice                            physicalDevice,
+    uint32_t*                                   pPropertyCount,
+    VkLayerProperties*                          pProperties);
+
 VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(
     VkDevice                                    device,
     uint32_t                                    queueFamilyIndex,
@@ -88,7 +112,7 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceQueue(
     VkQueue*                                    pQueue)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -109,7 +133,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueSubmit(
     VkFence                                     fence)
 {
     dispatch_key key = get_dispatch_key(queue);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -149,7 +173,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueWaitIdle(
     VkQueue                                     queue)
 {
     dispatch_key key = get_dispatch_key(queue);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -169,7 +193,7 @@ VKAPI_ATTR VkResult VKAPI_CALL DeviceWaitIdle(
     VkDevice                                    device)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -194,7 +218,7 @@ VKAPI_ATTR VkResult VKAPI_CALL AllocateMemory(
     VkDeviceMemory*                             pMemory)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -216,7 +240,7 @@ VKAPI_ATTR void VKAPI_CALL FreeMemory(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -243,7 +267,7 @@ VKAPI_ATTR VkResult VKAPI_CALL MapMemory(
     void**                                      ppData)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -268,7 +292,7 @@ VKAPI_ATTR void VKAPI_CALL UnmapMemory(
     VkDeviceMemory                              memory)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -292,7 +316,7 @@ VKAPI_ATTR VkResult VKAPI_CALL FlushMappedMemoryRanges(
     const VkMappedMemoryRange*                  pMemoryRanges)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -314,7 +338,7 @@ VKAPI_ATTR VkResult VKAPI_CALL InvalidateMappedMemoryRanges(
     const VkMappedMemoryRange*                  pMemoryRanges)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -336,7 +360,7 @@ VKAPI_ATTR void VKAPI_CALL GetDeviceMemoryCommitment(
     VkDeviceSize*                               pCommittedMemoryInBytes)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -359,7 +383,7 @@ VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory(
     VkDeviceSize                                memoryOffset)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -388,7 +412,7 @@ VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory(
     VkDeviceSize                                memoryOffset)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -416,7 +440,7 @@ VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements(
     VkMemoryRequirements*                       pMemoryRequirements)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -438,7 +462,7 @@ VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements(
     VkMemoryRequirements*                       pMemoryRequirements)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -461,7 +485,7 @@ VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements(
     VkSparseImageMemoryRequirements*            pSparseMemoryRequirements)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -484,7 +508,7 @@ VKAPI_ATTR VkResult VKAPI_CALL QueueBindSparse(
     VkFence                                     fence)
 {
     dispatch_key key = get_dispatch_key(queue);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -539,7 +563,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFence(
     VkFence*                                    pFence)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -561,7 +585,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyFence(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -585,7 +609,7 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetFences(
     const VkFence*                              pFences)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -614,7 +638,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetFenceStatus(
     VkFence                                     fence)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -640,20 +664,20 @@ VKAPI_ATTR VkResult VKAPI_CALL WaitForFences(
     uint64_t                                    timeout)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
         startReadObject(my_data, device);
-        for (uint32_t index=0;index<fenceCount;index++) {
+        for (uint32_t index = 0; index < fenceCount; index++) {
             startReadObject(my_data, pFences[index]);
         }
     }
     result = pTable->WaitForFences(device,fenceCount,pFences,waitAll,timeout);
     if (threadChecks) {
         finishReadObject(my_data, device);
-        for (uint32_t index=0;index<fenceCount;index++) {
+        for (uint32_t index = 0; index < fenceCount; index++) {
             finishReadObject(my_data, pFences[index]);
         }
     } else {
@@ -669,7 +693,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSemaphore(
     VkSemaphore*                                pSemaphore)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -691,7 +715,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySemaphore(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -716,7 +740,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateEvent(
     VkEvent*                                    pEvent)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -738,7 +762,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyEvent(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -761,7 +785,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetEventStatus(
     VkEvent                                     event)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -784,7 +808,7 @@ VKAPI_ATTR VkResult VKAPI_CALL SetEvent(
     VkEvent                                     event)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -809,7 +833,7 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetEvent(
     VkEvent                                     event)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -836,7 +860,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateQueryPool(
     VkQueryPool*                                pQueryPool)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -858,7 +882,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyQueryPool(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -887,7 +911,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetQueryPoolResults(
     VkQueryResultFlags                          flags)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -912,7 +936,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBuffer(
     VkBuffer*                                   pBuffer)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -934,7 +958,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyBuffer(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -959,7 +983,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateBufferView(
     VkBufferView*                               pView)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -981,7 +1005,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyBufferView(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1006,7 +1030,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImage(
     VkImage*                                    pImage)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1028,7 +1052,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyImage(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1053,7 +1077,7 @@ VKAPI_ATTR void VKAPI_CALL GetImageSubresourceLayout(
     VkSubresourceLayout*                        pLayout)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1076,7 +1100,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateImageView(
     VkImageView*                                pView)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1098,7 +1122,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyImageView(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1123,7 +1147,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateShaderModule(
     VkShaderModule*                             pShaderModule)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1145,7 +1169,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyShaderModule(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1170,7 +1194,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineCache(
     VkPipelineCache*                            pPipelineCache)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1192,7 +1216,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineCache(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1217,7 +1241,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetPipelineCacheData(
     void*                                       pData)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1242,14 +1266,14 @@ VKAPI_ATTR VkResult VKAPI_CALL MergePipelineCaches(
     const VkPipelineCache*                      pSrcCaches)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
         startReadObject(my_data, device);
         startWriteObject(my_data, dstCache);
-        for (uint32_t index=0;index<srcCacheCount;index++) {
+        for (uint32_t index = 0; index < srcCacheCount; index++) {
             startReadObject(my_data, pSrcCaches[index]);
         }
         // Host access to dstCache must be externally synchronized
@@ -1258,7 +1282,7 @@ VKAPI_ATTR VkResult VKAPI_CALL MergePipelineCaches(
     if (threadChecks) {
         finishReadObject(my_data, device);
         finishWriteObject(my_data, dstCache);
-        for (uint32_t index=0;index<srcCacheCount;index++) {
+        for (uint32_t index = 0; index < srcCacheCount; index++) {
             finishReadObject(my_data, pSrcCaches[index]);
         }
         // Host access to dstCache must be externally synchronized
@@ -1277,7 +1301,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateGraphicsPipelines(
     VkPipeline*                                 pPipelines)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1304,7 +1328,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateComputePipelines(
     VkPipeline*                                 pPipelines)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1328,7 +1352,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipeline(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1353,7 +1377,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreatePipelineLayout(
     VkPipelineLayout*                           pPipelineLayout)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1375,7 +1399,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyPipelineLayout(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1400,7 +1424,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateSampler(
     VkSampler*                                  pSampler)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1422,7 +1446,7 @@ VKAPI_ATTR void VKAPI_CALL DestroySampler(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1447,7 +1471,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorSetLayout(
     VkDescriptorSetLayout*                      pSetLayout)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1469,7 +1493,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorSetLayout(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1494,7 +1518,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorPool(
     VkDescriptorPool*                           pDescriptorPool)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1516,7 +1540,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyDescriptorPool(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1540,7 +1564,7 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetDescriptorPool(
     VkDescriptorPoolResetFlags                  flags)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1562,31 +1586,11 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetDescriptorPool(
     return result;
 }
 
+// declare only
 VKAPI_ATTR VkResult VKAPI_CALL AllocateDescriptorSets(
     VkDevice                                    device,
     const VkDescriptorSetAllocateInfo*          pAllocateInfo,
-    VkDescriptorSet*                            pDescriptorSets)
-{
-    dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
-    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
-    VkResult result;
-    bool threadChecks = startMultiThread();
-    if (threadChecks) {
-        startReadObject(my_data, device);
-        startWriteObject(my_data, pAllocateInfo->descriptorPool);
-        // Host access to pAllocateInfo->descriptorPool must be externally synchronized
-    }
-    result = pTable->AllocateDescriptorSets(device,pAllocateInfo,pDescriptorSets);
-    if (threadChecks) {
-        finishReadObject(my_data, device);
-        finishWriteObject(my_data, pAllocateInfo->descriptorPool);
-        // Host access to pAllocateInfo->descriptorPool must be externally synchronized
-    } else {
-        finishMultiThread();
-    }
-    return result;
-}
+    VkDescriptorSet*                            pDescriptorSets);
 
 VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(
     VkDevice                                    device,
@@ -1595,7 +1599,7 @@ VKAPI_ATTR VkResult VKAPI_CALL FreeDescriptorSets(
     const VkDescriptorSet*                      pDescriptorSets)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1631,7 +1635,7 @@ VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSets(
     const VkCopyDescriptorSet*                  pDescriptorCopies)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1668,7 +1672,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateFramebuffer(
     VkFramebuffer*                              pFramebuffer)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1690,7 +1694,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyFramebuffer(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1715,7 +1719,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateRenderPass(
     VkRenderPass*                               pRenderPass)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1737,7 +1741,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyRenderPass(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1761,7 +1765,7 @@ VKAPI_ATTR void VKAPI_CALL GetRenderAreaGranularity(
     VkExtent2D*                                 pGranularity)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1784,7 +1788,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateCommandPool(
     VkCommandPool*                              pCommandPool)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1806,7 +1810,7 @@ VKAPI_ATTR void VKAPI_CALL DestroyCommandPool(
     const VkAllocationCallbacks*                pAllocator)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1830,7 +1834,7 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetCommandPool(
     VkCommandPoolResetFlags                     flags)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1868,18 +1872,20 @@ VKAPI_ATTR VkResult VKAPI_CALL BeginCommandBuffer(
     const VkCommandBufferBeginInfo*             pBeginInfo)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
         startWriteObject(my_data, commandBuffer);
         // Host access to commandBuffer must be externally synchronized
+        // the sname:VkCommandPool that pname:commandBuffer was allocated from must be externally synchronized between host accesses
     }
     result = pTable->BeginCommandBuffer(commandBuffer,pBeginInfo);
     if (threadChecks) {
         finishWriteObject(my_data, commandBuffer);
         // Host access to commandBuffer must be externally synchronized
+        // the sname:VkCommandPool that pname:commandBuffer was allocated from must be externally synchronized between host accesses
     } else {
         finishMultiThread();
     }
@@ -1890,18 +1896,20 @@ VKAPI_ATTR VkResult VKAPI_CALL EndCommandBuffer(
     VkCommandBuffer                             commandBuffer)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
         startWriteObject(my_data, commandBuffer);
         // Host access to commandBuffer must be externally synchronized
+        // the sname:VkCommandPool that pname:commandBuffer was allocated from must be externally synchronized between host accesses
     }
     result = pTable->EndCommandBuffer(commandBuffer);
     if (threadChecks) {
         finishWriteObject(my_data, commandBuffer);
         // Host access to commandBuffer must be externally synchronized
+        // the sname:VkCommandPool that pname:commandBuffer was allocated from must be externally synchronized between host accesses
     } else {
         finishMultiThread();
     }
@@ -1913,7 +1921,7 @@ VKAPI_ATTR VkResult VKAPI_CALL ResetCommandBuffer(
     VkCommandBufferResetFlags                   flags)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -1937,7 +1945,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindPipeline(
     VkPipeline                                  pipeline)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1962,7 +1970,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetViewport(
     const VkViewport*                           pViewports)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -1985,7 +1993,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetScissor(
     const VkRect2D*                             pScissors)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2006,7 +2014,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetLineWidth(
     float                                       lineWidth)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2029,7 +2037,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBias(
     float                                       depthBiasSlopeFactor)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2050,7 +2058,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetBlendConstants(
     const float                                 blendConstants[4])
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2072,7 +2080,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetDepthBounds(
     float                                       maxDepthBounds)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2094,7 +2102,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilCompareMask(
     uint32_t                                    compareMask)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2116,7 +2124,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilWriteMask(
     uint32_t                                    writeMask)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2138,7 +2146,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetStencilReference(
     uint32_t                                    reference)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2165,18 +2173,24 @@ VKAPI_ATTR void VKAPI_CALL CmdBindDescriptorSets(
     const uint32_t*                             pDynamicOffsets)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
         startWriteObject(my_data, commandBuffer);
         startReadObject(my_data, layout);
+        for (uint32_t index = 0; index < descriptorSetCount; index++) {
+            startReadObject(my_data, pDescriptorSets[index]);
+        }
         // Host access to commandBuffer must be externally synchronized
     }
     pTable->CmdBindDescriptorSets(commandBuffer,pipelineBindPoint,layout,firstSet,descriptorSetCount,pDescriptorSets,dynamicOffsetCount,pDynamicOffsets);
     if (threadChecks) {
         finishWriteObject(my_data, commandBuffer);
         finishReadObject(my_data, layout);
+        for (uint32_t index = 0; index < descriptorSetCount; index++) {
+            finishReadObject(my_data, pDescriptorSets[index]);
+        }
         // Host access to commandBuffer must be externally synchronized
     } else {
         finishMultiThread();
@@ -2190,7 +2204,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindIndexBuffer(
     VkIndexType                                 indexType)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2216,12 +2230,12 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers(
     const VkDeviceSize*                         pOffsets)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
         startWriteObject(my_data, commandBuffer);
-        for (uint32_t index=0;index<bindingCount;index++) {
+        for (uint32_t index = 0; index < bindingCount; index++) {
             startReadObject(my_data, pBuffers[index]);
         }
         // Host access to commandBuffer must be externally synchronized
@@ -2229,7 +2243,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBindVertexBuffers(
     pTable->CmdBindVertexBuffers(commandBuffer,firstBinding,bindingCount,pBuffers,pOffsets);
     if (threadChecks) {
         finishWriteObject(my_data, commandBuffer);
-        for (uint32_t index=0;index<bindingCount;index++) {
+        for (uint32_t index = 0; index < bindingCount; index++) {
             finishReadObject(my_data, pBuffers[index]);
         }
         // Host access to commandBuffer must be externally synchronized
@@ -2246,7 +2260,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDraw(
     uint32_t                                    firstInstance)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2271,7 +2285,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexed(
     uint32_t                                    firstInstance)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2295,7 +2309,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirect(
     uint32_t                                    stride)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2321,7 +2335,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirect(
     uint32_t                                    stride)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2341,19 +2355,19 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirect(
 
 VKAPI_ATTR void VKAPI_CALL CmdDispatch(
     VkCommandBuffer                             commandBuffer,
-    uint32_t                                    x,
-    uint32_t                                    y,
-    uint32_t                                    z)
+    uint32_t                                    groupCountX,
+    uint32_t                                    groupCountY,
+    uint32_t                                    groupCountZ)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
         startWriteObject(my_data, commandBuffer);
         // Host access to commandBuffer must be externally synchronized
     }
-    pTable->CmdDispatch(commandBuffer,x,y,z);
+    pTable->CmdDispatch(commandBuffer,groupCountX,groupCountY,groupCountZ);
     if (threadChecks) {
         finishWriteObject(my_data, commandBuffer);
         // Host access to commandBuffer must be externally synchronized
@@ -2368,7 +2382,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDispatchIndirect(
     VkDeviceSize                                offset)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2394,7 +2408,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBuffer(
     const VkBufferCopy*                         pRegions)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2424,7 +2438,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImage(
     const VkImageCopy*                          pRegions)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2455,7 +2469,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBlitImage(
     VkFilter                                    filter)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2484,7 +2498,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyBufferToImage(
     const VkBufferImageCopy*                    pRegions)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2513,7 +2527,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyImageToBuffer(
     const VkBufferImageCopy*                    pRegions)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2541,7 +2555,7 @@ VKAPI_ATTR void VKAPI_CALL CmdUpdateBuffer(
     const void*                                 pData)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2567,7 +2581,7 @@ VKAPI_ATTR void VKAPI_CALL CmdFillBuffer(
     uint32_t                                    data)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2594,7 +2608,7 @@ VKAPI_ATTR void VKAPI_CALL CmdClearColorImage(
     const VkImageSubresourceRange*              pRanges)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2621,7 +2635,7 @@ VKAPI_ATTR void VKAPI_CALL CmdClearDepthStencilImage(
     const VkImageSubresourceRange*              pRanges)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2647,7 +2661,7 @@ VKAPI_ATTR void VKAPI_CALL CmdClearAttachments(
     const VkClearRect*                          pRects)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2673,7 +2687,7 @@ VKAPI_ATTR void VKAPI_CALL CmdResolveImage(
     const VkImageResolve*                       pRegions)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2699,7 +2713,7 @@ VKAPI_ATTR void VKAPI_CALL CmdSetEvent(
     VkPipelineStageFlags                        stageMask)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2723,7 +2737,7 @@ VKAPI_ATTR void VKAPI_CALL CmdResetEvent(
     VkPipelineStageFlags                        stageMask)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2755,12 +2769,12 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(
     const VkImageMemoryBarrier*                 pImageMemoryBarriers)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
         startWriteObject(my_data, commandBuffer);
-        for (uint32_t index=0;index<eventCount;index++) {
+        for (uint32_t index = 0; index < eventCount; index++) {
             startReadObject(my_data, pEvents[index]);
         }
         // Host access to commandBuffer must be externally synchronized
@@ -2768,7 +2782,7 @@ VKAPI_ATTR void VKAPI_CALL CmdWaitEvents(
     pTable->CmdWaitEvents(commandBuffer,eventCount,pEvents,srcStageMask,dstStageMask,memoryBarrierCount,pMemoryBarriers,bufferMemoryBarrierCount,pBufferMemoryBarriers,imageMemoryBarrierCount,pImageMemoryBarriers);
     if (threadChecks) {
         finishWriteObject(my_data, commandBuffer);
-        for (uint32_t index=0;index<eventCount;index++) {
+        for (uint32_t index = 0; index < eventCount; index++) {
             finishReadObject(my_data, pEvents[index]);
         }
         // Host access to commandBuffer must be externally synchronized
@@ -2790,7 +2804,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPipelineBarrier(
     const VkImageMemoryBarrier*                 pImageMemoryBarriers)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2813,7 +2827,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginQuery(
     VkQueryControlFlags                         flags)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2837,7 +2851,7 @@ VKAPI_ATTR void VKAPI_CALL CmdEndQuery(
     uint32_t                                    query)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2862,7 +2876,7 @@ VKAPI_ATTR void VKAPI_CALL CmdResetQueryPool(
     uint32_t                                    queryCount)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2887,7 +2901,7 @@ VKAPI_ATTR void VKAPI_CALL CmdWriteTimestamp(
     uint32_t                                    query)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2916,7 +2930,7 @@ VKAPI_ATTR void VKAPI_CALL CmdCopyQueryPoolResults(
     VkQueryResultFlags                          flags)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2945,7 +2959,7 @@ VKAPI_ATTR void VKAPI_CALL CmdPushConstants(
     const void*                                 pValues)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2969,7 +2983,7 @@ VKAPI_ATTR void VKAPI_CALL CmdBeginRenderPass(
     VkSubpassContents                           contents)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -2990,7 +3004,7 @@ VKAPI_ATTR void VKAPI_CALL CmdNextSubpass(
     VkSubpassContents                           contents)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -3010,7 +3024,7 @@ VKAPI_ATTR void VKAPI_CALL CmdEndRenderPass(
     VkCommandBuffer                             commandBuffer)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -3032,12 +3046,12 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(
     const VkCommandBuffer*                      pCommandBuffers)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
         startWriteObject(my_data, commandBuffer);
-        for (uint32_t index=0;index<commandBufferCount;index++) {
+        for (uint32_t index = 0; index < commandBufferCount; index++) {
             startReadObject(my_data, pCommandBuffers[index]);
         }
         // Host access to commandBuffer must be externally synchronized
@@ -3045,7 +3059,7 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(
     pTable->CmdExecuteCommands(commandBuffer,commandBufferCount,pCommandBuffers);
     if (threadChecks) {
         finishWriteObject(my_data, commandBuffer);
-        for (uint32_t index=0;index<commandBufferCount;index++) {
+        for (uint32_t index = 0; index < commandBufferCount; index++) {
             finishReadObject(my_data, pCommandBuffers[index]);
         }
         // Host access to commandBuffer must be externally synchronized
@@ -3054,57 +3068,1174 @@ VKAPI_ATTR void VKAPI_CALL CmdExecuteCommands(
     }
 }
 
-// TODO - not wrapping KHR function vkDestroySurfaceKHR
-// TODO - not wrapping KHR function vkGetPhysicalDeviceSurfaceSupportKHR
-// TODO - not wrapping KHR function vkGetPhysicalDeviceSurfaceCapabilitiesKHR
-// TODO - not wrapping KHR function vkGetPhysicalDeviceSurfaceFormatsKHR
-// TODO - not wrapping KHR function vkGetPhysicalDeviceSurfacePresentModesKHR
 
-// TODO - not wrapping KHR function vkCreateSwapchainKHR
-// TODO - not wrapping KHR function vkDestroySwapchainKHR
-// TODO - not wrapping KHR function vkGetSwapchainImagesKHR
-// TODO - not wrapping KHR function vkAcquireNextImageKHR
-// TODO - not wrapping KHR function vkQueuePresentKHR
+VKAPI_ATTR void VKAPI_CALL DestroySurfaceKHR(
+    VkInstance                                  instance,
+    VkSurfaceKHR                                surface,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, instance);
+        startWriteObject(my_data, surface);
+        // Host access to surface must be externally synchronized
+    }
+    pTable->DestroySurfaceKHR(instance,surface,pAllocator);
+    if (threadChecks) {
+        finishReadObject(my_data, instance);
+        finishWriteObject(my_data, surface);
+        // Host access to surface must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
 
-// TODO - not wrapping KHR function vkGetPhysicalDeviceDisplayPropertiesKHR
-// TODO - not wrapping KHR function vkGetPhysicalDeviceDisplayPlanePropertiesKHR
-// TODO - not wrapping KHR function vkGetDisplayPlaneSupportedDisplaysKHR
-// TODO - not wrapping KHR function vkGetDisplayModePropertiesKHR
-// TODO - not wrapping KHR function vkCreateDisplayModeKHR
-// TODO - not wrapping KHR function vkGetDisplayPlaneCapabilitiesKHR
-// TODO - not wrapping KHR function vkCreateDisplayPlaneSurfaceKHR
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceSupportKHR(
+    VkPhysicalDevice                            physicalDevice,
+    uint32_t                                    queueFamilyIndex,
+    VkSurfaceKHR                                surface,
+    VkBool32*                                   pSupported)
+{
+    dispatch_key key = get_dispatch_key(physicalDevice);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, surface);
+    }
+    result = pTable->GetPhysicalDeviceSurfaceSupportKHR(physicalDevice,queueFamilyIndex,surface,pSupported);
+    if (threadChecks) {
+        finishReadObject(my_data, surface);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
 
-// TODO - not wrapping KHR function vkCreateSharedSwapchainsKHR
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilitiesKHR(
+    VkPhysicalDevice                            physicalDevice,
+    VkSurfaceKHR                                surface,
+    VkSurfaceCapabilitiesKHR*                   pSurfaceCapabilities)
+{
+    dispatch_key key = get_dispatch_key(physicalDevice);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, surface);
+    }
+    result = pTable->GetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice,surface,pSurfaceCapabilities);
+    if (threadChecks) {
+        finishReadObject(my_data, surface);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceFormatsKHR(
+    VkPhysicalDevice                            physicalDevice,
+    VkSurfaceKHR                                surface,
+    uint32_t*                                   pSurfaceFormatCount,
+    VkSurfaceFormatKHR*                         pSurfaceFormats)
+{
+    dispatch_key key = get_dispatch_key(physicalDevice);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, surface);
+    }
+    result = pTable->GetPhysicalDeviceSurfaceFormatsKHR(physicalDevice,surface,pSurfaceFormatCount,pSurfaceFormats);
+    if (threadChecks) {
+        finishReadObject(my_data, surface);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfacePresentModesKHR(
+    VkPhysicalDevice                            physicalDevice,
+    VkSurfaceKHR                                surface,
+    uint32_t*                                   pPresentModeCount,
+    VkPresentModeKHR*                           pPresentModes)
+{
+    dispatch_key key = get_dispatch_key(physicalDevice);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, surface);
+    }
+    result = pTable->GetPhysicalDeviceSurfacePresentModesKHR(physicalDevice,surface,pPresentModeCount,pPresentModes);
+    if (threadChecks) {
+        finishReadObject(my_data, surface);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateSwapchainKHR(
+    VkDevice                                    device,
+    const VkSwapchainCreateInfoKHR*             pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSwapchainKHR*                             pSwapchain)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, pCreateInfo->surface);
+        startWriteObject(my_data, pCreateInfo->oldSwapchain);
+        // Host access to pCreateInfo.surface,pCreateInfo.oldSwapchain must be externally synchronized
+    }
+    result = pTable->CreateSwapchainKHR(device,pCreateInfo,pAllocator,pSwapchain);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, pCreateInfo->surface);
+        finishWriteObject(my_data, pCreateInfo->oldSwapchain);
+        // Host access to pCreateInfo.surface,pCreateInfo.oldSwapchain must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroySwapchainKHR(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, swapchain);
+        // Host access to swapchain must be externally synchronized
+    }
+    pTable->DestroySwapchainKHR(device,swapchain,pAllocator);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, swapchain);
+        // Host access to swapchain must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+// declare only
+VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainImagesKHR(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    uint32_t*                                   pSwapchainImageCount,
+    VkImage*                                    pSwapchainImages);
+
+VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImageKHR(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    uint64_t                                    timeout,
+    VkSemaphore                                 semaphore,
+    VkFence                                     fence,
+    uint32_t*                                   pImageIndex)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, swapchain);
+        startWriteObject(my_data, semaphore);
+        startWriteObject(my_data, fence);
+        // Host access to swapchain must be externally synchronized
+        // Host access to semaphore must be externally synchronized
+        // Host access to fence must be externally synchronized
+    }
+    result = pTable->AcquireNextImageKHR(device,swapchain,timeout,semaphore,fence,pImageIndex);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, swapchain);
+        finishWriteObject(my_data, semaphore);
+        finishWriteObject(my_data, fence);
+        // Host access to swapchain must be externally synchronized
+        // Host access to semaphore must be externally synchronized
+        // Host access to fence must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+// TODO - not wrapping EXT function vkQueuePresentKHR
+
+
+VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneSupportedDisplaysKHR(
+    VkPhysicalDevice                            physicalDevice,
+    uint32_t                                    planeIndex,
+    uint32_t*                                   pDisplayCount,
+    VkDisplayKHR*                               pDisplays)
+{
+    dispatch_key key = get_dispatch_key(physicalDevice);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        for (uint32_t index = 0; index < *pDisplayCount; index++) {
+            startReadObject(my_data, pDisplays[index]);
+        }
+    }
+    result = pTable->GetDisplayPlaneSupportedDisplaysKHR(physicalDevice,planeIndex,pDisplayCount,pDisplays);
+    if (threadChecks) {
+        for (uint32_t index = 0; index < *pDisplayCount; index++) {
+            finishReadObject(my_data, pDisplays[index]);
+        }
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetDisplayModePropertiesKHR(
+    VkPhysicalDevice                            physicalDevice,
+    VkDisplayKHR                                display,
+    uint32_t*                                   pPropertyCount,
+    VkDisplayModePropertiesKHR*                 pProperties)
+{
+    dispatch_key key = get_dispatch_key(physicalDevice);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, display);
+    }
+    result = pTable->GetDisplayModePropertiesKHR(physicalDevice,display,pPropertyCount,pProperties);
+    if (threadChecks) {
+        finishReadObject(my_data, display);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayModeKHR(
+    VkPhysicalDevice                            physicalDevice,
+    VkDisplayKHR                                display,
+    const VkDisplayModeCreateInfoKHR*           pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkDisplayModeKHR*                           pMode)
+{
+    dispatch_key key = get_dispatch_key(physicalDevice);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, display);
+        // Host access to display must be externally synchronized
+    }
+    result = pTable->CreateDisplayModeKHR(physicalDevice,display,pCreateInfo,pAllocator,pMode);
+    if (threadChecks) {
+        finishWriteObject(my_data, display);
+        // Host access to display must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetDisplayPlaneCapabilitiesKHR(
+    VkPhysicalDevice                            physicalDevice,
+    VkDisplayModeKHR                            mode,
+    uint32_t                                    planeIndex,
+    VkDisplayPlaneCapabilitiesKHR*              pCapabilities)
+{
+    dispatch_key key = get_dispatch_key(physicalDevice);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, mode);
+        // Host access to mode must be externally synchronized
+    }
+    result = pTable->GetDisplayPlaneCapabilitiesKHR(physicalDevice,mode,planeIndex,pCapabilities);
+    if (threadChecks) {
+        finishWriteObject(my_data, mode);
+        // Host access to mode must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateDisplayPlaneSurfaceKHR(
+    VkInstance                                  instance,
+    const VkDisplaySurfaceCreateInfoKHR*        pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, instance);
+    }
+    result = pTable->CreateDisplayPlaneSurfaceKHR(instance,pCreateInfo,pAllocator,pSurface);
+    if (threadChecks) {
+        finishReadObject(my_data, instance);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateSharedSwapchainsKHR(
+    VkDevice                                    device,
+    uint32_t                                    swapchainCount,
+    const VkSwapchainCreateInfoKHR*             pCreateInfos,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSwapchainKHR*                             pSwapchains)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        for (uint32_t index=0;index<swapchainCount;index++) {
+                startWriteObject(my_data, pCreateInfos[index].surface);
+                startWriteObject(my_data, pCreateInfos[index].oldSwapchain);
+        }
+        for (uint32_t index = 0; index < swapchainCount; index++) {
+            startReadObject(my_data, pSwapchains[index]);
+        }
+        // Host access to pCreateInfos[].surface,pCreateInfos[].oldSwapchain must be externally synchronized
+    }
+    result = pTable->CreateSharedSwapchainsKHR(device,swapchainCount,pCreateInfos,pAllocator,pSwapchains);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        for (uint32_t index=0;index<swapchainCount;index++) {
+                finishWriteObject(my_data, pCreateInfos[index].surface);
+                finishWriteObject(my_data, pCreateInfos[index].oldSwapchain);
+        }
+        for (uint32_t index = 0; index < swapchainCount; index++) {
+            finishReadObject(my_data, pSwapchains[index]);
+        }
+        // Host access to pCreateInfos[].surface,pCreateInfos[].oldSwapchain must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
 
 #ifdef VK_USE_PLATFORM_XLIB_KHR
-// TODO - not wrapping KHR function vkCreateXlibSurfaceKHR
-// TODO - not wrapping KHR function vkGetPhysicalDeviceXlibPresentationSupportKHR
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateXlibSurfaceKHR(
+    VkInstance                                  instance,
+    const VkXlibSurfaceCreateInfoKHR*           pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, instance);
+    }
+    result = pTable->CreateXlibSurfaceKHR(instance,pCreateInfo,pAllocator,pSurface);
+    if (threadChecks) {
+        finishReadObject(my_data, instance);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
 #endif /* VK_USE_PLATFORM_XLIB_KHR */
 
 #ifdef VK_USE_PLATFORM_XCB_KHR
-// TODO - not wrapping KHR function vkCreateXcbSurfaceKHR
-// TODO - not wrapping KHR function vkGetPhysicalDeviceXcbPresentationSupportKHR
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateXcbSurfaceKHR(
+    VkInstance                                  instance,
+    const VkXcbSurfaceCreateInfoKHR*            pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, instance);
+    }
+    result = pTable->CreateXcbSurfaceKHR(instance,pCreateInfo,pAllocator,pSurface);
+    if (threadChecks) {
+        finishReadObject(my_data, instance);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
 #endif /* VK_USE_PLATFORM_XCB_KHR */
 
 #ifdef VK_USE_PLATFORM_WAYLAND_KHR
-// TODO - not wrapping KHR function vkCreateWaylandSurfaceKHR
-// TODO - not wrapping KHR function vkGetPhysicalDeviceWaylandPresentationSupportKHR
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateWaylandSurfaceKHR(
+    VkInstance                                  instance,
+    const VkWaylandSurfaceCreateInfoKHR*        pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, instance);
+    }
+    result = pTable->CreateWaylandSurfaceKHR(instance,pCreateInfo,pAllocator,pSurface);
+    if (threadChecks) {
+        finishReadObject(my_data, instance);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
 #endif /* VK_USE_PLATFORM_WAYLAND_KHR */
 
 #ifdef VK_USE_PLATFORM_MIR_KHR
-// TODO - not wrapping KHR function vkCreateMirSurfaceKHR
-// TODO - not wrapping KHR function vkGetPhysicalDeviceMirPresentationSupportKHR
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateMirSurfaceKHR(
+    VkInstance                                  instance,
+    const VkMirSurfaceCreateInfoKHR*            pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, instance);
+    }
+    result = pTable->CreateMirSurfaceKHR(instance,pCreateInfo,pAllocator,pSurface);
+    if (threadChecks) {
+        finishReadObject(my_data, instance);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
 #endif /* VK_USE_PLATFORM_MIR_KHR */
 
 #ifdef VK_USE_PLATFORM_ANDROID_KHR
-// TODO - not wrapping KHR function vkCreateAndroidSurfaceKHR
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateAndroidSurfaceKHR(
+    VkInstance                                  instance,
+    const VkAndroidSurfaceCreateInfoKHR*        pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, instance);
+    }
+    result = pTable->CreateAndroidSurfaceKHR(instance,pCreateInfo,pAllocator,pSurface);
+    if (threadChecks) {
+        finishReadObject(my_data, instance);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
 #endif /* VK_USE_PLATFORM_ANDROID_KHR */
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
-// TODO - not wrapping KHR function vkCreateWin32SurfaceKHR
-// TODO - not wrapping KHR function vkGetPhysicalDeviceWin32PresentationSupportKHR
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateWin32SurfaceKHR(
+    VkInstance                                  instance,
+    const VkWin32SurfaceCreateInfoKHR*          pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, instance);
+    }
+    result = pTable->CreateWin32SurfaceKHR(instance,pCreateInfo,pAllocator,pSurface);
+    if (threadChecks) {
+        finishReadObject(my_data, instance);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
+
+
+
+
+VKAPI_ATTR void VKAPI_CALL TrimCommandPoolKHR(
+    VkDevice                                    device,
+    VkCommandPool                               commandPool,
+    VkCommandPoolTrimFlagsKHR                   flags)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, commandPool);
+        // Host access to commandPool must be externally synchronized
+    }
+    pTable->TrimCommandPoolKHR(device,commandPool,flags);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, commandPool);
+        // Host access to commandPool must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+
+VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleKHR(
+    VkDevice                                    device,
+    const VkMemoryGetWin32HandleInfoKHR*        pGetWin32HandleInfo,
+    HANDLE*                                     pHandle)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->GetMemoryWin32HandleKHR(device,pGetWin32HandleInfo,pHandle);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandlePropertiesKHR(
+    VkDevice                                    device,
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType,
+    HANDLE                                      handle,
+    VkMemoryWin32HandlePropertiesKHR*           pMemoryWin32HandleProperties)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->GetMemoryWin32HandlePropertiesKHR(device,handleType,handle,pMemoryWin32HandleProperties);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+
+
+VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdKHR(
+    VkDevice                                    device,
+    const VkMemoryGetFdInfoKHR*                 pGetFdInfo,
+    int*                                        pFd)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->GetMemoryFdKHR(device,pGetFdInfo,pFd);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetMemoryFdPropertiesKHR(
+    VkDevice                                    device,
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType,
+    int                                         fd,
+    VkMemoryFdPropertiesKHR*                    pMemoryFdProperties)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->GetMemoryFdPropertiesKHR(device,handleType,fd,pMemoryFdProperties);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+
+
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+
+VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreWin32HandleKHR(
+    VkDevice                                    device,
+    const VkImportSemaphoreWin32HandleInfoKHR*  pImportSemaphoreWin32HandleInfo)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->ImportSemaphoreWin32HandleKHR(device,pImportSemaphoreWin32HandleInfo);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreWin32HandleKHR(
+    VkDevice                                    device,
+    const VkSemaphoreGetWin32HandleInfoKHR*     pGetWin32HandleInfo,
+    HANDLE*                                     pHandle)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->GetSemaphoreWin32HandleKHR(device,pGetWin32HandleInfo,pHandle);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+
+
+VKAPI_ATTR VkResult VKAPI_CALL ImportSemaphoreFdKHR(
+    VkDevice                                    device,
+    const VkImportSemaphoreFdInfoKHR*           pImportSemaphoreFdInfo)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->ImportSemaphoreFdKHR(device,pImportSemaphoreFdInfo);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetSemaphoreFdKHR(
+    VkDevice                                    device,
+    const VkSemaphoreGetFdInfoKHR*              pGetFdInfo,
+    int*                                        pFd)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->GetSemaphoreFdKHR(device,pGetFdInfo,pFd);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetKHR(
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineBindPoint                         pipelineBindPoint,
+    VkPipelineLayout                            layout,
+    uint32_t                                    set,
+    uint32_t                                    descriptorWriteCount,
+    const VkWriteDescriptorSet*                 pDescriptorWrites)
+{
+    dispatch_key key = get_dispatch_key(commandBuffer);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, commandBuffer);
+        startReadObject(my_data, layout);
+        // Host access to commandBuffer must be externally synchronized
+    }
+    pTable->CmdPushDescriptorSetKHR(commandBuffer,pipelineBindPoint,layout,set,descriptorWriteCount,pDescriptorWrites);
+    if (threadChecks) {
+        finishWriteObject(my_data, commandBuffer);
+        finishReadObject(my_data, layout);
+        // Host access to commandBuffer must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+
+
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateDescriptorUpdateTemplateKHR(
+    VkDevice                                    device,
+    const VkDescriptorUpdateTemplateCreateInfoKHR* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkDescriptorUpdateTemplateKHR*              pDescriptorUpdateTemplate)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->CreateDescriptorUpdateTemplateKHR(device,pCreateInfo,pAllocator,pDescriptorUpdateTemplate);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyDescriptorUpdateTemplateKHR(
+    VkDevice                                    device,
+    VkDescriptorUpdateTemplateKHR               descriptorUpdateTemplate,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, descriptorUpdateTemplate);
+        // Host access to descriptorUpdateTemplate must be externally synchronized
+    }
+    pTable->DestroyDescriptorUpdateTemplateKHR(device,descriptorUpdateTemplate,pAllocator);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, descriptorUpdateTemplate);
+        // Host access to descriptorUpdateTemplate must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+VKAPI_ATTR void VKAPI_CALL UpdateDescriptorSetWithTemplateKHR(
+    VkDevice                                    device,
+    VkDescriptorSet                             descriptorSet,
+    VkDescriptorUpdateTemplateKHR               descriptorUpdateTemplate,
+    const void*                                 pData)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, descriptorSet);
+        startReadObject(my_data, descriptorUpdateTemplate);
+        // Host access to descriptorSet must be externally synchronized
+    }
+    pTable->UpdateDescriptorSetWithTemplateKHR(device,descriptorSet,descriptorUpdateTemplate,pData);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, descriptorSet);
+        finishReadObject(my_data, descriptorUpdateTemplate);
+        // Host access to descriptorSet must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdPushDescriptorSetWithTemplateKHR(
+    VkCommandBuffer                             commandBuffer,
+    VkDescriptorUpdateTemplateKHR               descriptorUpdateTemplate,
+    VkPipelineLayout                            layout,
+    uint32_t                                    set,
+    const void*                                 pData)
+{
+    dispatch_key key = get_dispatch_key(commandBuffer);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, commandBuffer);
+        startReadObject(my_data, descriptorUpdateTemplate);
+        startReadObject(my_data, layout);
+        // Host access to commandBuffer must be externally synchronized
+    }
+    pTable->CmdPushDescriptorSetWithTemplateKHR(commandBuffer,descriptorUpdateTemplate,layout,set,pData);
+    if (threadChecks) {
+        finishWriteObject(my_data, commandBuffer);
+        finishReadObject(my_data, descriptorUpdateTemplate);
+        finishReadObject(my_data, layout);
+        // Host access to commandBuffer must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+
+VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainStatusKHR(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, swapchain);
+        // Host access to swapchain must be externally synchronized
+    }
+    result = pTable->GetSwapchainStatusKHR(device,swapchain);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, swapchain);
+        // Host access to swapchain must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+
+VKAPI_ATTR VkResult VKAPI_CALL ImportFenceWin32HandleKHR(
+    VkDevice                                    device,
+    const VkImportFenceWin32HandleInfoKHR*      pImportFenceWin32HandleInfo)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->ImportFenceWin32HandleKHR(device,pImportFenceWin32HandleInfo);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetFenceWin32HandleKHR(
+    VkDevice                                    device,
+    const VkFenceGetWin32HandleInfoKHR*         pGetWin32HandleInfo,
+    HANDLE*                                     pHandle)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->GetFenceWin32HandleKHR(device,pGetWin32HandleInfo,pHandle);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+#endif /* VK_USE_PLATFORM_WIN32_KHR */
+
+
+VKAPI_ATTR VkResult VKAPI_CALL ImportFenceFdKHR(
+    VkDevice                                    device,
+    const VkImportFenceFdInfoKHR*               pImportFenceFdInfo)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->ImportFenceFdKHR(device,pImportFenceFdInfo);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetFenceFdKHR(
+    VkDevice                                    device,
+    const VkFenceGetFdInfoKHR*                  pGetFdInfo,
+    int*                                        pFd)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->GetFenceFdKHR(device,pGetFdInfo,pFd);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+
+
+
+
+
+
+VKAPI_ATTR void VKAPI_CALL GetImageMemoryRequirements2KHR(
+    VkDevice                                    device,
+    const VkImageMemoryRequirementsInfo2KHR*    pInfo,
+    VkMemoryRequirements2KHR*                   pMemoryRequirements)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    pTable->GetImageMemoryRequirements2KHR(device,pInfo,pMemoryRequirements);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+}
+
+VKAPI_ATTR void VKAPI_CALL GetBufferMemoryRequirements2KHR(
+    VkDevice                                    device,
+    const VkBufferMemoryRequirementsInfo2KHR*   pInfo,
+    VkMemoryRequirements2KHR*                   pMemoryRequirements)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    pTable->GetBufferMemoryRequirements2KHR(device,pInfo,pMemoryRequirements);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+}
+
+VKAPI_ATTR void VKAPI_CALL GetImageSparseMemoryRequirements2KHR(
+    VkDevice                                    device,
+    const VkImageSparseMemoryRequirementsInfo2KHR* pInfo,
+    uint32_t*                                   pSparseMemoryRequirementCount,
+    VkSparseImageMemoryRequirements2KHR*        pSparseMemoryRequirements)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    pTable->GetImageSparseMemoryRequirements2KHR(device,pInfo,pSparseMemoryRequirementCount,pSparseMemoryRequirements);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+}
+
+
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateSamplerYcbcrConversionKHR(
+    VkDevice                                    device,
+    const VkSamplerYcbcrConversionCreateInfoKHR* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSamplerYcbcrConversionKHR*                pYcbcrConversion)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->CreateSamplerYcbcrConversionKHR(device,pCreateInfo,pAllocator,pYcbcrConversion);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroySamplerYcbcrConversionKHR(
+    VkDevice                                    device,
+    VkSamplerYcbcrConversionKHR                 ycbcrConversion,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, ycbcrConversion);
+        // Host access to ycbcrConversion must be externally synchronized
+    }
+    pTable->DestroySamplerYcbcrConversionKHR(device,ycbcrConversion,pAllocator);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, ycbcrConversion);
+        // Host access to ycbcrConversion must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+
+VKAPI_ATTR VkResult VKAPI_CALL BindBufferMemory2KHR(
+    VkDevice                                    device,
+    uint32_t                                    bindInfoCount,
+    const VkBindBufferMemoryInfoKHR*            pBindInfos)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->BindBufferMemory2KHR(device,bindInfoCount,pBindInfos);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL BindImageMemory2KHR(
+    VkDevice                                    device,
+    uint32_t                                    bindInfoCount,
+    const VkBindImageMemoryInfoKHR*             pBindInfos)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->BindImageMemory2KHR(device,bindInfoCount,pBindInfos);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
 
 
 // declare only
@@ -3131,7 +4262,7 @@ VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(
     const char*                                 pMessage)
 {
     dispatch_key key = get_dispatch_key(instance);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -3144,6 +4275,7 @@ VKAPI_ATTR void VKAPI_CALL DebugReportMessageEXT(
         finishMultiThread();
     }
 }
+
 
 
 
@@ -3169,7 +4301,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndirectCountAMD(
     uint32_t                                    stride)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -3199,7 +4331,7 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(
     uint32_t                                    stride)
 {
     dispatch_key key = get_dispatch_key(commandBuffer);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     bool threadChecks = startMultiThread();
     if (threadChecks) {
@@ -3222,6 +4354,40 @@ VKAPI_ATTR void VKAPI_CALL CmdDrawIndexedIndirectCountAMD(
 
 
 
+
+
+VKAPI_ATTR VkResult VKAPI_CALL GetShaderInfoAMD(
+    VkDevice                                    device,
+    VkPipeline                                  pipeline,
+    VkShaderStageFlagBits                       shaderStage,
+    VkShaderInfoTypeAMD                         infoType,
+    size_t*                                     pInfoSize,
+    void*                                       pInfo)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startReadObject(my_data, pipeline);
+    }
+    result = pTable->GetShaderInfoAMD(device,pipeline,shaderStage,infoType,pInfoSize,pInfo);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishReadObject(my_data, pipeline);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+
+
+
+
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 
 VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
@@ -3231,7 +4397,7 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
     HANDLE*                                     pHandle)
 {
     dispatch_key key = get_dispatch_key(device);
-    layer_data *my_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
     VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
     VkResult result;
     bool threadChecks = startMultiThread();
@@ -3253,142 +4419,1222 @@ VKAPI_ATTR VkResult VKAPI_CALL GetMemoryWin32HandleNV(
 #ifdef VK_USE_PLATFORM_WIN32_KHR
 #endif /* VK_USE_PLATFORM_WIN32_KHR */
 
-// intercepts
-struct { const char* name; PFN_vkVoidFunction pFunc;} procmap[] = {
-    {"vkCreateInstance", reinterpret_cast<PFN_vkVoidFunction>(CreateInstance)},
-    {"vkDestroyInstance", reinterpret_cast<PFN_vkVoidFunction>(DestroyInstance)},
-    {"vkEnumeratePhysicalDevices", reinterpret_cast<PFN_vkVoidFunction>(EnumeratePhysicalDevices)},
-    {"vkGetInstanceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetInstanceProcAddr)},
-    {"vkGetDeviceProcAddr", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceProcAddr)},
-    {"vkCreateDevice", reinterpret_cast<PFN_vkVoidFunction>(CreateDevice)},
-    {"vkDestroyDevice", reinterpret_cast<PFN_vkVoidFunction>(DestroyDevice)},
-    {"vkGetDeviceQueue", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceQueue)},
-    {"vkQueueSubmit", reinterpret_cast<PFN_vkVoidFunction>(QueueSubmit)},
-    {"vkQueueWaitIdle", reinterpret_cast<PFN_vkVoidFunction>(QueueWaitIdle)},
-    {"vkDeviceWaitIdle", reinterpret_cast<PFN_vkVoidFunction>(DeviceWaitIdle)},
-    {"vkAllocateMemory", reinterpret_cast<PFN_vkVoidFunction>(AllocateMemory)},
-    {"vkFreeMemory", reinterpret_cast<PFN_vkVoidFunction>(FreeMemory)},
-    {"vkMapMemory", reinterpret_cast<PFN_vkVoidFunction>(MapMemory)},
-    {"vkUnmapMemory", reinterpret_cast<PFN_vkVoidFunction>(UnmapMemory)},
-    {"vkFlushMappedMemoryRanges", reinterpret_cast<PFN_vkVoidFunction>(FlushMappedMemoryRanges)},
-    {"vkInvalidateMappedMemoryRanges", reinterpret_cast<PFN_vkVoidFunction>(InvalidateMappedMemoryRanges)},
-    {"vkGetDeviceMemoryCommitment", reinterpret_cast<PFN_vkVoidFunction>(GetDeviceMemoryCommitment)},
-    {"vkBindBufferMemory", reinterpret_cast<PFN_vkVoidFunction>(BindBufferMemory)},
-    {"vkBindImageMemory", reinterpret_cast<PFN_vkVoidFunction>(BindImageMemory)},
-    {"vkGetBufferMemoryRequirements", reinterpret_cast<PFN_vkVoidFunction>(GetBufferMemoryRequirements)},
-    {"vkGetImageMemoryRequirements", reinterpret_cast<PFN_vkVoidFunction>(GetImageMemoryRequirements)},
-    {"vkGetImageSparseMemoryRequirements", reinterpret_cast<PFN_vkVoidFunction>(GetImageSparseMemoryRequirements)},
-    {"vkQueueBindSparse", reinterpret_cast<PFN_vkVoidFunction>(QueueBindSparse)},
-    {"vkCreateFence", reinterpret_cast<PFN_vkVoidFunction>(CreateFence)},
-    {"vkDestroyFence", reinterpret_cast<PFN_vkVoidFunction>(DestroyFence)},
-    {"vkResetFences", reinterpret_cast<PFN_vkVoidFunction>(ResetFences)},
-    {"vkGetFenceStatus", reinterpret_cast<PFN_vkVoidFunction>(GetFenceStatus)},
-    {"vkWaitForFences", reinterpret_cast<PFN_vkVoidFunction>(WaitForFences)},
-    {"vkCreateSemaphore", reinterpret_cast<PFN_vkVoidFunction>(CreateSemaphore)},
-    {"vkDestroySemaphore", reinterpret_cast<PFN_vkVoidFunction>(DestroySemaphore)},
-    {"vkCreateEvent", reinterpret_cast<PFN_vkVoidFunction>(CreateEvent)},
-    {"vkDestroyEvent", reinterpret_cast<PFN_vkVoidFunction>(DestroyEvent)},
-    {"vkGetEventStatus", reinterpret_cast<PFN_vkVoidFunction>(GetEventStatus)},
-    {"vkSetEvent", reinterpret_cast<PFN_vkVoidFunction>(SetEvent)},
-    {"vkResetEvent", reinterpret_cast<PFN_vkVoidFunction>(ResetEvent)},
-    {"vkCreateQueryPool", reinterpret_cast<PFN_vkVoidFunction>(CreateQueryPool)},
-    {"vkDestroyQueryPool", reinterpret_cast<PFN_vkVoidFunction>(DestroyQueryPool)},
-    {"vkGetQueryPoolResults", reinterpret_cast<PFN_vkVoidFunction>(GetQueryPoolResults)},
-    {"vkCreateBuffer", reinterpret_cast<PFN_vkVoidFunction>(CreateBuffer)},
-    {"vkDestroyBuffer", reinterpret_cast<PFN_vkVoidFunction>(DestroyBuffer)},
-    {"vkCreateBufferView", reinterpret_cast<PFN_vkVoidFunction>(CreateBufferView)},
-    {"vkDestroyBufferView", reinterpret_cast<PFN_vkVoidFunction>(DestroyBufferView)},
-    {"vkCreateImage", reinterpret_cast<PFN_vkVoidFunction>(CreateImage)},
-    {"vkDestroyImage", reinterpret_cast<PFN_vkVoidFunction>(DestroyImage)},
-    {"vkGetImageSubresourceLayout", reinterpret_cast<PFN_vkVoidFunction>(GetImageSubresourceLayout)},
-    {"vkCreateImageView", reinterpret_cast<PFN_vkVoidFunction>(CreateImageView)},
-    {"vkDestroyImageView", reinterpret_cast<PFN_vkVoidFunction>(DestroyImageView)},
-    {"vkCreateShaderModule", reinterpret_cast<PFN_vkVoidFunction>(CreateShaderModule)},
-    {"vkDestroyShaderModule", reinterpret_cast<PFN_vkVoidFunction>(DestroyShaderModule)},
-    {"vkCreatePipelineCache", reinterpret_cast<PFN_vkVoidFunction>(CreatePipelineCache)},
-    {"vkDestroyPipelineCache", reinterpret_cast<PFN_vkVoidFunction>(DestroyPipelineCache)},
-    {"vkGetPipelineCacheData", reinterpret_cast<PFN_vkVoidFunction>(GetPipelineCacheData)},
-    {"vkMergePipelineCaches", reinterpret_cast<PFN_vkVoidFunction>(MergePipelineCaches)},
-    {"vkCreateGraphicsPipelines", reinterpret_cast<PFN_vkVoidFunction>(CreateGraphicsPipelines)},
-    {"vkCreateComputePipelines", reinterpret_cast<PFN_vkVoidFunction>(CreateComputePipelines)},
-    {"vkDestroyPipeline", reinterpret_cast<PFN_vkVoidFunction>(DestroyPipeline)},
-    {"vkCreatePipelineLayout", reinterpret_cast<PFN_vkVoidFunction>(CreatePipelineLayout)},
-    {"vkDestroyPipelineLayout", reinterpret_cast<PFN_vkVoidFunction>(DestroyPipelineLayout)},
-    {"vkCreateSampler", reinterpret_cast<PFN_vkVoidFunction>(CreateSampler)},
-    {"vkDestroySampler", reinterpret_cast<PFN_vkVoidFunction>(DestroySampler)},
-    {"vkCreateDescriptorSetLayout", reinterpret_cast<PFN_vkVoidFunction>(CreateDescriptorSetLayout)},
-    {"vkDestroyDescriptorSetLayout", reinterpret_cast<PFN_vkVoidFunction>(DestroyDescriptorSetLayout)},
-    {"vkCreateDescriptorPool", reinterpret_cast<PFN_vkVoidFunction>(CreateDescriptorPool)},
-    {"vkDestroyDescriptorPool", reinterpret_cast<PFN_vkVoidFunction>(DestroyDescriptorPool)},
-    {"vkResetDescriptorPool", reinterpret_cast<PFN_vkVoidFunction>(ResetDescriptorPool)},
-    {"vkAllocateDescriptorSets", reinterpret_cast<PFN_vkVoidFunction>(AllocateDescriptorSets)},
-    {"vkFreeDescriptorSets", reinterpret_cast<PFN_vkVoidFunction>(FreeDescriptorSets)},
-    {"vkUpdateDescriptorSets", reinterpret_cast<PFN_vkVoidFunction>(UpdateDescriptorSets)},
-    {"vkCreateFramebuffer", reinterpret_cast<PFN_vkVoidFunction>(CreateFramebuffer)},
-    {"vkDestroyFramebuffer", reinterpret_cast<PFN_vkVoidFunction>(DestroyFramebuffer)},
-    {"vkCreateRenderPass", reinterpret_cast<PFN_vkVoidFunction>(CreateRenderPass)},
-    {"vkDestroyRenderPass", reinterpret_cast<PFN_vkVoidFunction>(DestroyRenderPass)},
-    {"vkGetRenderAreaGranularity", reinterpret_cast<PFN_vkVoidFunction>(GetRenderAreaGranularity)},
-    {"vkCreateCommandPool", reinterpret_cast<PFN_vkVoidFunction>(CreateCommandPool)},
-    {"vkDestroyCommandPool", reinterpret_cast<PFN_vkVoidFunction>(DestroyCommandPool)},
-    {"vkResetCommandPool", reinterpret_cast<PFN_vkVoidFunction>(ResetCommandPool)},
-    {"vkAllocateCommandBuffers", reinterpret_cast<PFN_vkVoidFunction>(AllocateCommandBuffers)},
-    {"vkFreeCommandBuffers", reinterpret_cast<PFN_vkVoidFunction>(FreeCommandBuffers)},
-    {"vkBeginCommandBuffer", reinterpret_cast<PFN_vkVoidFunction>(BeginCommandBuffer)},
-    {"vkEndCommandBuffer", reinterpret_cast<PFN_vkVoidFunction>(EndCommandBuffer)},
-    {"vkResetCommandBuffer", reinterpret_cast<PFN_vkVoidFunction>(ResetCommandBuffer)},
-    {"vkCmdBindPipeline", reinterpret_cast<PFN_vkVoidFunction>(CmdBindPipeline)},
-    {"vkCmdSetViewport", reinterpret_cast<PFN_vkVoidFunction>(CmdSetViewport)},
-    {"vkCmdSetScissor", reinterpret_cast<PFN_vkVoidFunction>(CmdSetScissor)},
-    {"vkCmdSetLineWidth", reinterpret_cast<PFN_vkVoidFunction>(CmdSetLineWidth)},
-    {"vkCmdSetDepthBias", reinterpret_cast<PFN_vkVoidFunction>(CmdSetDepthBias)},
-    {"vkCmdSetBlendConstants", reinterpret_cast<PFN_vkVoidFunction>(CmdSetBlendConstants)},
-    {"vkCmdSetDepthBounds", reinterpret_cast<PFN_vkVoidFunction>(CmdSetDepthBounds)},
-    {"vkCmdSetStencilCompareMask", reinterpret_cast<PFN_vkVoidFunction>(CmdSetStencilCompareMask)},
-    {"vkCmdSetStencilWriteMask", reinterpret_cast<PFN_vkVoidFunction>(CmdSetStencilWriteMask)},
-    {"vkCmdSetStencilReference", reinterpret_cast<PFN_vkVoidFunction>(CmdSetStencilReference)},
-    {"vkCmdBindDescriptorSets", reinterpret_cast<PFN_vkVoidFunction>(CmdBindDescriptorSets)},
-    {"vkCmdBindIndexBuffer", reinterpret_cast<PFN_vkVoidFunction>(CmdBindIndexBuffer)},
-    {"vkCmdBindVertexBuffers", reinterpret_cast<PFN_vkVoidFunction>(CmdBindVertexBuffers)},
-    {"vkCmdDraw", reinterpret_cast<PFN_vkVoidFunction>(CmdDraw)},
-    {"vkCmdDrawIndexed", reinterpret_cast<PFN_vkVoidFunction>(CmdDrawIndexed)},
-    {"vkCmdDrawIndirect", reinterpret_cast<PFN_vkVoidFunction>(CmdDrawIndirect)},
-    {"vkCmdDrawIndexedIndirect", reinterpret_cast<PFN_vkVoidFunction>(CmdDrawIndexedIndirect)},
-    {"vkCmdDispatch", reinterpret_cast<PFN_vkVoidFunction>(CmdDispatch)},
-    {"vkCmdDispatchIndirect", reinterpret_cast<PFN_vkVoidFunction>(CmdDispatchIndirect)},
-    {"vkCmdCopyBuffer", reinterpret_cast<PFN_vkVoidFunction>(CmdCopyBuffer)},
-    {"vkCmdCopyImage", reinterpret_cast<PFN_vkVoidFunction>(CmdCopyImage)},
-    {"vkCmdBlitImage", reinterpret_cast<PFN_vkVoidFunction>(CmdBlitImage)},
-    {"vkCmdCopyBufferToImage", reinterpret_cast<PFN_vkVoidFunction>(CmdCopyBufferToImage)},
-    {"vkCmdCopyImageToBuffer", reinterpret_cast<PFN_vkVoidFunction>(CmdCopyImageToBuffer)},
-    {"vkCmdUpdateBuffer", reinterpret_cast<PFN_vkVoidFunction>(CmdUpdateBuffer)},
-    {"vkCmdFillBuffer", reinterpret_cast<PFN_vkVoidFunction>(CmdFillBuffer)},
-    {"vkCmdClearColorImage", reinterpret_cast<PFN_vkVoidFunction>(CmdClearColorImage)},
-    {"vkCmdClearDepthStencilImage", reinterpret_cast<PFN_vkVoidFunction>(CmdClearDepthStencilImage)},
-    {"vkCmdClearAttachments", reinterpret_cast<PFN_vkVoidFunction>(CmdClearAttachments)},
-    {"vkCmdResolveImage", reinterpret_cast<PFN_vkVoidFunction>(CmdResolveImage)},
-    {"vkCmdSetEvent", reinterpret_cast<PFN_vkVoidFunction>(CmdSetEvent)},
-    {"vkCmdResetEvent", reinterpret_cast<PFN_vkVoidFunction>(CmdResetEvent)},
-    {"vkCmdWaitEvents", reinterpret_cast<PFN_vkVoidFunction>(CmdWaitEvents)},
-    {"vkCmdPipelineBarrier", reinterpret_cast<PFN_vkVoidFunction>(CmdPipelineBarrier)},
-    {"vkCmdBeginQuery", reinterpret_cast<PFN_vkVoidFunction>(CmdBeginQuery)},
-    {"vkCmdEndQuery", reinterpret_cast<PFN_vkVoidFunction>(CmdEndQuery)},
-    {"vkCmdResetQueryPool", reinterpret_cast<PFN_vkVoidFunction>(CmdResetQueryPool)},
-    {"vkCmdWriteTimestamp", reinterpret_cast<PFN_vkVoidFunction>(CmdWriteTimestamp)},
-    {"vkCmdCopyQueryPoolResults", reinterpret_cast<PFN_vkVoidFunction>(CmdCopyQueryPoolResults)},
-    {"vkCmdPushConstants", reinterpret_cast<PFN_vkVoidFunction>(CmdPushConstants)},
-    {"vkCmdBeginRenderPass", reinterpret_cast<PFN_vkVoidFunction>(CmdBeginRenderPass)},
-    {"vkCmdNextSubpass", reinterpret_cast<PFN_vkVoidFunction>(CmdNextSubpass)},
-    {"vkCmdEndRenderPass", reinterpret_cast<PFN_vkVoidFunction>(CmdEndRenderPass)},
-    {"vkCmdExecuteCommands", reinterpret_cast<PFN_vkVoidFunction>(CmdExecuteCommands)},
-    {"vkCreateDebugReportCallbackEXT", reinterpret_cast<PFN_vkVoidFunction>(CreateDebugReportCallbackEXT)},
-    {"vkDestroyDebugReportCallbackEXT", reinterpret_cast<PFN_vkVoidFunction>(DestroyDebugReportCallbackEXT)},
-    {"vkDebugReportMessageEXT", reinterpret_cast<PFN_vkVoidFunction>(DebugReportMessageEXT)},
-    {"vkCmdDrawIndirectCountAMD", reinterpret_cast<PFN_vkVoidFunction>(CmdDrawIndirectCountAMD)},
-    {"vkCmdDrawIndexedIndirectCountAMD", reinterpret_cast<PFN_vkVoidFunction>(CmdDrawIndexedIndirectCountAMD)},
-#ifdef VK_USE_PLATFORM_WIN32_KHR
-    {"vkGetMemoryWin32HandleNV", reinterpret_cast<PFN_vkVoidFunction>(GetMemoryWin32HandleNV)},
+
+VKAPI_ATTR void VKAPI_CALL GetDeviceGroupPeerMemoryFeaturesKHX(
+    VkDevice                                    device,
+    uint32_t                                    heapIndex,
+    uint32_t                                    localDeviceIndex,
+    uint32_t                                    remoteDeviceIndex,
+    VkPeerMemoryFeatureFlagsKHX*                pPeerMemoryFeatures)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    pTable->GetDeviceGroupPeerMemoryFeaturesKHX(device,heapIndex,localDeviceIndex,remoteDeviceIndex,pPeerMemoryFeatures);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdSetDeviceMaskKHX(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    deviceMask)
+{
+    dispatch_key key = get_dispatch_key(commandBuffer);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    }
+    pTable->CmdSetDeviceMaskKHX(commandBuffer,deviceMask);
+    if (threadChecks) {
+        finishWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdDispatchBaseKHX(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    baseGroupX,
+    uint32_t                                    baseGroupY,
+    uint32_t                                    baseGroupZ,
+    uint32_t                                    groupCountX,
+    uint32_t                                    groupCountY,
+    uint32_t                                    groupCountZ)
+{
+    dispatch_key key = get_dispatch_key(commandBuffer);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    }
+    pTable->CmdDispatchBaseKHX(commandBuffer,baseGroupX,baseGroupY,baseGroupZ,groupCountX,groupCountY,groupCountZ);
+    if (threadChecks) {
+        finishWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupPresentCapabilitiesKHX(
+    VkDevice                                    device,
+    VkDeviceGroupPresentCapabilitiesKHX*        pDeviceGroupPresentCapabilities)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->GetDeviceGroupPresentCapabilitiesKHX(device,pDeviceGroupPresentCapabilities);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetDeviceGroupSurfacePresentModesKHX(
+    VkDevice                                    device,
+    VkSurfaceKHR                                surface,
+    VkDeviceGroupPresentModeFlagsKHX*           pModes)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, surface);
+        // Host access to surface must be externally synchronized
+    }
+    result = pTable->GetDeviceGroupSurfacePresentModesKHX(device,surface,pModes);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, surface);
+        // Host access to surface must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDevicePresentRectanglesKHX(
+    VkPhysicalDevice                            physicalDevice,
+    VkSurfaceKHR                                surface,
+    uint32_t*                                   pRectCount,
+    VkRect2D*                                   pRects)
+{
+    dispatch_key key = get_dispatch_key(physicalDevice);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, surface);
+        // Host access to surface must be externally synchronized
+    }
+    result = pTable->GetPhysicalDevicePresentRectanglesKHX(physicalDevice,surface,pRectCount,pRects);
+    if (threadChecks) {
+        finishWriteObject(my_data, surface);
+        // Host access to surface must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL AcquireNextImage2KHX(
+    VkDevice                                    device,
+    const VkAcquireNextImageInfoKHX*            pAcquireInfo,
+    uint32_t*                                   pImageIndex)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->AcquireNextImage2KHX(device,pAcquireInfo,pImageIndex);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+#ifdef VK_USE_PLATFORM_VI_NN
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateViSurfaceNN(
+    VkInstance                                  instance,
+    const VkViSurfaceCreateInfoNN*              pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, instance);
+    }
+    result = pTable->CreateViSurfaceNN(instance,pCreateInfo,pAllocator,pSurface);
+    if (threadChecks) {
+        finishReadObject(my_data, instance);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+#endif /* VK_USE_PLATFORM_VI_NN */
+
+
+
+
+VKAPI_ATTR VkResult VKAPI_CALL EnumeratePhysicalDeviceGroupsKHX(
+    VkInstance                                  instance,
+    uint32_t*                                   pPhysicalDeviceGroupCount,
+    VkPhysicalDeviceGroupPropertiesKHX*         pPhysicalDeviceGroupProperties)
+{
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, instance);
+    }
+    result = pTable->EnumeratePhysicalDeviceGroupsKHX(instance,pPhysicalDeviceGroupCount,pPhysicalDeviceGroupProperties);
+    if (threadChecks) {
+        finishReadObject(my_data, instance);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+VKAPI_ATTR void VKAPI_CALL CmdProcessCommandsNVX(
+    VkCommandBuffer                             commandBuffer,
+    const VkCmdProcessCommandsInfoNVX*          pProcessCommandsInfo)
+{
+    dispatch_key key = get_dispatch_key(commandBuffer);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    }
+    pTable->CmdProcessCommandsNVX(commandBuffer,pProcessCommandsInfo);
+    if (threadChecks) {
+        finishWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+VKAPI_ATTR void VKAPI_CALL CmdReserveSpaceForCommandsNVX(
+    VkCommandBuffer                             commandBuffer,
+    const VkCmdReserveSpaceForCommandsInfoNVX*  pReserveSpaceInfo)
+{
+    dispatch_key key = get_dispatch_key(commandBuffer);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    }
+    pTable->CmdReserveSpaceForCommandsNVX(commandBuffer,pReserveSpaceInfo);
+    if (threadChecks) {
+        finishWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateIndirectCommandsLayoutNVX(
+    VkDevice                                    device,
+    const VkIndirectCommandsLayoutCreateInfoNVX* pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkIndirectCommandsLayoutNVX*                pIndirectCommandsLayout)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->CreateIndirectCommandsLayoutNVX(device,pCreateInfo,pAllocator,pIndirectCommandsLayout);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyIndirectCommandsLayoutNVX(
+    VkDevice                                    device,
+    VkIndirectCommandsLayoutNVX                 indirectCommandsLayout,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startReadObject(my_data, indirectCommandsLayout);
+    }
+    pTable->DestroyIndirectCommandsLayoutNVX(device,indirectCommandsLayout,pAllocator);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishReadObject(my_data, indirectCommandsLayout);
+    } else {
+        finishMultiThread();
+    }
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateObjectTableNVX(
+    VkDevice                                    device,
+    const VkObjectTableCreateInfoNVX*           pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkObjectTableNVX*                           pObjectTable)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->CreateObjectTableNVX(device,pCreateInfo,pAllocator,pObjectTable);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyObjectTableNVX(
+    VkDevice                                    device,
+    VkObjectTableNVX                            objectTable,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, objectTable);
+        // Host access to objectTable must be externally synchronized
+    }
+    pTable->DestroyObjectTableNVX(device,objectTable,pAllocator);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, objectTable);
+        // Host access to objectTable must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL RegisterObjectsNVX(
+    VkDevice                                    device,
+    VkObjectTableNVX                            objectTable,
+    uint32_t                                    objectCount,
+    const VkObjectTableEntryNVX* const*         ppObjectTableEntries,
+    const uint32_t*                             pObjectIndices)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, objectTable);
+        // Host access to objectTable must be externally synchronized
+    }
+    result = pTable->RegisterObjectsNVX(device,objectTable,objectCount,ppObjectTableEntries,pObjectIndices);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, objectTable);
+        // Host access to objectTable must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL UnregisterObjectsNVX(
+    VkDevice                                    device,
+    VkObjectTableNVX                            objectTable,
+    uint32_t                                    objectCount,
+    const VkObjectEntryTypeNVX*                 pObjectEntryTypes,
+    const uint32_t*                             pObjectIndices)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, objectTable);
+        // Host access to objectTable must be externally synchronized
+    }
+    result = pTable->UnregisterObjectsNVX(device,objectTable,objectCount,pObjectEntryTypes,pObjectIndices);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, objectTable);
+        // Host access to objectTable must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+VKAPI_ATTR void VKAPI_CALL CmdSetViewportWScalingNV(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    firstViewport,
+    uint32_t                                    viewportCount,
+    const VkViewportWScalingNV*                 pViewportWScalings)
+{
+    dispatch_key key = get_dispatch_key(commandBuffer);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    }
+    pTable->CmdSetViewportWScalingNV(commandBuffer,firstViewport,viewportCount,pViewportWScalings);
+    if (threadChecks) {
+        finishWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+
+VKAPI_ATTR VkResult VKAPI_CALL ReleaseDisplayEXT(
+    VkPhysicalDevice                            physicalDevice,
+    VkDisplayKHR                                display)
+{
+    dispatch_key key = get_dispatch_key(physicalDevice);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, display);
+    }
+    result = pTable->ReleaseDisplayEXT(physicalDevice,display);
+    if (threadChecks) {
+        finishReadObject(my_data, display);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
+
+VKAPI_ATTR VkResult VKAPI_CALL AcquireXlibDisplayEXT(
+    VkPhysicalDevice                            physicalDevice,
+    Display*                                    dpy,
+    VkDisplayKHR                                display)
+{
+    dispatch_key key = get_dispatch_key(physicalDevice);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, display);
+    }
+    result = pTable->AcquireXlibDisplayEXT(physicalDevice,dpy,display);
+    if (threadChecks) {
+        finishReadObject(my_data, display);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+#endif /* VK_USE_PLATFORM_XLIB_XRANDR_EXT */
+
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPhysicalDeviceSurfaceCapabilities2EXT(
+    VkPhysicalDevice                            physicalDevice,
+    VkSurfaceKHR                                surface,
+    VkSurfaceCapabilities2EXT*                  pSurfaceCapabilities)
+{
+    dispatch_key key = get_dispatch_key(physicalDevice);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, surface);
+    }
+    result = pTable->GetPhysicalDeviceSurfaceCapabilities2EXT(physicalDevice,surface,pSurfaceCapabilities);
+    if (threadChecks) {
+        finishReadObject(my_data, surface);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+VKAPI_ATTR VkResult VKAPI_CALL DisplayPowerControlEXT(
+    VkDevice                                    device,
+    VkDisplayKHR                                display,
+    const VkDisplayPowerInfoEXT*                pDisplayPowerInfo)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startReadObject(my_data, display);
+    }
+    result = pTable->DisplayPowerControlEXT(device,display,pDisplayPowerInfo);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishReadObject(my_data, display);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL RegisterDeviceEventEXT(
+    VkDevice                                    device,
+    const VkDeviceEventInfoEXT*                 pDeviceEventInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkFence*                                    pFence)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->RegisterDeviceEventEXT(device,pDeviceEventInfo,pAllocator,pFence);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL RegisterDisplayEventEXT(
+    VkDevice                                    device,
+    VkDisplayKHR                                display,
+    const VkDisplayEventInfoEXT*                pDisplayEventInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkFence*                                    pFence)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startReadObject(my_data, display);
+    }
+    result = pTable->RegisterDisplayEventEXT(device,display,pDisplayEventInfo,pAllocator,pFence);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishReadObject(my_data, display);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetSwapchainCounterEXT(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    VkSurfaceCounterFlagBitsEXT                 counter,
+    uint64_t*                                   pCounterValue)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startReadObject(my_data, swapchain);
+    }
+    result = pTable->GetSwapchainCounterEXT(device,swapchain,counter,pCounterValue);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishReadObject(my_data, swapchain);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+VKAPI_ATTR VkResult VKAPI_CALL GetRefreshCycleDurationGOOGLE(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    VkRefreshCycleDurationGOOGLE*               pDisplayTimingProperties)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, swapchain);
+        // Host access to swapchain must be externally synchronized
+    }
+    result = pTable->GetRefreshCycleDurationGOOGLE(device,swapchain,pDisplayTimingProperties);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, swapchain);
+        // Host access to swapchain must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetPastPresentationTimingGOOGLE(
+    VkDevice                                    device,
+    VkSwapchainKHR                              swapchain,
+    uint32_t*                                   pPresentationTimingCount,
+    VkPastPresentationTimingGOOGLE*             pPresentationTimings)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, swapchain);
+        // Host access to swapchain must be externally synchronized
+    }
+    result = pTable->GetPastPresentationTimingGOOGLE(device,swapchain,pPresentationTimingCount,pPresentationTimings);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, swapchain);
+        // Host access to swapchain must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+
+
+
+
+
+VKAPI_ATTR void VKAPI_CALL CmdSetDiscardRectangleEXT(
+    VkCommandBuffer                             commandBuffer,
+    uint32_t                                    firstDiscardRectangle,
+    uint32_t                                    discardRectangleCount,
+    const VkRect2D*                             pDiscardRectangles)
+{
+    dispatch_key key = get_dispatch_key(commandBuffer);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    }
+    pTable->CmdSetDiscardRectangleEXT(commandBuffer,firstDiscardRectangle,discardRectangleCount,pDiscardRectangles);
+    if (threadChecks) {
+        finishWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+
+
+
+VKAPI_ATTR void VKAPI_CALL SetHdrMetadataEXT(
+    VkDevice                                    device,
+    uint32_t                                    swapchainCount,
+    const VkSwapchainKHR*                       pSwapchains,
+    const VkHdrMetadataEXT*                     pMetadata)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        for (uint32_t index = 0; index < swapchainCount; index++) {
+            startReadObject(my_data, pSwapchains[index]);
+        }
+    }
+    pTable->SetHdrMetadataEXT(device,swapchainCount,pSwapchains,pMetadata);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        for (uint32_t index = 0; index < swapchainCount; index++) {
+            finishReadObject(my_data, pSwapchains[index]);
+        }
+    } else {
+        finishMultiThread();
+    }
+}
+
+#ifdef VK_USE_PLATFORM_IOS_MVK
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateIOSSurfaceMVK(
+    VkInstance                                  instance,
+    const VkIOSSurfaceCreateInfoMVK*            pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, instance);
+    }
+    result = pTable->CreateIOSSurfaceMVK(instance,pCreateInfo,pAllocator,pSurface);
+    if (threadChecks) {
+        finishReadObject(my_data, instance);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+#endif /* VK_USE_PLATFORM_IOS_MVK */
+
+#ifdef VK_USE_PLATFORM_MACOS_MVK
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateMacOSSurfaceMVK(
+    VkInstance                                  instance,
+    const VkMacOSSurfaceCreateInfoMVK*          pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkSurfaceKHR*                               pSurface)
+{
+    dispatch_key key = get_dispatch_key(instance);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = my_data->instance_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, instance);
+    }
+    result = pTable->CreateMacOSSurfaceMVK(instance,pCreateInfo,pAllocator,pSurface);
+    if (threadChecks) {
+        finishReadObject(my_data, instance);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+#endif /* VK_USE_PLATFORM_MACOS_MVK */
+
+
+
+
+
+
+
+
+
+VKAPI_ATTR void VKAPI_CALL CmdSetSampleLocationsEXT(
+    VkCommandBuffer                             commandBuffer,
+    const VkSampleLocationsInfoEXT*             pSampleLocationsInfo)
+{
+    dispatch_key key = get_dispatch_key(commandBuffer);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    }
+    pTable->CmdSetSampleLocationsEXT(commandBuffer,pSampleLocationsInfo);
+    if (threadChecks) {
+        finishWriteObject(my_data, commandBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+
+
+
+
+
+
+VKAPI_ATTR VkResult VKAPI_CALL CreateValidationCacheEXT(
+    VkDevice                                    device,
+    const VkValidationCacheCreateInfoEXT*       pCreateInfo,
+    const VkAllocationCallbacks*                pAllocator,
+    VkValidationCacheEXT*                       pValidationCache)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->CreateValidationCacheEXT(device,pCreateInfo,pAllocator,pValidationCache);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR void VKAPI_CALL DestroyValidationCacheEXT(
+    VkDevice                                    device,
+    VkValidationCacheEXT                        validationCache,
+    const VkAllocationCallbacks*                pAllocator)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, validationCache);
+        // Host access to validationCache must be externally synchronized
+    }
+    pTable->DestroyValidationCacheEXT(device,validationCache,pAllocator);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, validationCache);
+        // Host access to validationCache must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL MergeValidationCachesEXT(
+    VkDevice                                    device,
+    VkValidationCacheEXT                        dstCache,
+    uint32_t                                    srcCacheCount,
+    const VkValidationCacheEXT*                 pSrcCaches)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startWriteObject(my_data, dstCache);
+        for (uint32_t index = 0; index < srcCacheCount; index++) {
+            startReadObject(my_data, pSrcCaches[index]);
+        }
+        // Host access to dstCache must be externally synchronized
+    }
+    result = pTable->MergeValidationCachesEXT(device,dstCache,srcCacheCount,pSrcCaches);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishWriteObject(my_data, dstCache);
+        for (uint32_t index = 0; index < srcCacheCount; index++) {
+            finishReadObject(my_data, pSrcCaches[index]);
+        }
+        // Host access to dstCache must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+VKAPI_ATTR VkResult VKAPI_CALL GetValidationCacheDataEXT(
+    VkDevice                                    device,
+    VkValidationCacheEXT                        validationCache,
+    size_t*                                     pDataSize,
+    void*                                       pData)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+        startReadObject(my_data, validationCache);
+    }
+    result = pTable->GetValidationCacheDataEXT(device,validationCache,pDataSize,pData);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+        finishReadObject(my_data, validationCache);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+
+
+VKAPI_ATTR VkResult VKAPI_CALL GetMemoryHostPointerPropertiesEXT(
+    VkDevice                                    device,
+    VkExternalMemoryHandleTypeFlagBitsKHR       handleType,
+    const void*                                 pHostPointer,
+    VkMemoryHostPointerPropertiesEXT*           pMemoryHostPointerProperties)
+{
+    dispatch_key key = get_dispatch_key(device);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    VkResult result;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startReadObject(my_data, device);
+    }
+    result = pTable->GetMemoryHostPointerPropertiesEXT(device,handleType,pHostPointer,pMemoryHostPointerProperties);
+    if (threadChecks) {
+        finishReadObject(my_data, device);
+    } else {
+        finishMultiThread();
+    }
+    return result;
+}
+
+
+VKAPI_ATTR void VKAPI_CALL CmdWriteBufferMarkerAMD(
+    VkCommandBuffer                             commandBuffer,
+    VkPipelineStageFlagBits                     pipelineStage,
+    VkBuffer                                    dstBuffer,
+    VkDeviceSize                                dstOffset,
+    uint32_t                                    marker)
+{
+    dispatch_key key = get_dispatch_key(commandBuffer);
+    layer_data *my_data = GetLayerDataPtr(key, layer_data_map);
+    VkLayerDispatchTable *pTable = my_data->device_dispatch_table;
+    bool threadChecks = startMultiThread();
+    if (threadChecks) {
+        startWriteObject(my_data, commandBuffer);
+        startReadObject(my_data, dstBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    }
+    pTable->CmdWriteBufferMarkerAMD(commandBuffer,pipelineStage,dstBuffer,dstOffset,marker);
+    if (threadChecks) {
+        finishWriteObject(my_data, commandBuffer);
+        finishReadObject(my_data, dstBuffer);
+        // Host access to commandBuffer must be externally synchronized
+    } else {
+        finishMultiThread();
+    }
+}
+
+// Map of all APIs to be intercepted by this layer
+static const std::unordered_map<std::string, void*> name_to_funcptr_map = {
+    {"vkCreateInstance", (void*)CreateInstance},
+    {"vkDestroyInstance", (void*)DestroyInstance},
+    {"vkEnumeratePhysicalDevices", (void*)EnumeratePhysicalDevices},
+    {"vkGetInstanceProcAddr", (void*)GetInstanceProcAddr},
+    {"vkGetDeviceProcAddr", (void*)GetDeviceProcAddr},
+    {"vkCreateDevice", (void*)CreateDevice},
+    {"vkDestroyDevice", (void*)DestroyDevice},
+    {"vkEnumerateInstanceExtensionProperties", (void*)EnumerateInstanceExtensionProperties},
+    {"vkEnumerateDeviceExtensionProperties", (void*)EnumerateDeviceExtensionProperties},
+    {"vkEnumerateInstanceLayerProperties", (void*)EnumerateInstanceLayerProperties},
+    {"vkEnumerateDeviceLayerProperties", (void*)EnumerateDeviceLayerProperties},
+    {"vkGetDeviceQueue", (void*)GetDeviceQueue},
+    {"vkQueueSubmit", (void*)QueueSubmit},
+    {"vkQueueWaitIdle", (void*)QueueWaitIdle},
+    {"vkDeviceWaitIdle", (void*)DeviceWaitIdle},
+    {"vkAllocateMemory", (void*)AllocateMemory},
+    {"vkFreeMemory", (void*)FreeMemory},
+    {"vkMapMemory", (void*)MapMemory},
+    {"vkUnmapMemory", (void*)UnmapMemory},
+    {"vkFlushMappedMemoryRanges", (void*)FlushMappedMemoryRanges},
+    {"vkInvalidateMappedMemoryRanges", (void*)InvalidateMappedMemoryRanges},
+    {"vkGetDeviceMemoryCommitment", (void*)GetDeviceMemoryCommitment},
+    {"vkBindBufferMemory", (void*)BindBufferMemory},
+    {"vkBindImageMemory", (void*)BindImageMemory},
+    {"vkGetBufferMemoryRequirements", (void*)GetBufferMemoryRequirements},
+    {"vkGetImageMemoryRequirements", (void*)GetImageMemoryRequirements},
+    {"vkGetImageSparseMemoryRequirements", (void*)GetImageSparseMemoryRequirements},
+    {"vkQueueBindSparse", (void*)QueueBindSparse},
+    {"vkCreateFence", (void*)CreateFence},
+    {"vkDestroyFence", (void*)DestroyFence},
+    {"vkResetFences", (void*)ResetFences},
+    {"vkGetFenceStatus", (void*)GetFenceStatus},
+    {"vkWaitForFences", (void*)WaitForFences},
+    {"vkCreateSemaphore", (void*)CreateSemaphore},
+    {"vkDestroySemaphore", (void*)DestroySemaphore},
+    {"vkCreateEvent", (void*)CreateEvent},
+    {"vkDestroyEvent", (void*)DestroyEvent},
+    {"vkGetEventStatus", (void*)GetEventStatus},
+    {"vkSetEvent", (void*)SetEvent},
+    {"vkResetEvent", (void*)ResetEvent},
+    {"vkCreateQueryPool", (void*)CreateQueryPool},
+    {"vkDestroyQueryPool", (void*)DestroyQueryPool},
+    {"vkGetQueryPoolResults", (void*)GetQueryPoolResults},
+    {"vkCreateBuffer", (void*)CreateBuffer},
+    {"vkDestroyBuffer", (void*)DestroyBuffer},
+    {"vkCreateBufferView", (void*)CreateBufferView},
+    {"vkDestroyBufferView", (void*)DestroyBufferView},
+    {"vkCreateImage", (void*)CreateImage},
+    {"vkDestroyImage", (void*)DestroyImage},
+    {"vkGetImageSubresourceLayout", (void*)GetImageSubresourceLayout},
+    {"vkCreateImageView", (void*)CreateImageView},
+    {"vkDestroyImageView", (void*)DestroyImageView},
+    {"vkCreateShaderModule", (void*)CreateShaderModule},
+    {"vkDestroyShaderModule", (void*)DestroyShaderModule},
+    {"vkCreatePipelineCache", (void*)CreatePipelineCache},
+    {"vkDestroyPipelineCache", (void*)DestroyPipelineCache},
+    {"vkGetPipelineCacheData", (void*)GetPipelineCacheData},
+    {"vkMergePipelineCaches", (void*)MergePipelineCaches},
+    {"vkCreateGraphicsPipelines", (void*)CreateGraphicsPipelines},
+    {"vkCreateComputePipelines", (void*)CreateComputePipelines},
+    {"vkDestroyPipeline", (void*)DestroyPipeline},
+    {"vkCreatePipelineLayout", (void*)CreatePipelineLayout},
+    {"vkDestroyPipelineLayout", (void*)DestroyPipelineLayout},
+    {"vkCreateSampler", (void*)CreateSampler},
+    {"vkDestroySampler", (void*)DestroySampler},
+    {"vkCreateDescriptorSetLayout", (void*)CreateDescriptorSetLayout},
+    {"vkDestroyDescriptorSetLayout", (void*)DestroyDescriptorSetLayout},
+    {"vkCreateDescriptorPool", (void*)CreateDescriptorPool},
+    {"vkDestroyDescriptorPool", (void*)DestroyDescriptorPool},
+    {"vkResetDescriptorPool", (void*)ResetDescriptorPool},
+    {"vkAllocateDescriptorSets", (void*)AllocateDescriptorSets},
+    {"vkFreeDescriptorSets", (void*)FreeDescriptorSets},
+    {"vkUpdateDescriptorSets", (void*)UpdateDescriptorSets},
+    {"vkCreateFramebuffer", (void*)CreateFramebuffer},
+    {"vkDestroyFramebuffer", (void*)DestroyFramebuffer},
+    {"vkCreateRenderPass", (void*)CreateRenderPass},
+    {"vkDestroyRenderPass", (void*)DestroyRenderPass},
+    {"vkGetRenderAreaGranularity", (void*)GetRenderAreaGranularity},
+    {"vkCreateCommandPool", (void*)CreateCommandPool},
+    {"vkDestroyCommandPool", (void*)DestroyCommandPool},
+    {"vkResetCommandPool", (void*)ResetCommandPool},
+    {"vkAllocateCommandBuffers", (void*)AllocateCommandBuffers},
+    {"vkFreeCommandBuffers", (void*)FreeCommandBuffers},
+    {"vkBeginCommandBuffer", (void*)BeginCommandBuffer},
+    {"vkEndCommandBuffer", (void*)EndCommandBuffer},
+    {"vkResetCommandBuffer", (void*)ResetCommandBuffer},
+    {"vkCmdBindPipeline", (void*)CmdBindPipeline},
+    {"vkCmdSetViewport", (void*)CmdSetViewport},
+    {"vkCmdSetScissor", (void*)CmdSetScissor},
+    {"vkCmdSetLineWidth", (void*)CmdSetLineWidth},
+    {"vkCmdSetDepthBias", (void*)CmdSetDepthBias},
+    {"vkCmdSetBlendConstants", (void*)CmdSetBlendConstants},
+    {"vkCmdSetDepthBounds", (void*)CmdSetDepthBounds},
+    {"vkCmdSetStencilCompareMask", (void*)CmdSetStencilCompareMask},
+    {"vkCmdSetStencilWriteMask", (void*)CmdSetStencilWriteMask},
+    {"vkCmdSetStencilReference", (void*)CmdSetStencilReference},
+    {"vkCmdBindDescriptorSets", (void*)CmdBindDescriptorSets},
+    {"vkCmdBindIndexBuffer", (void*)CmdBindIndexBuffer},
+    {"vkCmdBindVertexBuffers", (void*)CmdBindVertexBuffers},
+    {"vkCmdDraw", (void*)CmdDraw},
+    {"vkCmdDrawIndexed", (void*)CmdDrawIndexed},
+    {"vkCmdDrawIndirect", (void*)CmdDrawIndirect},
+    {"vkCmdDrawIndexedIndirect", (void*)CmdDrawIndexedIndirect},
+    {"vkCmdDispatch", (void*)CmdDispatch},
+    {"vkCmdDispatchIndirect", (void*)CmdDispatchIndirect},
+    {"vkCmdCopyBuffer", (void*)CmdCopyBuffer},
+    {"vkCmdCopyImage", (void*)CmdCopyImage},
+    {"vkCmdBlitImage", (void*)CmdBlitImage},
+    {"vkCmdCopyBufferToImage", (void*)CmdCopyBufferToImage},
+    {"vkCmdCopyImageToBuffer", (void*)CmdCopyImageToBuffer},
+    {"vkCmdUpdateBuffer", (void*)CmdUpdateBuffer},
+    {"vkCmdFillBuffer", (void*)CmdFillBuffer},
+    {"vkCmdClearColorImage", (void*)CmdClearColorImage},
+    {"vkCmdClearDepthStencilImage", (void*)CmdClearDepthStencilImage},
+    {"vkCmdClearAttachments", (void*)CmdClearAttachments},
+    {"vkCmdResolveImage", (void*)CmdResolveImage},
+    {"vkCmdSetEvent", (void*)CmdSetEvent},
+    {"vkCmdResetEvent", (void*)CmdResetEvent},
+    {"vkCmdWaitEvents", (void*)CmdWaitEvents},
+    {"vkCmdPipelineBarrier", (void*)CmdPipelineBarrier},
+    {"vkCmdBeginQuery", (void*)CmdBeginQuery},
+    {"vkCmdEndQuery", (void*)CmdEndQuery},
+    {"vkCmdResetQueryPool", (void*)CmdResetQueryPool},
+    {"vkCmdWriteTimestamp", (void*)CmdWriteTimestamp},
+    {"vkCmdCopyQueryPoolResults", (void*)CmdCopyQueryPoolResults},
+    {"vkCmdPushConstants", (void*)CmdPushConstants},
+    {"vkCmdBeginRenderPass", (void*)CmdBeginRenderPass},
+    {"vkCmdNextSubpass", (void*)CmdNextSubpass},
+    {"vkCmdEndRenderPass", (void*)CmdEndRenderPass},
+    {"vkCmdExecuteCommands", (void*)CmdExecuteCommands},
+    {"vkDestroySurfaceKHR", (void*)DestroySurfaceKHR},
+    {"vkGetPhysicalDeviceSurfaceSupportKHR", (void*)GetPhysicalDeviceSurfaceSupportKHR},
+    {"vkGetPhysicalDeviceSurfaceCapabilitiesKHR", (void*)GetPhysicalDeviceSurfaceCapabilitiesKHR},
+    {"vkGetPhysicalDeviceSurfaceFormatsKHR", (void*)GetPhysicalDeviceSurfaceFormatsKHR},
+    {"vkGetPhysicalDeviceSurfacePresentModesKHR", (void*)GetPhysicalDeviceSurfacePresentModesKHR},
+    {"vkCreateSwapchainKHR", (void*)CreateSwapchainKHR},
+    {"vkDestroySwapchainKHR", (void*)DestroySwapchainKHR},
+    {"vkGetSwapchainImagesKHR", (void*)GetSwapchainImagesKHR},
+    {"vkAcquireNextImageKHR", (void*)AcquireNextImageKHR},
+    {"vkGetDisplayPlaneSupportedDisplaysKHR", (void*)GetDisplayPlaneSupportedDisplaysKHR},
+    {"vkGetDisplayModePropertiesKHR", (void*)GetDisplayModePropertiesKHR},
+    {"vkCreateDisplayModeKHR", (void*)CreateDisplayModeKHR},
+    {"vkGetDisplayPlaneCapabilitiesKHR", (void*)GetDisplayPlaneCapabilitiesKHR},
+    {"vkCreateDisplayPlaneSurfaceKHR", (void*)CreateDisplayPlaneSurfaceKHR},
+    {"vkCreateSharedSwapchainsKHR", (void*)CreateSharedSwapchainsKHR},
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+    {"vkCreateXlibSurfaceKHR", (void*)CreateXlibSurfaceKHR},
 #endif
+#ifdef VK_USE_PLATFORM_XCB_KHR
+    {"vkCreateXcbSurfaceKHR", (void*)CreateXcbSurfaceKHR},
+#endif
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+    {"vkCreateWaylandSurfaceKHR", (void*)CreateWaylandSurfaceKHR},
+#endif
+#ifdef VK_USE_PLATFORM_MIR_KHR
+    {"vkCreateMirSurfaceKHR", (void*)CreateMirSurfaceKHR},
+#endif
+#ifdef VK_USE_PLATFORM_ANDROID_KHR
+    {"vkCreateAndroidSurfaceKHR", (void*)CreateAndroidSurfaceKHR},
+#endif
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    {"vkCreateWin32SurfaceKHR", (void*)CreateWin32SurfaceKHR},
+#endif
+    {"vkTrimCommandPoolKHR", (void*)TrimCommandPoolKHR},
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    {"vkGetMemoryWin32HandleKHR", (void*)GetMemoryWin32HandleKHR},
+#endif
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    {"vkGetMemoryWin32HandlePropertiesKHR", (void*)GetMemoryWin32HandlePropertiesKHR},
+#endif
+    {"vkGetMemoryFdKHR", (void*)GetMemoryFdKHR},
+    {"vkGetMemoryFdPropertiesKHR", (void*)GetMemoryFdPropertiesKHR},
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    {"vkImportSemaphoreWin32HandleKHR", (void*)ImportSemaphoreWin32HandleKHR},
+#endif
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    {"vkGetSemaphoreWin32HandleKHR", (void*)GetSemaphoreWin32HandleKHR},
+#endif
+    {"vkImportSemaphoreFdKHR", (void*)ImportSemaphoreFdKHR},
+    {"vkGetSemaphoreFdKHR", (void*)GetSemaphoreFdKHR},
+    {"vkCmdPushDescriptorSetKHR", (void*)CmdPushDescriptorSetKHR},
+    {"vkCreateDescriptorUpdateTemplateKHR", (void*)CreateDescriptorUpdateTemplateKHR},
+    {"vkDestroyDescriptorUpdateTemplateKHR", (void*)DestroyDescriptorUpdateTemplateKHR},
+    {"vkUpdateDescriptorSetWithTemplateKHR", (void*)UpdateDescriptorSetWithTemplateKHR},
+    {"vkCmdPushDescriptorSetWithTemplateKHR", (void*)CmdPushDescriptorSetWithTemplateKHR},
+    {"vkGetSwapchainStatusKHR", (void*)GetSwapchainStatusKHR},
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    {"vkImportFenceWin32HandleKHR", (void*)ImportFenceWin32HandleKHR},
+#endif
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    {"vkGetFenceWin32HandleKHR", (void*)GetFenceWin32HandleKHR},
+#endif
+    {"vkImportFenceFdKHR", (void*)ImportFenceFdKHR},
+    {"vkGetFenceFdKHR", (void*)GetFenceFdKHR},
+    {"vkGetImageMemoryRequirements2KHR", (void*)GetImageMemoryRequirements2KHR},
+    {"vkGetBufferMemoryRequirements2KHR", (void*)GetBufferMemoryRequirements2KHR},
+    {"vkGetImageSparseMemoryRequirements2KHR", (void*)GetImageSparseMemoryRequirements2KHR},
+    {"vkCreateSamplerYcbcrConversionKHR", (void*)CreateSamplerYcbcrConversionKHR},
+    {"vkDestroySamplerYcbcrConversionKHR", (void*)DestroySamplerYcbcrConversionKHR},
+    {"vkBindBufferMemory2KHR", (void*)BindBufferMemory2KHR},
+    {"vkBindImageMemory2KHR", (void*)BindImageMemory2KHR},
+    {"vkCreateDebugReportCallbackEXT", (void*)CreateDebugReportCallbackEXT},
+    {"vkDestroyDebugReportCallbackEXT", (void*)DestroyDebugReportCallbackEXT},
+    {"vkDebugReportMessageEXT", (void*)DebugReportMessageEXT},
+    {"vkCmdDrawIndirectCountAMD", (void*)CmdDrawIndirectCountAMD},
+    {"vkCmdDrawIndexedIndirectCountAMD", (void*)CmdDrawIndexedIndirectCountAMD},
+    {"vkGetShaderInfoAMD", (void*)GetShaderInfoAMD},
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+    {"vkGetMemoryWin32HandleNV", (void*)GetMemoryWin32HandleNV},
+#endif
+    {"vkGetDeviceGroupPeerMemoryFeaturesKHX", (void*)GetDeviceGroupPeerMemoryFeaturesKHX},
+    {"vkCmdSetDeviceMaskKHX", (void*)CmdSetDeviceMaskKHX},
+    {"vkCmdDispatchBaseKHX", (void*)CmdDispatchBaseKHX},
+    {"vkGetDeviceGroupPresentCapabilitiesKHX", (void*)GetDeviceGroupPresentCapabilitiesKHX},
+    {"vkGetDeviceGroupSurfacePresentModesKHX", (void*)GetDeviceGroupSurfacePresentModesKHX},
+    {"vkGetPhysicalDevicePresentRectanglesKHX", (void*)GetPhysicalDevicePresentRectanglesKHX},
+    {"vkAcquireNextImage2KHX", (void*)AcquireNextImage2KHX},
+#ifdef VK_USE_PLATFORM_VI_NN
+    {"vkCreateViSurfaceNN", (void*)CreateViSurfaceNN},
+#endif
+    {"vkEnumeratePhysicalDeviceGroupsKHX", (void*)EnumeratePhysicalDeviceGroupsKHX},
+    {"vkCmdProcessCommandsNVX", (void*)CmdProcessCommandsNVX},
+    {"vkCmdReserveSpaceForCommandsNVX", (void*)CmdReserveSpaceForCommandsNVX},
+    {"vkCreateIndirectCommandsLayoutNVX", (void*)CreateIndirectCommandsLayoutNVX},
+    {"vkDestroyIndirectCommandsLayoutNVX", (void*)DestroyIndirectCommandsLayoutNVX},
+    {"vkCreateObjectTableNVX", (void*)CreateObjectTableNVX},
+    {"vkDestroyObjectTableNVX", (void*)DestroyObjectTableNVX},
+    {"vkRegisterObjectsNVX", (void*)RegisterObjectsNVX},
+    {"vkUnregisterObjectsNVX", (void*)UnregisterObjectsNVX},
+    {"vkCmdSetViewportWScalingNV", (void*)CmdSetViewportWScalingNV},
+    {"vkReleaseDisplayEXT", (void*)ReleaseDisplayEXT},
+#ifdef VK_USE_PLATFORM_XLIB_XRANDR_EXT
+    {"vkAcquireXlibDisplayEXT", (void*)AcquireXlibDisplayEXT},
+#endif
+    {"vkGetPhysicalDeviceSurfaceCapabilities2EXT", (void*)GetPhysicalDeviceSurfaceCapabilities2EXT},
+    {"vkDisplayPowerControlEXT", (void*)DisplayPowerControlEXT},
+    {"vkRegisterDeviceEventEXT", (void*)RegisterDeviceEventEXT},
+    {"vkRegisterDisplayEventEXT", (void*)RegisterDisplayEventEXT},
+    {"vkGetSwapchainCounterEXT", (void*)GetSwapchainCounterEXT},
+    {"vkGetRefreshCycleDurationGOOGLE", (void*)GetRefreshCycleDurationGOOGLE},
+    {"vkGetPastPresentationTimingGOOGLE", (void*)GetPastPresentationTimingGOOGLE},
+    {"vkCmdSetDiscardRectangleEXT", (void*)CmdSetDiscardRectangleEXT},
+    {"vkSetHdrMetadataEXT", (void*)SetHdrMetadataEXT},
+#ifdef VK_USE_PLATFORM_IOS_MVK
+    {"vkCreateIOSSurfaceMVK", (void*)CreateIOSSurfaceMVK},
+#endif
+#ifdef VK_USE_PLATFORM_MACOS_MVK
+    {"vkCreateMacOSSurfaceMVK", (void*)CreateMacOSSurfaceMVK},
+#endif
+    {"vkCmdSetSampleLocationsEXT", (void*)CmdSetSampleLocationsEXT},
+    {"vkCreateValidationCacheEXT", (void*)CreateValidationCacheEXT},
+    {"vkDestroyValidationCacheEXT", (void*)DestroyValidationCacheEXT},
+    {"vkMergeValidationCachesEXT", (void*)MergeValidationCachesEXT},
+    {"vkGetValidationCacheDataEXT", (void*)GetValidationCacheDataEXT},
+    {"vkGetMemoryHostPointerPropertiesEXT", (void*)GetMemoryHostPointerPropertiesEXT},
+    {"vkCmdWriteBufferMarkerAMD", (void*)CmdWriteBufferMarkerAMD},
 };
 
 

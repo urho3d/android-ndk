@@ -22,24 +22,25 @@ import site
 
 site.addsitedir(os.path.join(os.path.dirname(__file__), '../lib'))
 
-import build_support
+import build_support  # pylint: disable=import-error
 
 GDBSERVER_TARGETS = (
     'arm-eabi-linux',
     'aarch64-eabi-linux',
-    'mipsel-linux-android',
-    'mips64el-linux-android',
     'i686-linux-android',
     'x86_64-linux-android',
 )
 
+
 class ArgParser(build_support.ArgParser):
-    def __init__(self):
+    def __init__(self):  # pylint: disable=super-on-old-class
         super(ArgParser, self).__init__()
 
+        # pylint: disable=no-member
         self.add_argument(
             '--arch', choices=build_support.ALL_ARCHITECTURES,
             help='Architectures to build. Builds all if not present.')
+        # pylint: enable=no-member
 
 
 def main(args):
@@ -49,13 +50,17 @@ def main(args):
 
     print('Building gdbservers: {}'.format(' '.join(arches)))
     for arch in arches:
-        target_triple = dict(zip(build_support.ALL_ARCHITECTURES, GDBSERVER_TARGETS))[arch];
+        build_dir = os.path.join(args.out_dir, 'gdbserver', arch)
+        target_triple = dict(zip(
+            build_support.ALL_ARCHITECTURES, GDBSERVER_TARGETS))[arch]
         build_cmd = [
-            'bash', 'build-gdbserver.sh', arch, target_triple, build_support.toolchain_path(),
-            build_support.ndk_path(), build_support.jobs_arg(),
+            'bash', 'build-gdbserver.sh', arch, target_triple,
+            build_support.toolchain_path(), build_support.ndk_path(),
+            '--build-out={}'.format(build_dir), build_support.jobs_arg(),
         ]
 
         build_support.build(build_cmd, args)
+
 
 if __name__ == '__main__':
     build_support.run(main, ArgParser)

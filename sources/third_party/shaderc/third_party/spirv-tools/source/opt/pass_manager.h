@@ -16,12 +16,15 @@
 #define LIBSPIRV_OPT_PASS_MANAGER_H_
 
 #include <memory>
+#include <ostream>
 #include <vector>
 
 #include "log.h"
-#include "message.h"
 #include "module.h"
 #include "pass.h"
+
+#include "ir_context.h"
+#include "spirv-tools/libspirv.hpp"
 
 namespace spvtools {
 namespace opt {
@@ -36,7 +39,10 @@ class PassManager {
   // The constructed instance will have an empty message consumer, which just
   // ignores all messages from the library. Use SetMessageConsumer() to supply
   // one if messages are of concern.
-  PassManager() : consumer_(IgnoreMessage) {}
+  PassManager()
+      : consumer_(nullptr),
+        print_all_stream_(nullptr),
+        time_report_stream_(nullptr) {}
 
   // Sets the message consumer to the given |consumer|.
   void SetMessageConsumer(MessageConsumer c) { consumer_ = std::move(c); }
@@ -62,13 +68,37 @@ class PassManager {
   // registered after the error-reporting pass will be skipped. Returns the
   // corresponding Status::Success if processing is succesful to indicate
   // whether changes are made to the module.
-  Pass::Status Run(ir::Module* module);
+  //
+  // After running all the passes, they are removed from the list.
+  Pass::Status Run(ir::IRContext* context);
+
+  // Sets the option to print the disassembly before each pass and after the
+  // last pass.   Output is written to |out| if that is not null.  No output
+  // is generated if |out| is null.
+  PassManager& SetPrintAll(std::ostream* out) {
+    print_all_stream_ = out;
+    return *this;
+  }
+
+  // Sets the option to print the resource utilization of each pass. Output is
+  // written to |out| if that is not null. No output is generated if |out| is
+  // null.
+  PassManager& SetTimeReport(std::ostream* out) {
+    time_report_stream_ = out;
+    return *this;
+  }
 
  private:
   // Consumer for messages.
   MessageConsumer consumer_;
   // A vector of passes. Order matters.
   std::vector<std::unique_ptr<Pass>> passes_;
+  // The output stream to write disassembly to before each pass, and after
+  // the last pass.  If this is null, no output is generated.
+  std::ostream* print_all_stream_;
+  // The output stream to write the resource utilization of each pass. If this
+  // is null, no output is generated.
+  std::ostream* time_report_stream_;
 };
 
 inline void PassManager::AddPass(std::unique_ptr<Pass> pass) {

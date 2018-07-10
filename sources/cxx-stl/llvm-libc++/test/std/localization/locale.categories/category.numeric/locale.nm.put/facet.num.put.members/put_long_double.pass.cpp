@@ -24422,7 +24422,7 @@ void test12()
     std::locale lg(lc, new my_numpunct);
 #ifdef __APPLE__
 // This test is failing on FreeBSD, possibly due to different representations
-// of the floating point numbers.  
+// of the floating point numbers.
     const my_facet f(1);
     char str[200];
     {
@@ -26228,25 +26228,25 @@ int main()
     std::locale lg(lc, new my_numpunct);
     const my_facet f(1);
     {
-        long double v = -INFINITY;
+        long double v = -INFINITY; ((void)v);
     }
     {
-        long double v = std::nan("");
+        long double v = std::nan(""); ((void)v);
     }
 
     {
-        long double v = +0.;
+        long double v = +0.; ((void)v);
     }
     {
-        long double v = -INFINITY;
+        long double v = -INFINITY; ((void)v);
     }
     {
-        long double v = std::nan("");
+        long double v = std::nan(""); ((void)v);
     }
     {
-        long double v = -INFINITY;
+        long double v = -INFINITY; ((void)v);
     }
     {
-        long double v = std::nan("");
+        long double v = std::nan(""); ((void)v);
     }
 }

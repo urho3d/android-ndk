@@ -19,6 +19,7 @@
 #include <functional>
 #include <cassert>
 
+#include "test_macros.h"
 #include "count_new.hpp"
 
 class A
@@ -52,8 +53,20 @@ int A::count = 0;
 
 int g(int) {return 0;}
 
+#if TEST_STD_VER >= 11
+struct RValueCallable {
+    template <class ...Args>
+    void operator()(Args&&...) && {}
+};
+struct LValueCallable {
+    template <class ...Args>
+    void operator()(Args&&...) & {}
+};
+#endif
+
 int main()
 {
+    globalMemCounter.reset();
     assert(globalMemCounter.checkOutstandingNewEq(0));
     {
     std::function<int(int)> f;
@@ -95,4 +108,13 @@ int main()
     assert(f.target<int(*)(int)>() != 0);
     f(1);
     }
+#if TEST_STD_VER >= 11
+    {
+        using Fn = std::function<void(int, int, int)>;
+        static_assert(std::is_assignable<Fn&, LValueCallable&>::value, "");
+        static_assert(std::is_assignable<Fn&, LValueCallable>::value, "");
+        static_assert(!std::is_assignable<Fn&, RValueCallable&>::value, "");
+        static_assert(!std::is_assignable<Fn&, RValueCallable>::value, "");
+    }
+#endif
 }

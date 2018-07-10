@@ -695,13 +695,12 @@ handle_canadian_build ()
                 ;;
         esac
         if [ "$MINGW" = "yes" ] ; then
-            # NOTE: Use x86_64-pc-mingw32msvc or i586-pc-mingw32msvc because wrappers are generated
-            #       using these names
             if [ "$TRY64" = "yes" ]; then
-                ABI_CONFIGURE_HOST=x86_64-pc-mingw32msvc
+                ABI_CONFIGURE_HOST=x86_64-w64-mingw32
                 HOST_TAG=windows-x86_64
             else
-                ABI_CONFIGURE_HOST=i586-pc-mingw32msvc
+                # NOTE: A wrapper is generated for i686-w64-mingw32.
+                ABI_CONFIGURE_HOST=i686-w64-mingw32
                 HOST_TAG=windows
             fi
             HOST_OS=windows
@@ -725,50 +724,30 @@ handle_canadian_build ()
 #
 find_mingw_toolchain ()
 {
-    if [ "$DEBIAN_NAME" -a "$BINPREFIX" -a "$MINGW_GCC" ]; then
-        return
+    local LINUX_GCC_PREBUILTS=$ANDROID_BUILD_TOP/prebuilts/gcc/linux-x86
+    local MINGW_ROOT=$LINUX_GCC_PREBUILTS/host/x86_64-w64-mingw32-4.8/
+    BINPREFIX=x86_64-w64-mingw32-
+    MINGW_GCC=$MINGW_ROOT/bin/${BINPREFIX}gcc
+    if [ ! -e "$MINGW_GCC" ]; then
+        panic "$MINGW_GCC does not exist"
     fi
-    # IMPORTANT NOTE: binutils 2.21 requires a cross toolchain named
-    # i585-pc-mingw32msvc-gcc, or it will fail its configure step late
-    # in the toolchain build. Note that binutils 2.19 can build properly
-    # with i585-mingw32mvsc-gcc, which is the name used by the 'mingw32'
-    # toolchain install on Debian/Ubuntu.
-    #
-    # To solve this dilemma, we create a wrapper toolchain named
-    # i586-pc-mingw32msvc-gcc that really calls i586-mingw32msvc-gcc,
-    # this works with all versions of binutils.
-    #
-    # We apply the same logic to the 64-bit Windows cross-toolchain
-    #
-    # Fedora note: On Fedora it's x86_64-w64-mingw32- or i686-w64-mingw32-
-    # On older Fedora it's 32-bit only and called i686-pc-mingw32-
-    # so we just add more prefixes to the list to check.
+
     if [ "$HOST_ARCH" = "x86_64" -a "$TRY64" = "yes" ]; then
-        BINPREFIX=x86_64-pc-mingw32msvc-
-        BINPREFIXLST="x86_64-pc-mingw32msvc- x86_64-w64-mingw32- amd64-mingw32msvc-"
         DEBIAN_NAME=mingw-w64
     else
         # we are trying 32 bit anyway, so forcing it to avoid build issues
         force_32bit_binaries
-        BINPREFIX=i586-pc-mingw32msvc-
-        BINPREFIXLST="i586-pc-mingw32msvc- i686-pc-mingw32- i586-mingw32msvc- i686-w64-mingw32-"
         DEBIAN_NAME=mingw-w64
     fi
-
-    # Scan $BINPREFIXLST list to find installed mingw toolchain. It will be
-    # wrapped later with $BINPREFIX.
-    for i in $BINPREFIXLST; do
-        find_program MINGW_GCC ${i}gcc
-        if [ -n "$MINGW_GCC" ]; then
-            dump "Found mingw toolchain: $MINGW_GCC"
-            break
-        fi
-    done
 }
 
 # Check there is a working cross-toolchain installed.
 #
 # $1: install directory for mingw/darwin wrapper toolchain
+#
+# NOTE: Build scripts need to call this function to create MinGW wrappers,
+# even if they aren't doing a "Canadian" cross-compile with different build,
+# host, and target systems.
 #
 prepare_canadian_toolchain ()
 {
@@ -778,13 +757,6 @@ prepare_canadian_toolchain ()
     CROSS_GCC=
     if [ "$MINGW" = "yes" ]; then
         find_mingw_toolchain
-        if [ -z "$MINGW_GCC" ]; then
-            echo "ERROR: Could not find in your PATH any of:"
-            for i in $BINPREFIXLST; do echo "   ${i}gcc"; done
-            echo "Please install the corresponding cross-toolchain and re-run this script"
-            echo "TIP: On Debian or Ubuntu, try: sudo apt-get install $DEBIAN_NAME"
-            exit 1
-        fi
         CROSS_GCC=$MINGW_GCC
     else
         if [ -z "$DARWIN_TOOLCHAIN" ]; then
@@ -852,6 +824,13 @@ EOF
     $NDK_BUILDTOOLS_PATH/gen-toolchain-wrapper.sh --src-prefix=x86_64-pc-linux-gnu- \
             --dst-prefix="$LEGACY_TOOLCHAIN_DIR/bin/x86_64-linux-" "$CROSS_WRAP_DIR"
     fail_panic "Could not create $DEBIAN_NAME wrapper toolchain in $CROSS_WRAP_DIR"
+
+    # 32-bit Windows toolchain (i686-w64-mingw32 -> x86_64-w64-mingw32 -m32)
+    local MINGW_TOOLCHAIN_DIR="$ANDROID_BUILD_TOP/prebuilts/gcc/linux-x86/host/x86_64-w64-mingw32-4.8"
+    $NDK_BUILDTOOLS_PATH/gen-toolchain-wrapper.sh --src-prefix=i686-w64-mingw32- \
+            --cflags="-m32" --cxxflags="-m32" --ldflags="-m i386pe" --asflags="--32" \
+            --windres-flags="-F pe-i386" \
+            --dst-prefix="$MINGW_TOOLCHAIN_DIR/bin/x86_64-w64-mingw32-" "$CROSS_WRAP_DIR"
 
     export PATH=$CROSS_WRAP_DIR:$PATH
     dump "Using $DEBIAN_NAME wrapper: $CROSS_WRAP_DIR/${BINPREFIX}gcc"
@@ -1293,7 +1272,7 @@ get_llvm_toolchain_binprefix ()
 {
     local NAME DIR BINPREFIX
     local SYSTEM=${1:-$(get_prebuilt_host_tag)}
-    local VERSION=2812033
+    local VERSION=4691093
     SYSTEM=${SYSTEM%_64} # Trim _64 suffix. We only have one LLVM.
     BINPREFIX=$ANDROID_BUILD_TOP/prebuilts/clang/host/$SYSTEM/clang-$VERSION/bin
     echo "$BINPREFIX"
@@ -1305,11 +1284,11 @@ get_llvm_toolchain_binprefix ()
 # $1: Architecture name
 get_default_api_level_for_arch ()
 {
-    # For now, always build the toolchain against API level 9 for 32-bit arch
+    # For now, always build the toolchain against API level 14 for 32-bit arch
     # and API level $FIRST_API64_LEVEL for 64-bit arch
     case $1 in
         *64) echo $FIRST_API64_LEVEL ;;
-        *) echo 9 ;;
+        *) echo 14 ;;
     esac
 }
 
@@ -1492,21 +1471,6 @@ make_repo_prop () {
 }
 
 #
-# The NDK_TMPDIR variable is used to specify a root temporary directory
-# when invoking toolchain build scripts. If it is not defined, we will
-# create one here, and export the value to ensure that any scripts we
-# call after that use the same one.
-#
-if [ -z "$NDK_TMPDIR" ]; then
-    NDK_TMPDIR=$TMPDIR/tmp/build-$$
-    mkdir -p $NDK_TMPDIR
-    if [ $? != 0 ]; then
-        echo "ERROR: Could not create NDK_TMPDIR: $NDK_TMPDIR"
-        exit 1
-    fi
-    export NDK_TMPDIR
-fi
-
 # Define HOST_TAG32, as the 32-bit version of HOST_TAG
 # We do this by replacing an -x86_64 suffix by -x86
 HOST_TAG32=$HOST_TAG

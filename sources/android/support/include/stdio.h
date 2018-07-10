@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright (C) 2017 The Android Open Source Project
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -25,44 +25,18 @@
  * OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  */
-#ifndef NDK_ANDROID_SUPPORT_STDIO_H
-#define NDK_ANDROID_SUPPORT_STDIO_H
 
-#if defined(__LP64__)
+#pragma once
 
 #include_next <stdio.h>
+#include <sys/cdefs.h>
 
-#else
+__BEGIN_DECLS
 
-// This is to avoid a compiler error when the putc() macro definition
-// in <stdio.h> follows a putc() function definition which is apparently
-// not compatible with it.
-#if !defined(_POSIX_THREADS)
-#define _POSIX_THREADS 200809L
-#endif
-#include_next <stdio.h>
-
-#include <stdarg.h>
-#include <wchar.h>
-#include <xlocale.h>
-
-#ifdef __cplusplus
-extern "C" {
+#if defined(__USE_FILE_OFFSET64) && __ANDROID_API__ < __ANDROID_API_N__
+// Not really available, but we need a decl to allow `#include <cstdio>`.
+int fgetpos(FILE*, const fpos_t*) __RENAME(fgetpos64);
+int fsetpos(FILE*, const fpos_t*) __RENAME(fsetpos64);
 #endif
 
-int asprintf_l(char**, locale_t, const char*, ...);
-int sprintf_l(char*, locale_t, const char*, ...);
-int snprintf_l(char*, size_t, locale_t, const char*, ...);
-int sscanf_l(const char*, locale_t, const char*, ...);
-
-int vfwscanf(FILE* __restrict__, const wchar_t* __restrict__, va_list);
-int vswscanf(const wchar_t *__restrict__, const wchar_t * __restrict__, va_list);
-int vwscanf(const wchar_t *__restrict__, va_list);
-
-#ifdef __cplusplus
-}  // extern "C"
-#endif
-
-#endif // !__LP64__
-
-#endif  // NDK_ANDROID_SUPPORT_STDIO_H
+__END_DECLS

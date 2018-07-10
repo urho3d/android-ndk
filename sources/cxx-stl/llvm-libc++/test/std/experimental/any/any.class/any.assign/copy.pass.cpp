@@ -9,6 +9,8 @@
 
 // UNSUPPORTED: c++98, c++03, c++11
 
+// XFAIL: availability=macosx
+
 // <experimental/any>
 
 // any& operator=(any const &);
@@ -18,7 +20,7 @@
 #include <experimental/any>
 #include <cassert>
 
-#include "any_helpers.h"
+#include "experimental_any_helpers.h"
 #include "count_new.hpp"
 #include "test_macros.h"
 
@@ -185,6 +187,7 @@ void test_copy_assign_throws()
 }
 
 int main() {
+    globalMemCounter.reset();
     test_copy_assign<small1, small2>();
     test_copy_assign<large1, large2>();
     test_copy_assign<small, large>();

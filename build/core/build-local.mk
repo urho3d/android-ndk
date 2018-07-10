@@ -198,13 +198,6 @@ NDK_APPS        := $(_app)
 
 include $(BUILD_SYSTEM)/add-application.mk
 
-# For cygwin, put generated dependency conversion script here
-# Do not define this variable for other host platforms
-#
-ifeq ($(HOST_OS),cygwin)
-NDK_DEPENDENCIES_CONVERTER := $(NDK_APP_OUT)/convert-dependencies.sh
-endif
-
 # If a goal is DUMP_xxx then we dump a variable xxx instead
 # of building anything
 #
@@ -223,6 +216,7 @@ $(foreach _app,$(NDK_APPS),\
   $(eval include $(BUILD_SYSTEM)/setup-app.mk)\
 )
 
+.PHONY : DUMP_$(DUMP_VAR)
 DUMP_$(DUMP_VAR):
 	@echo $($(DUMP_VAR))
 else

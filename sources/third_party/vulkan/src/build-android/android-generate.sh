@@ -21,13 +21,55 @@ cd $dir
 rm -rf generated
 mkdir -p generated/include generated/common
 
-python ../vk-generate.py Android dispatch-table-ops layer > generated/include/vk_dispatch_table_helper.h
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_safe_struct.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_safe_struct.cpp )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_struct_size_helper.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_struct_size_helper.c )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_enum_string_helper.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_object_types.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_dispatch_table_helper.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml thread_check.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml parameter_validation.cpp )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml unique_objects_wrappers.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_loader_extensions.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_loader_extensions.c )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_layer_dispatch_table.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_extension_helper.h )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml object_tracker.cpp )
+( cd generated/include; python3 ../../../scripts/lvl_genvk.py -registry ../../../scripts/vk.xml vk_typemap_helper.h )
 
-python ../vk_helper.py --gen_enum_string_helper ../include/vulkan/vulkan.h --abs_out_dir generated/include
-python ../vk_helper.py --gen_struct_wrappers ../include/vulkan/vulkan.h --abs_out_dir generated/include
+SPIRV_TOOLS_PATH=../../third_party/shaderc/third_party/spirv-tools
+SPIRV_TOOLS_UUID=spirv_tools_uuid.txt
 
-python ../vk-layer-generate.py Android unique_objects ../include/vulkan/vulkan.h > generated/include/unique_objects.cpp
-( cd generated/include; python ../../../genvk.py threading -registry ../../../vk.xml thread_check.h )
-( cd generated/include; python ../../../genvk.py paramchecker -registry ../../../vk.xml parameter_validation.h )
+set -e
+
+( cd generated/include;
+
+  if [[ -d $SPIRV_TOOLS_PATH ]]; then
+
+    echo Found spirv-tools, using git_dir for external_revision_generator.py
+
+    python3 ../../../scripts/external_revision_generator.py \
+      --git_dir $SPIRV_TOOLS_PATH \
+      -s SPIRV_TOOLS_COMMIT_ID \
+      -o spirv_tools_commit_id.h
+
+  else
+
+    echo No spirv-tools git_dir found, generating UUID for external_revision_generator.py
+
+    # Ensure uuidgen is installed, this should error if not found
+    type uuidgen
+
+    uuidgen > $SPIRV_TOOLS_UUID;
+    cat $SPIRV_TOOLS_UUID;
+    python3 ../../../scripts/external_revision_generator.py \
+      --rev_file $SPIRV_TOOLS_UUID \
+      -s SPIRV_TOOLS_COMMIT_ID \
+      -o spirv_tools_commit_id.h
+
+  fi
+)
+
 
 exit 0

@@ -27,18 +27,15 @@
 # Override the toolchain prefix
 #
 
-LLVM_TOOLCHAIN_PREBUILT_ROOT := $(call get-toolchain-root,llvm)
-LLVM_TOOLCHAIN_PREFIX := $(LLVM_TOOLCHAIN_PREBUILT_ROOT)/bin/
-
 TOOLCHAIN_NAME := aarch64-linux-android
 BINUTILS_ROOT := $(call get-binutils-root,$(NDK_ROOT),$(TOOLCHAIN_NAME))
 TOOLCHAIN_ROOT := $(call get-toolchain-root,$(TOOLCHAIN_NAME)-4.9)
 TOOLCHAIN_PREFIX := $(TOOLCHAIN_ROOT)/bin/$(TOOLCHAIN_NAME)-
 
-TARGET_CC := $(LLVM_TOOLCHAIN_PREFIX)clang$(HOST_EXEEXT)
-TARGET_CXX := $(LLVM_TOOLCHAIN_PREFIX)clang++$(HOST_EXEEXT)
-
 LLVM_TRIPLE := aarch64-none-linux-android
+
+TARGET_ASAN_BASENAME := libclang_rt.asan-aarch64-android.so
+TARGET_UBSAN_BASENAME := libclang_rt.ubsan_standalone-aarch64-android.so
 
 TARGET_CFLAGS := \
     -gcc-toolchain $(call host-path,$(TOOLCHAIN_ROOT)) \

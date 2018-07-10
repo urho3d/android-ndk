@@ -20,7 +20,9 @@
 #include <cassert>
 #include <cfloat>
 #include <cmath>
+#include <cstddef>
 
+#include "test_macros.h"
 #include "min_allocator.h"
 
 template <class C>
@@ -61,8 +63,8 @@ void test(const C& c)
     i = eq.first;
     assert(i->first == 4);
     assert(i->second == "four");
-    assert(std::distance(c.begin(), c.end()) == c.size());
-    assert(std::distance(c.cbegin(), c.cend()) == c.size());
+    assert(static_cast<std::size_t>(std::distance(c.begin(), c.end())) == c.size());
+    assert(static_cast<std::size_t>(std::distance(c.cbegin(), c.cend())) == c.size());
     assert(std::fabs(c.load_factor() - (float)c.size()/c.bucket_count()) < FLT_EPSILON);
 }
 
@@ -85,19 +87,19 @@ int main()
         assert(c.bucket_count() >= 7);
         c.rehash(3);
         rehash_postcondition(c, 3);
-        assert(c.bucket_count() == 7);
+        LIBCPP_ASSERT(c.bucket_count() == 7);
         test(c);
         c.max_load_factor(2);
         c.rehash(3);
         rehash_postcondition(c, 3);
-        assert(c.bucket_count() == 3);
+        LIBCPP_ASSERT(c.bucket_count() == 3);
         test(c);
         c.rehash(31);
         rehash_postcondition(c, 31);
-        assert(c.bucket_count() == 31);
+        LIBCPP_ASSERT(c.bucket_count() == 31);
         test(c);
     }
-#if __cplusplus >= 201103L
+#if TEST_STD_VER >= 11
     {
         typedef std::unordered_multimap<int, std::string, std::hash<int>, std::equal_to<int>,
                             min_allocator<std::pair<const int, std::string>>> C;
@@ -116,16 +118,16 @@ int main()
         assert(c.bucket_count() >= 7);
         c.rehash(3);
         rehash_postcondition(c, 3);
-        assert(c.bucket_count() == 7);
+        LIBCPP_ASSERT(c.bucket_count() == 7);
         test(c);
         c.max_load_factor(2);
         c.rehash(3);
         rehash_postcondition(c, 3);
-        assert(c.bucket_count() == 3);
+        LIBCPP_ASSERT(c.bucket_count() == 3);
         test(c);
         c.rehash(31);
         rehash_postcondition(c, 31);
-        assert(c.bucket_count() == 31);
+        LIBCPP_ASSERT(c.bucket_count() == 31);
         test(c);
     }
 #endif

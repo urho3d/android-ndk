@@ -65,10 +65,6 @@ libstlport_c_includes := $(libstlport_path)/stlport
 include $(dir $(LOCAL_PATH))/gabi++/sources.mk
 
 libstlport_c_includes += $(libgabi++_c_includes)
-ifneq ($(strip $(filter-out $(NDK_KNOWN_ARCHS),$(TARGET_ARCH))),)
-libgabi++_src_files := src/delete.cc \
-                       src/new.cc
-endif
 
 ifneq ($(STLPORT_FORCE_REBUILD),true)
 

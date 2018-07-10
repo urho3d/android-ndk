@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-// XFAIL: libcpp-no-exceptions
+// UNSUPPORTED: c++98, c++03, c++11
 // <optional>
 
 // template <class T> void swap(optional<T>& x, optional<T>& y)
@@ -17,7 +17,7 @@
 #include <type_traits>
 #include <cassert>
 
-#if _LIBCPP_STD_VER > 11
+#include "test_macros.h"
 
 using std::experimental::optional;
 
@@ -56,18 +56,14 @@ class Z
     int i_;
 public:
     Z(int i) : i_(i) {}
-    Z(Z&&) {throw 7;}
+    Z(Z&&) {TEST_THROW(7);}
 
     friend constexpr bool operator==(const Z& x, const Z& y) {return x.i_ == y.i_;}
-    friend void swap(Z& x, Z& y) {throw 6;}
+    friend void swap(Z&, Z&) {TEST_THROW(6);}
 };
-
-
-#endif  // _LIBCPP_STD_VER > 11
 
 int main()
 {
-#if _LIBCPP_STD_VER > 11
     {
         optional<int> opt1;
         optional<int> opt2;
@@ -236,6 +232,7 @@ int main()
         assert(static_cast<bool>(opt1) == false);
         assert(static_cast<bool>(opt2) == false);
     }
+#ifndef TEST_HAS_NO_EXCEPTIONS
     {
         optional<Z> opt1;
         opt1.emplace(1);
@@ -302,5 +299,5 @@ int main()
         assert(static_cast<bool>(opt2) == true);
         assert(*opt2 == 2);
     }
-#endif  // _LIBCPP_STD_VER > 11
+#endif  // TEST_HAS_NO_EXCEPTIONS
 }

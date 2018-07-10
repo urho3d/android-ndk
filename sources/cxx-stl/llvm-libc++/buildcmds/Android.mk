@@ -25,12 +25,13 @@ LOCAL_SRC_FILES := dummy.cpp
 LOCAL_CXX_STL := libc++
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../test/support
 LOCAL_CPPFLAGS := \
-    -std=c++14 \
+    -std=c++1z \
     -fsized-deallocation \
     -fexceptions \
     -UNDEBUG \
     -w \
     -Wno-error=non-virtual-dtor \
+    -Wno-reserved-user-defined-literal \
 
 # Optimization is causing relocation for nothrow new to be thrown away.
 # http://llvm.org/bugs/show_bug.cgi?id=21421

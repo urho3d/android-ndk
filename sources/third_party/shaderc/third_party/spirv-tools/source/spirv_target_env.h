@@ -21,4 +21,10 @@
 // false and sets *env to SPV_ENV_UNIVERSAL_1_0.
 bool spvParseTargetEnv(const char* s, spv_target_env* env);
 
+// Returns true if |env| is a VULKAN environment, false otherwise.
+bool spvIsVulkanEnv(spv_target_env env);
+
+// Returns the version number for the given SPIR-V target environment.
+uint32_t spvVersionForTargetEnv(spv_target_env env);
+
 #endif  // LIBSPIRV_SPIRV_TARGET_ENV_H_

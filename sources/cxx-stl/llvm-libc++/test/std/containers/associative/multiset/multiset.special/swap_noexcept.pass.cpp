@@ -17,11 +17,12 @@
 //
 //  In C++17, the standard says that swap shall have:
 //     noexcept(allocator_traits<Allocator>::is_always_equal::value &&
-//              noexcept(swap(declval<Compare&>(), declval<Compare&>())));                 
+//              noexcept(swap(declval<Compare&>(), declval<Compare&>())));
 
 // This tests a conforming extension
 
 #include <set>
+#include <utility>
 #include <cassert>
 
 #include "test_macros.h"
@@ -32,23 +33,20 @@ template <class T>
 struct some_comp
 {
     typedef T value_type;
-    
+
     some_comp() {}
     some_comp(const some_comp&) {}
-    void deallocate(void*, unsigned) {}
-
-    typedef std::true_type propagate_on_container_swap;
+    bool operator()(const T&, const T&) const { return false; }
 };
 
 template <class T>
 struct some_comp2
 {
     typedef T value_type;
-    
+
     some_comp2() {}
     some_comp2(const some_comp2&) {}
-    void deallocate(void*, unsigned) {}
-    typedef std::true_type propagate_on_container_swap;
+    bool operator()(const T&, const T&) const { return false; }
 };
 
 #if TEST_STD_VER >= 14
@@ -60,7 +58,7 @@ template <class T>
 struct some_alloc
 {
     typedef T value_type;
-    
+
     some_alloc() {}
     some_alloc(const some_alloc&);
     void deallocate(void*, unsigned) {}
@@ -72,7 +70,7 @@ template <class T>
 struct some_alloc2
 {
     typedef T value_type;
-    
+
     some_alloc2() {}
     some_alloc2(const some_alloc2&);
     void deallocate(void*, unsigned) {}
@@ -85,7 +83,7 @@ template <class T>
 struct some_alloc3
 {
     typedef T value_type;
-    
+
     some_alloc3() {}
     some_alloc3(const some_alloc3&);
     void deallocate(void*, unsigned) {}
@@ -98,51 +96,45 @@ int main()
 {
     {
         typedef std::multiset<MoveOnly> C;
-        C c1, c2;
-        static_assert(noexcept(swap(c1, c2)), "");
+        static_assert(noexcept(swap(std::declval<C&>(), std::declval<C&>())), "");
     }
+#if defined(_LIBCPP_VERSION)
     {
         typedef std::multiset<MoveOnly, std::less<MoveOnly>, test_allocator<MoveOnly>> C;
-        C c1, c2;
-        static_assert(noexcept(swap(c1, c2)), "");
+        static_assert(noexcept(swap(std::declval<C&>(), std::declval<C&>())), "");
     }
     {
         typedef std::multiset<MoveOnly, std::less<MoveOnly>, other_allocator<MoveOnly>> C;
-        C c1, c2;
-        static_assert(noexcept(swap(c1, c2)), "");
+        static_assert(noexcept(swap(std::declval<C&>(), std::declval<C&>())), "");
     }
+#endif // _LIBCPP_VERSION
     {
         typedef std::multiset<MoveOnly, some_comp<MoveOnly>> C;
-        C c1, c2;
-        static_assert(!noexcept(swap(c1, c2)), "");
+        static_assert(!noexcept(swap(std::declval<C&>(), std::declval<C&>())), "");
     }
 
 #if TEST_STD_VER >= 14
     { // POCS allocator, throwable swap for comp
     typedef std::multiset<MoveOnly, some_comp <MoveOnly>, some_alloc <MoveOnly>> C;
-    C c1, c2;
-    static_assert(!noexcept(swap(c1, c2)), "");
+    static_assert(!noexcept(swap(std::declval<C&>(), std::declval<C&>())), "");
     }
     { // always equal allocator, throwable swap for comp
     typedef std::multiset<MoveOnly, some_comp <MoveOnly>, some_alloc2<MoveOnly>> C;
-    C c1, c2;
-    static_assert(!noexcept(swap(c1, c2)), "");
+    static_assert(!noexcept(swap(std::declval<C&>(), std::declval<C&>())), "");
     }
     { // POCS allocator, nothrow swap for comp
     typedef std::multiset<MoveOnly, some_comp2<MoveOnly>, some_alloc <MoveOnly>> C;
-    C c1, c2;
-    static_assert( noexcept(swap(c1, c2)), "");
+    static_assert( noexcept(swap(std::declval<C&>(), std::declval<C&>())), "");
     }
     { // always equal allocator, nothrow swap for comp
     typedef std::multiset<MoveOnly, some_comp2<MoveOnly>, some_alloc2<MoveOnly>> C;
-    C c1, c2;
-    static_assert( noexcept(swap(c1, c2)), "");
+    static_assert( noexcept(swap(std::declval<C&>(), std::declval<C&>())), "");
     }
-
+#if defined(_LIBCPP_VERSION)
     { // NOT always equal allocator, nothrow swap for comp
     typedef std::multiset<MoveOnly, some_comp2<MoveOnly>, some_alloc3<MoveOnly>> C;
-    C c1, c2;
-    static_assert( noexcept(swap(c1, c2)), "");
+    static_assert( noexcept(swap(std::declval<C&>(), std::declval<C&>())), "");
     }
+#endif // _LIBCPP_VERSION
 #endif
 }

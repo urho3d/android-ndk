@@ -1,10 +1,13 @@
 import os
 import sys
 
+# pylint: disable=invalid-name
+
 # Tell pylint that we know config and lit_config exist somewhere.
 if 'PYLINT_IMPORT' in os.environ:
     config = object()
     lit_config = object()
+    lit_config.params = {}
 
 ndk = os.getenv('NDK')
 if ndk is None:
@@ -13,12 +16,19 @@ if ndk is None:
 top = os.getenv('ANDROID_BUILD_TOP')
 libcxx_dir = os.path.join(ndk, 'sources/cxx-stl/llvm-libc++')
 
+abi = lit_config.params["abi"]
+host_tag = lit_config.params["host_tag"]
+toolchain = lit_config.params["toolchain"]
+triple = lit_config.params["triple"]
+
 config.cxx_under_test = os.path.join(
-    ndk, "toolchains/llvm/prebuilt/linux-x86_64/bin/clang++")
-config.std = "c++11"
+    ndk, "toolchains/llvm/prebuilt", host_tag, "bin/clang++")
+config.std = "c++14"
 config.libcxx_src_root = libcxx_dir
 config.libcxx_obj_root = libcxx_dir
-config.cxx_library_root = os.path.join(libcxx_dir, 'libs/%ABI%')
+config.cxx_include = os.path.join(libcxx_dir, "include")
+config.cxx_library_root = os.path.join(libcxx_dir, "libs", abi)
+config.use_target = "True"
 config.enable_exceptions = "True"
 config.enable_rtti = "True"
 config.enable_shared = "False"
@@ -28,11 +38,11 @@ config.enable_monotonic_clock = "True"
 config.cxx_abi = "libcxxabi"
 config.use_sanitizer = ""
 config.configuration_variant = "libcxx.ndk"
-config.target_triple = "%TRIPLE%"
-config.sysroot = os.path.join(ndk, "platforms/android-21/arch-%ARCH%/")
+config.target_triple = triple
 config.gcc_toolchain = os.path.join(
-    ndk, "toolchains/%TOOLCHAIN%-4.9/prebuilt/linux-x86_64")
+    ndk, "toolchains", toolchain + "-4.9", "prebuilt", host_tag)
 
 # Let the main config do the real work.
+config.loaded_site_config = True
 lit_config.load_config(
     config, os.path.join(libcxx_dir, "test/lit.cfg"))

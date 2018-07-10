@@ -89,47 +89,13 @@ DRYRUN=${DRYRUN-no}
 ##
 VERBOSE=${VERBOSE-yes}
 
-
-# If NDK_LOGFILE is defined in the environment, use this as the log file
-TMPLOG=
-if [ -n "$NDK_LOGFILE" ] ; then
-    mkdir -p `dirname "$NDK_LOGFILE"` && touch "$NDK_LOGFILE"
-    TMPLOG="$NDK_LOGFILE"
-fi
-
-# Setup a log file where all log() output will be sent
-#
-# $1: log file path  (optional)
-#
-setup_default_log_file ()
-{
-    if [ -n "$NDK_LOGFILE" ] ; then
-        return
-    fi
-    if [ -n "$1" ] ; then
-        NDK_LOGFILE="$1"
-    else
-        NDK_LOGFILE=$TMPDIR/ndk-log-$$.txt
-    fi
-    export NDK_LOGFILE
-    TMPLOG="$NDK_LOGFILE"
-    rm -rf "$TMPLOG" && mkdir -p `dirname "$TMPLOG"` && touch "$TMPLOG"
-    echo "To follow build in another terminal, please use: tail -F $TMPLOG"
-}
-
 dump ()
 {
-    if [ -n "$TMPLOG" ] ; then
-        echo "$@" >> $TMPLOG
-    fi
     echo "$@"
 }
 
 dump_n ()
 {
-    if [ -n "$TMPLOG" ] ; then
-        printf %s "$@" >> $TMPLOG
-    fi
     printf %s "$@"
 }
 
@@ -137,10 +103,6 @@ log ()
 {
     if [ "$VERBOSE" = "yes" ] ; then
         echo "$@"
-    else
-        if [ -n "$TMPLOG" ] ; then
-            echo "$@" >> $TMPLOG
-        fi
     fi
 }
 
@@ -148,10 +110,6 @@ log_n ()
 {
     if [ "$VERBOSE" = "yes" ] ; then
         printf %s "$@"
-    else
-        if [ -n "$TMPLOG" ] ; then
-            printf %s "$@" >> $TMPLOG
-        fi
     fi
 }
 
@@ -163,12 +121,7 @@ run ()
         echo "## COMMAND: $@"
         "$@" 2>&1
     else
-        if [ -n "$TMPLOG" ] ; then
-            echo "## COMMAND: $@" >> $TMPLOG
-            "$@" >>$TMPLOG 2>&1
-        else
-            "$@" > /dev/null 2>&1
-        fi
+        "$@" > /dev/null 2>&1
     fi
 }
 
@@ -225,6 +178,7 @@ to_uppercase ()
 ##
 HOST_EXE=""
 HOST_OS=`uname -s`
+HOST_ARCH=x86_64
 case "$HOST_OS" in
     Darwin)
         HOST_OS=darwin
@@ -239,6 +193,7 @@ case "$HOST_OS" in
     CYGWIN*|*_NT-*)
         HOST_OS=windows
         HOST_EXE=.exe
+        HOST_ARCH=`uname -m`
         if [ "x$OSTYPE" = xcygwin ] ; then
             HOST_OS=cygwin
         fi
@@ -247,63 +202,11 @@ esac
 
 log "HOST_OS=$HOST_OS"
 log "HOST_EXE=$HOST_EXE"
-
-## Now find the host architecture. This must correspond to the bitness of
-## the binaries we're going to run with this NDK. Certain platforms allow
-## you to use a 64-bit kernel with a 32-bit userland, and unfortunately
-## commands like 'uname -m' only report the kernel bitness.
-##
-HOST_ARCH=`uname -m`
-case "$HOST_ARCH" in
-    i?86) HOST_ARCH=x86
-    # "uname -m" reports i386 on Snow Leopard even though its architecture is
-    # 64-bit. In order to use it to build 64-bit toolchains we need to fix the
-    # reporting anomoly here.
-    if [ "$HOST_OS" = darwin ] ; then
-        if ! echo __LP64__ | (CCOPTS= gcc -E - 2>/dev/null) | grep -q __LP64__ ; then
-        # or if gcc -dM -E - < /dev/null | grep -q __LP64__; then
-            HOST_ARCH=x86_64
-        fi
-    fi
-    ;;
-    amd64) HOST_ARCH=x86_64
-    ;;
-    powerpc) HOST_ARCH=ppc
-    ;;
-esac
-
-HOST_FILE_PROGRAM="file"
-case "$HOST_OS-$HOST_ARCH" in
-  linux-x86_64|darwin-x86_64)
-    ## On Linux or Darwin, a 64-bit kernel doesn't mean that the user-land
-    ## is always 32-bit, so use "file" to determine the bitness of the shell
-    ## that invoked us. The -L option is used to de-reference symlinks.
-    ##
-    ## Note that on Darwin, a single executable can contain both x86 and
-    ## x86_64 machine code, so just look for x86_64 (darwin) or x86-64 (Linux)
-    ## in the output.
-    ##
-    ## Also note that some versions of 'file' in MacPort may report erroneous
-    ## result.  See http://b.android.com/53769.  Use /usr/bin/file if exists.
-    if [ "$HOST_OS" = "darwin" ]; then
-        SYSTEM_FILE_PROGRAM="/usr/bin/file"
-        test -x "$SYSTEM_FILE_PROGRAM" && HOST_FILE_PROGRAM="$SYSTEM_FILE_PROGRAM"
-    fi
-    "$HOST_FILE_PROGRAM" -L "$SHELL" | grep -q "x86[_-]64"
-    if [ $? != 0 ]; then
-      # $SHELL is not a 64-bit executable, so assume our userland is too.
-      log "Detected 32-bit userland on 64-bit kernel system!"
-      HOST_ARCH=x86
-    fi
-    ;;
-esac
-
 log "HOST_ARCH=$HOST_ARCH"
 
 # at this point, the supported values for HOST_ARCH are:
 #   x86
 #   x86_64
-#   ppc
 #
 # other values may be possible but haven't been tested
 #
@@ -320,11 +223,8 @@ log "HOST_ARCH=$HOST_ARCH"
 # define HOST_TAG as a unique tag used to identify both the host OS and CPU
 # supported values are:
 #
-#   linux-x86
 #   linux-x86_64
-#   darwin-x86
 #   darwin-x86_64
-#   darwin-ppc
 #   windows
 #   windows-x86_64
 #

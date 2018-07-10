@@ -7,6 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+// REQUIRES: c++experimental
 // UNSUPPORTED: c++98, c++03
 
 // <experimental/memory_resource>
@@ -20,7 +21,11 @@
 #include <type_traits>
 #include <cassert>
 #include <cstdlib>
+
+#include "test_macros.h"
+#include "test_memory_resource.hpp"
 #include "uses_alloc_types.hpp"
+#include "controlled_allocators.hpp"
 #include "test_allocator.h"
 
 namespace ex = std::experimental::pmr;
@@ -115,7 +120,7 @@ void test_pmr_uses_alloc(Args&&... args)
     }
     {
         // Test that T(std::allocator_arg_t, Alloc const&, Args...) construction
-        // is prefered when T(Args..., Alloc const&) is also available.
+        // is preferred when T(Args..., Alloc const&) is also available.
         using T = UsesAllocatorV3<Alloc, sizeof...(Args)>;
         assert((doTest<T>(UA_AllocArg, std::forward<Args>(args)...)));
     }

@@ -169,4 +169,54 @@ int main()
         assert(false);
     }
 #endif
+
+	{ // test inserting into self
+    typedef std::string S;
+	S s_short = "123/";
+	S s_long  = "Lorem ipsum dolor sit amet, consectetur/";
+
+	s_short.insert(s_short.begin(), s_short.begin(), s_short.end());
+	assert(s_short == "123/123/");
+	s_short.insert(s_short.begin(), s_short.begin(), s_short.end());
+	assert(s_short == "123/123/123/123/");
+	s_short.insert(s_short.begin(), s_short.begin(), s_short.end());
+	assert(s_short == "123/123/123/123/123/123/123/123/");
+
+	s_long.insert(s_long.begin(), s_long.begin(), s_long.end());
+	assert(s_long == "Lorem ipsum dolor sit amet, consectetur/Lorem ipsum dolor sit amet, consectetur/");
+	}
+
+	{ // test assigning a different type
+    typedef std::string S;
+    const uint8_t p[] = "ABCD";
+
+    S s;
+    s.insert(s.begin(), p, p + 4);
+    assert(s == "ABCD");
+	}
+
+  { // test with a move iterator that returns char&&
+    typedef input_iterator<const char*> It;
+    typedef std::move_iterator<It> MoveIt;
+    const char p[] = "ABCD";
+    std::string s;
+    s.insert(s.begin(), MoveIt(It(std::begin(p))), MoveIt(It(std::end(p) - 1)));
+    assert(s == "ABCD");
+  }
+  { // test with a move iterator that returns char&&
+    typedef forward_iterator<const char*> It;
+    typedef std::move_iterator<It> MoveIt;
+    const char p[] = "ABCD";
+    std::string s;
+    s.insert(s.begin(), MoveIt(It(std::begin(p))), MoveIt(It(std::end(p) - 1)));
+    assert(s == "ABCD");
+  }
+  { // test with a move iterator that returns char&&
+    typedef const char* It;
+    typedef std::move_iterator<It> MoveIt;
+    const char p[] = "ABCD";
+    std::string s;
+    s.insert(s.begin(), MoveIt(It(std::begin(p))), MoveIt(It(std::end(p) - 1)));
+    assert(s == "ABCD");
+  }
 }

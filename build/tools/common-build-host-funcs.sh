@@ -125,7 +125,7 @@ bh_tag_to_config_triplet ()
         linux-x86_64) RET=x86_64-linux-gnu;;
         darwin-x86) RET=i686-apple-darwin;;
         darwin-x86_64) RET=x86_64-apple-darwin;;
-        windows|windows-x86) RET=i586-pc-mingw32msvc;;
+        windows|windows-x86) RET=i686-w64-mingw32;;
         windows-x86_64) RET=x86_64-w64-mingw32;;
         android-arm) RET=arm-linux-androideabi;;
         android-arm64) RET=aarch64-linux-android;;
@@ -407,6 +407,7 @@ EOF
 # where $BH_HOST_CONFIG is a GNU configuration name.
 #
 # Important: this script might redefine $BH_HOST_CONFIG to a different value!
+# (This behavior previously happened with MinGW, but doesn't anymore.)
 #
 # $1: NDK system tag (e.g. linux-x86)
 #
@@ -425,7 +426,9 @@ EOF
 #
 _bh_select_toolchain_for_host ()
 {
-    local HOST_CFLAGS HOST_CXXFLAGS HOST_LDFLAGS HOST_FULLPREFIX DARWIN_ARCH
+    local HOST_CFLAGS HOST_CXXFLAGS HOST_LDFLAGS
+    local HOST_ASFLAGS HOST_WINDRES_FLAGS
+    local HOST_FULLPREFIX
     local DARWIN_ARCH DARWIN_SDK_SUBDIR
 
     # We do all the complex auto-detection magic in the setup phase,
@@ -455,6 +458,7 @@ _bh_select_toolchain_for_host ()
         linux-x86_64)
             # If possible, automaticaly use our custom toolchain to generate
             # 64-bit executables that work on Ubuntu 8.04 and higher.
+            _bh_try_host_fullprefix "$(dirname $ANDROID_NDK_ROOT)/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.11-4.8" x86_64-linux
             _bh_try_host_fullprefix "$(dirname $ANDROID_NDK_ROOT)/prebuilts/gcc/linux-x86/host/x86_64-linux-glibc2.7-4.6" x86_64-linux
             _bh_try_host_prefix x86_64-linux-gnu
             _bh_try_host_prefix x84_64-linux
@@ -519,40 +523,40 @@ _bh_select_toolchain_for_host ()
         windows|windows-x86)
             case $BH_BUILD_OS in
                 linux)
+                    # Prefer the prebuilt cross-compiler.
+                    _bh_try_host_fullprefix "$(dirname $ANDROID_NDK_ROOT)/prebuilts/gcc/linux-x86/host/x86_64-w64-mingw32-4.8" x86_64-w64-mingw32 -m32
                     # We favor these because they are more recent, and because
                     # we have a script to rebuild them from scratch. See
-                    # build-mingw64-toolchain.sh.
-                    _bh_try_host_prefix x86_64-w64-mingw32 -m32
+                    # build-mingw64-toolchain.sh. Typically provided by the
+                    # 'mingw-w64' package on Debian and Ubuntu systems.
                     _bh_try_host_prefix i686-w64-mingw32
-                    # Typically provided by the 'mingw32' package on Debian
-                    # and Ubuntu systems.
-                    _bh_try_host_prefix i586-mingw32msvc
+                    _bh_try_host_prefix x86_64-w64-mingw32 -m32
                     # Special note for Fedora: this distribution used
                     # to have a mingw32-gcc package that provided a 32-bit
                     # only cross-toolchain named i686-pc-mingw32.
                     # Later versions of the distro now provide a new package
                     # named mingw-gcc which provides i686-w64-mingw32 and
                     # x86_64-w64-mingw32 instead.
-                    _bh_try_host_prefix i686-pc-mingw32
                     if [ -z "$HOST_FULLPREFIX" ]; then
                         dump "There is no Windows cross-compiler. Ensure that you"
                         dump "have one of these installed and in your path:"
-                        dump "   x86_64-w64-mingw32-gcc  (see build-mingw64-toolchain.sh)"
                         dump "   i686-w64-mingw32-gcc    (see build-mingw64-toolchain.sh)"
-                        dump "   i586-mingw32msvc-gcc    ('mingw32' Debian/Ubuntu package)"
-                        dump "   i686-pc-mingw32         (on Fedora)"
+                        dump "   x86_64-w64-mingw32-gcc  (see build-mingw64-toolchain.sh)"
                         dump ""
                         exit 1
                     fi
-                    # Adjust $HOST to match the toolchain to ensure proper builds.
-                    # I.e. chose configuration triplets that are known to work
-                    # with the gmp/mpfr/mpc/binutils/gcc configure scripts.
-                    case $HOST_FULLPREFIX in
-                        *-mingw32msvc-*|i686-pc-mingw32)
-                            BH_HOST_CONFIG=i586-pc-mingw32msvc
+                    if [ "$BH_HOST_CONFIG" != i686-w64-mingw32 ]; then
+                        panic "Unexpected value of BH_HOST_CONFIG: $BH_HOST_CONFIG"
+                    fi
+                    # If the 32-bit wrappers call a 64-bit toolchain, add flags
+                    # to default ld/as/windres to 32 bits.
+                    case "$HOST_FULLPREFIX" in
+                        *x86_64-w64-mingw32-)
+                            HOST_LDFLAGS="-m i386pe"
+                            HOST_ASFLAGS="--32"
+                            HOST_WINDRES_FLAGS="-F pe-i386"
                             ;;
                         *)
-                            BH_HOST_CONFIG=i686-w64-mingw32msvc
                             ;;
                     esac
                     ;;
@@ -566,33 +570,20 @@ _bh_select_toolchain_for_host ()
         windows-x86_64)
             case $BH_BUILD_OS in
                 linux)
-                    # See comments above for windows-x86
+                    # Prefer the prebuilt cross-compiler.
+                    # See comments above for windows-x86.
+                    _bh_try_host_fullprefix "$(dirname $ANDROID_NDK_ROOT)/prebuilts/gcc/linux-x86/host/x86_64-w64-mingw32-4.8" x86_64-w64-mingw32
                     _bh_try_host_prefix x86_64-w64-mingw32
-                    _bh_try_host_prefix i686-w64-mingw32 -m64
-                    # Beware that this package is completely broken on many
-                    # versions of no vinegar Ubuntu (i.e. it fails at building trivial
-                    # programs).
-                    _bh_try_host_prefix amd64-mingw32msvc
-                    # There is no x86_64-pc-mingw32 toolchain on Fedora.
                     if [ -z "$HOST_FULLPREFIX" ]; then
                         dump "There is no Windows cross-compiler in your path. Ensure you"
                         dump "have one of these installed and in your path:"
                         dump "   x86_64-w64-mingw32-gcc  (see build-mingw64-toolchain.sh)"
-                        dump "   i686-w64-mingw32-gcc    (see build-mingw64-toolchain.sh)"
-                        dump "   amd64-mingw32msvc-gcc   (Debian/Ubuntu - broken until Ubuntu 11.10)"
                         dump ""
                         exit 1
                     fi
-                    # See comment above for windows-x86
-                    case $HOST_FULLPREFIX in
-                        *-mingw32msvc*)
-                            # Actually, this has never been tested.
-                            BH_HOST=amd64-pc-mingw32msvc
-                            ;;
-                        *)
-                            BH_HOST=x86_64-w64-mingw32
-                            ;;
-                    esac
+                    if [ "$BH_HOST_CONFIG" != x86_64-w64-mingw32 ]; then
+                        panic "Unexpected value of BH_HOST_CONFIG: $BH_HOST_CONFIG"
+                    fi
                     ;;
 
                 *) panic "Sorry, this script only supports building windows binaries on Linux."
@@ -641,6 +632,8 @@ _bh_select_toolchain_for_host ()
         --cflags="$HOST_CFLAGS" \
         --cxxflags="$HOST_CXXFLAGS" \
         --ldflags="$HOST_LDFLAGS" \
+        --asflags="$HOST_ASFLAGS" \
+        --windres-flags="$HOST_WINDRES_FLAGS" \
         $CCACHE
 }
 
@@ -648,7 +641,7 @@ _bh_select_toolchain_for_host ()
 # Setup the build directory, i.e. a directory where all intermediate
 # files will be placed.
 #
-# $1: Build directory. If empty, a random one will be selected.
+# $1: Build directory. Required.
 #
 # $2: Either 'preserve' or 'remove'. Indicates what to do of
 #     existing files in the build directory, if any.
@@ -659,12 +652,10 @@ bh_setup_build_dir ()
 {
     BH_BUILD_DIR="$1"
     if [ -z "$BH_BUILD_DIR" ]; then
-        BH_BUILD_DIR=$TMPDIR/buildhost
+        panic "bh_setup_build_dir received no build directory"
     fi
     mkdir -p "$BH_BUILD_DIR"
     fail_panic "Could not create build directory: $BH_BUILD_DIR"
-
-    setup_default_log_file $BH_BUILD_DIR/build.log
 
     if [ "$_BH_OPTION_FORCE" ]; then
         rm -rf "$BH_BUILD_DIR"/*

@@ -17,19 +17,8 @@
 #include <cassert>
 #include <limits>
 
-int new_called = 0;
-
-void* operator new(std::size_t s) throw(std::bad_alloc)
-{
-    ++new_called;
-    return std::malloc(s);
-}
-
-void  operator delete(void* p) throw()
-{
-    --new_called;
-    std::free(p);
-}
+#include "count_new.hpp"
+#include "test_macros.h"
 
 bool A_constructed = false;
 
@@ -39,13 +28,17 @@ struct A
     ~A() {A_constructed = false;}
 };
 
+A *volatile ap;
+
 int main()
 {
-    A* ap = new A;
+    globalMemCounter.reset();
+    assert(globalMemCounter.checkOutstandingNewEq(0));
+    ap = new A;
     assert(ap);
     assert(A_constructed);
-    assert(new_called);
+    assert(globalMemCounter.checkOutstandingNewEq(1));
     delete ap;
     assert(!A_constructed);
-    assert(!new_called);
+    assert(globalMemCounter.checkOutstandingNewEq(0));
 }

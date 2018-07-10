@@ -56,6 +56,7 @@ public:
 
 int main()
 {
+    globalMemCounter.reset();
     {
     std::allocator<A> a;
     assert(globalMemCounter.checkOutstandingNewEq(0));

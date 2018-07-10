@@ -120,7 +120,9 @@ int main()
     static_assert((!std::is_convertible<ConstFunction, Function>::value), "");
     static_assert((!std::is_convertible<ConstFunction, Function*>::value), "");
     static_assert((!std::is_convertible<ConstFunction, Function&>::value), "");
-    static_assert((!std::is_convertible<ConstFunction, Function>::value), "");
+#if TEST_STD_VER >= 11
+    static_assert((!std::is_convertible<ConstFunction, Function&&>::value), "");
+#endif
     static_assert((!std::is_convertible<Function*, ConstFunction>::value), "");
     static_assert((!std::is_convertible<Function&, ConstFunction>::value), "");
     static_assert((!std::is_convertible<ConstFunction, ConstFunction>::value), "");
@@ -198,7 +200,7 @@ int main()
     test_is_not_convertible<char, Array&> ();
 
     test_is_convertible<char, char> ();
-    
+
     static_assert((!std::is_convertible<char, char&>::value), "");
     static_assert(( std::is_convertible<char, const char&>::value), "");
     static_assert((!std::is_convertible<const char, char&>::value), "");
@@ -215,7 +217,7 @@ int main()
     test_is_not_convertible<char&, Array&> ();
 
     test_is_convertible<char&, char> ();
-    
+
     static_assert(( std::is_convertible<char&, char&>::value), "");
     static_assert(( std::is_convertible<char&, const char&>::value), "");
     static_assert((!std::is_convertible<const char&, char&>::value), "");
@@ -233,7 +235,7 @@ int main()
 
     test_is_not_convertible<char*, char> ();
     test_is_not_convertible<char*, char&> ();
-    
+
     static_assert(( std::is_convertible<char*, char*>::value), "");
     static_assert(( std::is_convertible<char*, const char*>::value), "");
     static_assert((!std::is_convertible<const char*, char*>::value), "");

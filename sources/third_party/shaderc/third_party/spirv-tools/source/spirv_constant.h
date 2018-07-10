@@ -15,8 +15,8 @@
 #ifndef LIBSPIRV_SPIRV_CONSTANT_H_
 #define LIBSPIRV_SPIRV_CONSTANT_H_
 
+#include "latest_version_spirv_header.h"
 #include "spirv-tools/libspirv.h"
-#include "spirv/1.1/spirv.h"
 
 // Version number macros.
 
@@ -28,9 +28,6 @@
 #define SPV_SPIRV_VERSION_MAJOR_PART(WORD) ((uint32_t(WORD) >> 16) & 0xff)
 // Returns the minor version extracted from a version header word.
 #define SPV_SPIRV_VERSION_MINOR_PART(WORD) ((uint32_t(WORD) >> 8) & 0xff)
-
-// Returns the version number for the given SPIR-V target environment.
-uint32_t spvVersionForTargetEnv(spv_target_env env);
 
 // Header indices
 

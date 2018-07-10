@@ -7,7 +7,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-// XFAIL: libcpp-no-exceptions
 // <locale>
 
 // template <class Facet> locale combine(const locale& other) const;
@@ -17,6 +16,8 @@
 #include <cassert>
 
 #include "count_new.hpp"
+
+#include "test_macros.h"
 
 void check(const std::locale& loc)
 {
@@ -66,6 +67,7 @@ std::locale::id my_facet::id;
 int main()
 {
 {
+    globalMemCounter.reset();
     {
         std::locale loc;
         std::locale loc2(loc, new my_facet);
@@ -78,6 +80,7 @@ int main()
     }
     assert(globalMemCounter.checkOutstandingNewEq(0));
 }
+#ifndef TEST_HAS_NO_EXCEPTIONS
 {
     {
         std::locale loc;
@@ -93,4 +96,5 @@ int main()
     }
     assert(globalMemCounter.checkOutstandingNewEq(0));
 }
+#endif
 }

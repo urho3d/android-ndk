@@ -30,7 +30,10 @@ TARGET_NO_UNDEFINED_LDFLAGS := -Wl,--no-undefined
 TARGET-get-linker-objects-and-libraries = \
     $(call host-path, $1) \
     $(call link-whole-archives,$3) \
-    $(call host-path, $2) $(PRIVATE_LIBGCC) $(call host-path, $4) \
+    $(call host-path, $2) \
+    $(PRIVATE_LIBGCC) \
+    $(PRIVATE_LIBATOMIC) \
+    $(call host-path, $4) \
 
 
 # These flags are used to enforce the NX (no execute) security feature in the
@@ -109,7 +112,8 @@ cmd-strip = $(PRIVATE_STRIP) --strip-unneeded $(call host-path,$1)
 # The command objcopy --add-gnu-debuglink= will be needed for Valgrind
 cmd-add-gnu-debuglink = $(PRIVATE_OBJCOPY) --add-gnu-debuglink=$(strip $(call host-path,$2)) $(call host-path,$1)
 
-TARGET_LIBGCC = -lgcc
+TARGET_LIBGCC = -lgcc -Wl,--exclude-libs,libgcc.a
+TARGET_LIBATOMIC = -latomic -Wl,--exclude-libs,libatomic.a
 TARGET_LDLIBS := -lc -lm
 
 #
@@ -118,19 +122,28 @@ TARGET_LDLIBS := -lc -lm
 # the toolchain's setup.mk script.
 #
 
+LLVM_TOOLCHAIN_PREBUILT_ROOT := $(call get-toolchain-root,llvm)
+LLVM_TOOLCHAIN_PREFIX := $(LLVM_TOOLCHAIN_PREBUILT_ROOT)/bin/
+
 ifneq ($(findstring ccc-analyzer,$(CC)),)
-TARGET_CC       = $(CC)
+    TARGET_CC = $(CC)
+else ifeq ($(NDK_TOOLCHAIN_VERSION),4.9)
+    TARGET_CC = $(TOOLCHAIN_PREFIX)gcc
 else
-TARGET_CC       = $(TOOLCHAIN_PREFIX)gcc
+    TARGET_CC = $(LLVM_TOOLCHAIN_PREFIX)clang$(HOST_EXEEXT)
 endif
+
 TARGET_CFLAGS   =
 TARGET_CONLYFLAGS =
 
 ifneq ($(findstring c++-analyzer,$(CXX)),)
-TARGET_CXX      = $(CXX)
+    TARGET_CXX = $(CXX)
+else ifeq ($(NDK_TOOLCHAIN_VERSION),4.9)
+    TARGET_CXX = $(TOOLCHAIN_PREFIX)g++
 else
-TARGET_CXX      = $(TOOLCHAIN_PREFIX)g++
+    TARGET_CXX = $(LLVM_TOOLCHAIN_PREFIX)clang++$(HOST_EXEEXT)
 endif
+
 TARGET_CXXFLAGS = $(TARGET_CFLAGS) -fno-exceptions -fno-rtti
 
 TARGET_RS_CC    = $(RENDERSCRIPT_TOOLCHAIN_PREFIX)llvm-rs-cc
@@ -148,12 +161,11 @@ TARGET_ASMFLAGS =
 TARGET_LD       = $(TOOLCHAIN_PREFIX)ld
 TARGET_LDFLAGS :=
 
-# Use *-gcc-ar instead of *-ar for better LTO support, except for
-# gcc4.6 which doesn't have gcc-ar
-ifneq (clang,$(NDK_TOOLCHAIN_VERSION))
-TARGET_AR       = $(TOOLCHAIN_PREFIX)gcc-ar
+# Use *-gcc-ar instead of *-ar for better LTO support when using GCC.
+ifeq (4.9,$(NDK_TOOLCHAIN_VERSION))
+    TARGET_AR = $(TOOLCHAIN_PREFIX)gcc-ar
 else
-TARGET_AR       = $(TOOLCHAIN_PREFIX)ar
+    TARGET_AR = $(TOOLCHAIN_PREFIX)ar
 endif
 
 TARGET_ARFLAGS := crsD

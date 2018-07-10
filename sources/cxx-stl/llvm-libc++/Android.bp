@@ -16,8 +16,9 @@
 
 // host + device static lib
 cc_library_static {
-    host_supported: true,
     name: "libc++_static",
+    host_supported: true,
+    vendor_available: true,
     clang: true,
     srcs: [
         "src/algorithm.cpp",
@@ -47,6 +48,7 @@ cc_library_static {
         "src/typeinfo.cpp",
         "src/utility.cpp",
         "src/valarray.cpp",
+        "src/variant.cpp",
     ],
     local_include_dirs: ["include"],
     export_include_dirs: ["include"],
@@ -55,18 +57,25 @@ cc_library_static {
         "-nostdinc++",
         "-fexceptions",
         "-DLIBCXX_BUILDING_LIBCXXABI",
+        "-D_LIBCPP_BUILDING_LIBRARY",
     ],
     rtti: true,
     whole_static_libs: [
         "libc++abi",
     ],
     stl: "none",
+    target: {
+        linux_bionic: {
+            enabled: true,
+        },
+    },
 }
 
 // host + device dynamic lib
 cc_library_shared {
-    host_supported: true,
     name: "libc++",
+    host_supported: true,
+    vendor_available: true,
     clang: true,
     whole_static_libs: ["libc++_static"],
     stl: "none",
@@ -79,20 +88,30 @@ cc_library_shared {
             static_libs: ["libunwind_llvm"],
             ldflags: ["-Wl,--exclude-libs,libunwind_llvm.a"],
         },
-        host: {
-            ldflags: ["-nodefaultlibs"],
-        },
         darwin: {
             unexported_symbols_list: "lib/libc++unexp.exp",
             force_symbols_not_weak_list: "lib/notweak.exp",
             force_symbols_weak_list: "lib/weak.exp",
+            ldflags: [
+                "-nodefaultlibs",
+                "-Wl,-undefined,dynamic_lookup",
+            ],
         },
 
         linux: {
+            ldflags: ["-nodefaultlibs"],
             host_ldlibs: [
                 "-lrt",
                 "-lpthread",
                 "-ldl",
+            ],
+        },
+        linux_bionic: {
+            enabled: true,
+            static_libs: ["libunwindbacktrace"],
+            shared_libs: [
+                "libdl",
+                "liblzma",
             ],
         },
     },

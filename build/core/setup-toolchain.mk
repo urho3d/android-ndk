@@ -30,6 +30,11 @@ ifndef NDK_TOOLCHAIN
     TARGET_TOOLCHAIN_LIST := \
         $(strip $(sort $(NDK_ABI.$(TARGET_ARCH_ABI).toolchains)))
 
+    ifneq ($(words $(TARGET_TOOLCHAIN_LIST)),2)
+        $(call __ndk_error,Expected two items in TARGET_TOOLCHAIN_LIST, \
+            found "$(TARGET_TOOLCHAIN_LIST)")
+    endif
+
     ifndef TARGET_TOOLCHAIN_LIST
         $(call __ndk_info,There is no toolchain that supports the $(TARGET_ARCH_ABI) ABI.)
         $(call __ndk_info,Please modify the APP_ABI definition in $(NDK_APP_APPLICATION_MK) to use)
@@ -37,8 +42,8 @@ ifndef NDK_TOOLCHAIN
         $(call __ndk_error,Aborting)
     endif
 
-    # We default to using GCC, which is the first item in the list.
-    TARGET_TOOLCHAIN := $(firstword $(TARGET_TOOLCHAIN_LIST))
+    # We default to using Clang, which is the last item in the list.
+    TARGET_TOOLCHAIN := $(lastword $(TARGET_TOOLCHAIN_LIST))
 
     # If NDK_TOOLCHAIN_VERSION is defined, we replace the toolchain version
     # suffix with it.
@@ -60,6 +65,12 @@ ifndef NDK_TOOLCHAIN
         VERSION := $(NDK_TOOLCHAIN_VERSION)
         TARGET_TOOLCHAIN := $(TARGET_TOOLCHAIN_BASE)-$(VERSION)
         $(call ndk_log,Using target toolchain '$(TARGET_TOOLCHAIN)' for '$(TARGET_ARCH_ABI)' ABI (through NDK_TOOLCHAIN_VERSION))
+        ifeq ($(NDK_TOOLCHAIN_VERSION),4.9)
+            $(call __ndk_info,WARNING: Deprecated NDK_TOOLCHAIN_VERSION value: \
+                $(NDK_TOOLCHAIN_VERSION). GCC is no longer supported and will \
+                be removed in the next release. See \
+                https://android.googlesource.com/platform/ndk/+/master/docs/ClangMigration.md.)
+        endif
     else
         $(call ndk_log,Using target toolchain '$(TARGET_TOOLCHAIN)' for '$(TARGET_ARCH_ABI)' ABI)
     endif
@@ -76,15 +87,6 @@ else # NDK_TOOLCHAIN is not empty
 endif # NDK_TOOLCHAIN is not empty
 
 TARGET_ABI := $(TARGET_PLATFORM)-$(TARGET_ARCH_ABI)
-
-# setup sysroot variable.
-# SYSROOT_INC points to a directory that contains all public header
-# files for a given platform, and
-# SYSROOT_LIB points to libraries and object files used for linking
-# the generated target files properly.
-#
-SYSROOT_INC := $(NDK_PLATFORMS_ROOT)/$(TARGET_PLATFORM)/arch-$(TARGET_ARCH)
-SYSROOT_LINK := $(SYSROOT_INC)
 
 TARGET_PREBUILT_SHARED_LIBRARIES :=
 
@@ -116,51 +118,48 @@ include $(BUILD_SYSTEM)/default-build-commands.mk
 # now call the toolchain-specific setup script
 include $(NDK_TOOLCHAIN.$(TARGET_TOOLCHAIN).setup)
 
+# Setup sysroot variables.
+# SYSROOT_INC points to a directory that contains all public header files for a
+# given platform, and SYSROOT_LINK points to libraries and object files used for
+# linking the generated target files properly.
+SYSROOT_BASE := $(NDK_PLATFORMS_ROOT)/$(TARGET_PLATFORM)/arch-$(TARGET_ARCH)
+SYSROOT_INC := $(SYSROOT_BASE)
+
+# TODO(danalbert): Use the new libraries.
+# This still points at the old tree for the libraries. We need to either:
+#
+# 1. Add crt_begin.o, libc.a, etc. to the new sysroots.
+# 2. Replace the old stub libraries with the new ones.
+#
+# Option 1 is what we will need to do long term, but will require several more
+# Soong changes. This will likely delay the release for a handful of weeks.
+# Option 2 can be done quickly. The disadvantage is that if there's anything
+# wrong with the stub libraries, we'll break everything and not just unified
+# headers. The advantage to this is that if this does break anything, it
+# probably only breaks things that are broken (libraries reporting they have
+# things they actually don't).
+SYSROOT_LINK := $(SYSROOT_BASE)
+
+ifndef NDK_UNIFIED_SYSROOT_PATH
+    NDK_UNIFIED_SYSROOT_PATH := $(NDK_ROOT)/sysroot
+endif
+SYSROOT_INC := $(NDK_UNIFIED_SYSROOT_PATH)
+
+# The compiler driver doesn't check any arch specific include locations
+# (though maybe we should add that). Architecture specific headers like asm/
+# and machine/ are installed to an arch-$ARCH subdirectory of the sysroot.
+header_triple_arm := arm-linux-androideabi
+header_triple_arm64 := aarch64-linux-android
+header_triple_mips := mipsel-linux-android
+header_triple_mips64 := mips64el-linux-android
+header_triple_x86 := i686-linux-android
+header_triple_x86_64 := x86_64-linux-android
+SYSROOT_ARCH_INC_ARG := \
+    -isystem $(SYSROOT_INC)/usr/include/$(header_triple_$(TARGET_ARCH))
+
 clean-installed-binaries::
 
-# Ensure that for debuggable applications, gdbserver will be copied to
-# the proper location
-
-NDK_APP_GDBSERVER := $(NDK_APP_DST_DIR)/gdbserver
-NDK_APP_GDBSETUP := $(NDK_APP_DST_DIR)/gdb.setup
-
-ifeq ($(NDK_APP_DEBUGGABLE),true)
-ifeq ($(TARGET_SONAME_EXTENSION),.so)
-
-installed_modules: $(NDK_APP_GDBSERVER)
-
-$(NDK_APP_GDBSERVER): PRIVATE_ABI     := $(TARGET_ARCH_ABI)
-$(NDK_APP_GDBSERVER): PRIVATE_NAME    := $(TOOLCHAIN_NAME)
-$(NDK_APP_GDBSERVER): PRIVATE_SRC     := $(TARGET_GDBSERVER)
-$(NDK_APP_GDBSERVER): PRIVATE_DST     := $(NDK_APP_GDBSERVER)
-
-$(call generate-file-dir,$(NDK_APP_GDBSERVER))
-
-$(NDK_APP_GDBSERVER): clean-installed-binaries
-	$(call host-echo-build-step,$(PRIVATE_ABI),Gdbserver) "[$(PRIVATE_NAME)] $(call pretty-dir,$(PRIVATE_DST))"
-	$(hide) $(call host-install,$(PRIVATE_SRC),$(PRIVATE_DST))
-endif
-
-# Install gdb.setup for both .so and .bc projects
-ifneq (,$(filter $(TARGET_SONAME_EXTENSION),.so .bc))
-installed_modules: $(NDK_APP_GDBSETUP)
-
-$(NDK_APP_GDBSETUP): PRIVATE_ABI := $(TARGET_ARCH_ABI)
-$(NDK_APP_GDBSETUP): PRIVATE_DST := $(NDK_APP_GDBSETUP)
-$(NDK_APP_GDBSETUP): PRIVATE_SOLIB_PATH := $(TARGET_OUT)
-$(NDK_APP_GDBSETUP): PRIVATE_SRC_DIRS := $(SYSROOT_INC)/usr/include
-
-$(NDK_APP_GDBSETUP):
-	$(call host-echo-build-step,$(PRIVATE_ABI),Gdbsetup) "$(call pretty-dir,$(PRIVATE_DST))"
-	$(hide) $(HOST_ECHO) "set solib-search-path $(call host-path,$(PRIVATE_SOLIB_PATH))" > $(PRIVATE_DST)
-	$(hide) $(HOST_ECHO) "directory $(call host-path,$(call remove-duplicates,$(PRIVATE_SRC_DIRS)))" >> $(PRIVATE_DST)
-
-$(call generate-file-dir,$(NDK_APP_GDBSETUP))
-
-# This prevents parallel execution to clear gdb.setup after it has been written to
-$(NDK_APP_GDBSETUP): clean-installed-binaries
-endif
-endif
+include $(BUILD_SYSTEM)/gdb.mk
 
 # free the dictionary of LOCAL_MODULE definitions
 $(call modules-clear)
@@ -170,6 +169,20 @@ $(call ndk-stl-select,$(NDK_APP_STL))
 # now parse the Android.mk for the application, this records all
 # module declarations, but does not populate the dependency graph yet.
 include $(NDK_APP_BUILD_SCRIPT)
+
+# Avoid computing sanitizer/wrap.sh things in the DUMP_VAR case because both of
+# these will create build rules and we want to avoid that. The DUMP_VAR case
+# also doesn't parse the module definitions, so we're missing a lot of the
+# information we need.
+ifeq (,$(DUMP_VAR))
+    # Comes after NDK_APP_BUILD_SCRIPT because we need to know if *any* module
+    # has -fsanitize in its ldflags.
+    include $(BUILD_SYSTEM)/sanitizers.mk
+
+    ifneq ($(NDK_APP_WRAP_SH_$(TARGET_ARCH_ABI)),)
+        include $(BUILD_SYSTEM)/install_wrap_sh.mk
+    endif
+endif
 
 $(call ndk-stl-add-dependencies,$(NDK_APP_STL))
 

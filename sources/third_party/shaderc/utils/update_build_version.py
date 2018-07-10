@@ -30,6 +30,7 @@ import os.path
 import re
 import subprocess
 import sys
+import time
 
 OUTFILE = 'build-version.inc'
 
@@ -58,7 +59,11 @@ def deduce_software_version(directory):
     The CHANGES file describes most recent versions first.
     """
 
-    pattern = re.compile(r'(v\d+\.\d+(-dev)?) \d\d\d\d-\d\d-\d\d$')
+    # Match the first well-formed version-and-date line.
+    # Allow trailing whitespace in the checked-out source code has
+    # unexpected carriage returns on a linefeed-only system such as
+    # Linux.
+    pattern = re.compile(r'^(v\d+\.\d+(-dev)?) \d\d\d\d-\d\d-\d\d\s*$')
     changes_file = os.path.join(directory, 'CHANGES')
     with open(changes_file) as f:
         for line in f.readlines():
@@ -86,7 +91,15 @@ def describe(directory):
             return command_output(
                 ['git', 'rev-parse', 'HEAD'], directory).rstrip().decode()
         except:
-            return 'unknown hash, ' + datetime.date.today().isoformat()
+            # This is the fallback case where git gives us no information,
+            # e.g. because the source tree might not be in a git tree.
+            # In this case, usually use a timestamp.  However, to ensure
+            # reproducible builds, allow the builder to override the wall
+            # clock time with enviornment variable SOURCE_DATE_EPOCH
+            # containing a (presumably) fixed timestamp.
+            timestamp = int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))
+            formatted = datetime.date.fromtimestamp(timestamp).isoformat()
+            return 'unknown hash, {}'.format(formatted)
 
 
 def get_version_string(project, directory):

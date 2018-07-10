@@ -14,20 +14,55 @@
 
 #include "pass_manager.h"
 
+#include <iostream>
+#include <vector>
+
+#include "ir_context.h"
+#include "spirv-tools/libspirv.hpp"
+#include "util/timer.h"
+
 namespace spvtools {
+
 namespace opt {
 
-Pass::Status PassManager::Run(ir::Module* module) {
+Pass::Status PassManager::Run(ir::IRContext* context) {
   auto status = Pass::Status::SuccessWithoutChange;
-  for (const auto& pass : passes_) {
-    const auto one_status = pass->Process(module);
+
+  // If print_all_stream_ is not null, prints the disassembly of the module
+  // to that stream, with the given preamble and optionally the pass name.
+  auto print_disassembly = [&context, this](const char* preamble, Pass* pass) {
+    if (print_all_stream_) {
+      std::vector<uint32_t> binary;
+      context->module()->ToBinary(&binary, false);
+      SpirvTools t(SPV_ENV_UNIVERSAL_1_2);
+      std::string disassembly;
+      t.Disassemble(binary, &disassembly, 0);
+      *print_all_stream_ << preamble << (pass ? pass->name() : "") << "\n"
+                         << disassembly << std::endl;
+    }
+  };
+
+  SPIRV_TIMER_DESCRIPTION(time_report_stream_, /* measure_mem_usage = */ true);
+  for (auto& pass : passes_) {
+    print_disassembly("; IR before pass ", pass.get());
+    SPIRV_TIMER_SCOPED(time_report_stream_, (pass ? pass->name() : ""), true);
+    const auto one_status = pass->Run(context);
     if (one_status == Pass::Status::Failure) return one_status;
     if (one_status == Pass::Status::SuccessWithChange) status = one_status;
+
+    // Reset the pass to free any memory used by the pass.
+    pass.reset(nullptr);
   }
+  print_disassembly("; IR after last pass", nullptr);
+
   // Set the Id bound in the header in case a pass forgot to do so.
+  //
+  // TODO(dnovillo): This should be unnecessary and automatically maintained by
+  // the IRContext.
   if (status == Pass::Status::SuccessWithChange) {
-    module->SetIdBound(module->ComputeIdBound());
+    context->module()->SetIdBound(context->module()->ComputeIdBound());
   }
+  passes_.clear();
   return status;
 }
 

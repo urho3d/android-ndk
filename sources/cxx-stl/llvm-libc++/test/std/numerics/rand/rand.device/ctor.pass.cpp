@@ -7,7 +7,14 @@
 //
 //===----------------------------------------------------------------------===//
 
-// XFAIL: libcpp-no-exceptions
+// See bugs.llvm.org/PR20183
+//
+// XFAIL: with_system_cxx_lib=macosx10.11
+// XFAIL: with_system_cxx_lib=macosx10.10
+// XFAIL: with_system_cxx_lib=macosx10.9
+// XFAIL: with_system_cxx_lib=macosx10.8
+// XFAIL: with_system_cxx_lib=macosx10.7
+
 // <random>
 
 // class random_device;
@@ -27,6 +34,8 @@
 #include <unistd.h>
 #endif
 
+#include "test_macros.h"
+
 
 bool is_valid_random_device(const std::string &token) {
 #if defined(_LIBCPP_USING_DEV_RANDOM)
@@ -42,11 +51,15 @@ void check_random_device_valid(const std::string &token) {
 }
 
 void check_random_device_invalid(const std::string &token) {
+#ifndef TEST_HAS_NO_EXCEPTIONS
   try {
     std::random_device r(token);
-    assert(false);
+    LIBCPP_ASSERT(false);
   } catch (const std::system_error&) {
   }
+#else
+  ((void)token);
+#endif
 }
 
 

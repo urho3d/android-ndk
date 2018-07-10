@@ -42,7 +42,7 @@
  *         validate_stype(ParameterName("pCreateInfo[%i].sType", IndexVector{ i }), pCreateInfo[i].sType);
  */
 class ParameterName {
-  public:
+   public:
     /// Container for index values to be used with parameter name string formatting.
     typedef std::vector<size_t> IndexVector;
 
@@ -50,7 +50,7 @@ class ParameterName {
     /// one format specifier for each index value specified.
     const std::string IndexFormatSpecifier = "%i";
 
-  public:
+   public:
     /**
      * Construct a ParameterName object from a string literal, without formatting.
      *
@@ -61,43 +61,43 @@ class ParameterName {
     ParameterName(const char *source) : source_(source) { assert(IsValid()); }
 
     /**
-    * Construct a ParameterName object from a std::string object, without formatting.
-    *
-    * @param source Paramater name string without format specifiers.
-    *
-    * @pre The source string must not contain the %i format specifier.
-    */
+     * Construct a ParameterName object from a std::string object, without formatting.
+     *
+     * @param source Paramater name string without format specifiers.
+     *
+     * @pre The source string must not contain the %i format specifier.
+     */
     ParameterName(const std::string &source) : source_(source) { assert(IsValid()); }
 
     /**
-    * Construct a ParameterName object from a std::string object, without formatting.
-    *
-    * @param source Paramater name string without format specifiers.
-    *
-    * @pre The source string must not contain the %i format specifier.
-    */
+     * Construct a ParameterName object from a std::string object, without formatting.
+     *
+     * @param source Paramater name string without format specifiers.
+     *
+     * @pre The source string must not contain the %i format specifier.
+     */
     ParameterName(const std::string &&source) : source_(std::move(source)) { assert(IsValid()); }
 
     /**
-    * Construct a ParameterName object from a std::string object, with formatting.
-    *
-    * @param source Paramater name string with format specifiers.
-    * @param args Array index values to be used for formatting.
-    *
-    * @pre The number of %i format specifiers contained by the source string must match the number of elements contained
-    *      by the index vector.
-    */
+     * Construct a ParameterName object from a std::string object, with formatting.
+     *
+     * @param source Paramater name string with format specifiers.
+     * @param args Array index values to be used for formatting.
+     *
+     * @pre The number of %i format specifiers contained by the source string must match the number of elements contained
+     *      by the index vector.
+     */
     ParameterName(const std::string &source, const IndexVector &args) : source_(source), args_(args) { assert(IsValid()); }
 
     /**
-    * Construct a ParameterName object from a std::string object, with formatting.
-    *
-    * @param source Paramater name string with format specifiers.
-    * @param args Array index values to be used for formatting.
-    *
-    * @pre The number of %i format specifiers contained by the source string must match the number of elements contained
-    *      by the index vector.
-    */
+     * Construct a ParameterName object from a std::string object, with formatting.
+     *
+     * @param source Paramater name string with format specifiers.
+     * @param args Array index values to be used for formatting.
+     *
+     * @pre The number of %i format specifiers contained by the source string must match the number of elements contained
+     *      by the index vector.
+     */
     ParameterName(const std::string &&source, const IndexVector &&args) : source_(std::move(source)), args_(std::move(args)) {
         assert(IsValid());
     }
@@ -105,7 +105,7 @@ class ParameterName {
     /// Retrive the formatted name string.
     std::string get_name() const { return (args_.empty()) ? source_ : Format(); }
 
-  private:
+   private:
     /// Replace the %i format specifiers in the source string with the values from the index vector.
     std::string Format() const {
         std::string::size_type current = 0;
@@ -140,9 +140,9 @@ class ParameterName {
         return (count == args_.size());
     }
 
-  private:
-    std::string source_; ///< Format string.
-    IndexVector args_;   ///< Array index values for formatting.
+   private:
+    std::string source_;  ///< Format string.
+    IndexVector args_;    ///< Array index values for formatting.
 };
 
-#endif // PARAMETER_NAME_H
+#endif  // PARAMETER_NAME_H

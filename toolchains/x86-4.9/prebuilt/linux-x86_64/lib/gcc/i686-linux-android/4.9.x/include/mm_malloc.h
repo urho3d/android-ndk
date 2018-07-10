@@ -32,9 +32,13 @@
 #ifndef __cplusplus
 extern int posix_memalign (void **, size_t, size_t);
 #else
+#ifdef __GLIBC__
 extern "C" int posix_memalign (void **, size_t, size_t) throw ();
-#endif
-#endif
+#else
+extern "C" int posix_memalign (void **, size_t, size_t);
+#endif /* __GLIBC__ */
+#endif /* __cplusplus */
+#endif /* !(__ANDROID__) || (HAVE_POSIX_MEMALIGN) */
 
 static __inline void *
 _mm_malloc (size_t size, size_t alignment)

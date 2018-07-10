@@ -39,8 +39,8 @@ protected:
         {
             if (__c != base::traits_type::eof())
             {
-                int n = str_.size();
-                str_.push_back(__c);
+                int n = static_cast<int>(str_.size());
+                str_.push_back(static_cast<CharT>(__c));
                 str_.resize(str_.capacity());
                 base::setp(const_cast<CharT*>(str_.data()),
                            const_cast<CharT*>(str_.data() + str_.size()));
@@ -56,7 +56,7 @@ int main()
         testbuf<char> sb;
         std::ostream os(&sb);
         os.imbue(std::locale(LOCALE_en_US_UTF_8));
-        std::tm t = {0};
+        std::tm t = {};
         t.tm_sec = 59;
         t.tm_min = 55;
         t.tm_hour = 23;
@@ -72,7 +72,7 @@ int main()
         testbuf<wchar_t> sb;
         std::wostream os(&sb);
         os.imbue(std::locale(LOCALE_en_US_UTF_8));
-        std::tm t = {0};
+        std::tm t = {};
         t.tm_sec = 59;
         t.tm_min = 55;
         t.tm_hour = 23;

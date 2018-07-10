@@ -15,12 +15,10 @@
 #ifndef LIBSPIRV_DIAGNOSTIC_H_
 #define LIBSPIRV_DIAGNOSTIC_H_
 
-#include <iostream>
 #include <sstream>
-#include <utility>
+#include <string>
 
-#include "message.h"
-#include "spirv-tools/libspirv.h"
+#include "spirv-tools/libspirv.hpp"
 
 namespace libspirv {
 
@@ -35,12 +33,14 @@ class DiagnosticStream {
                    spv_result_t error)
       : position_(position), consumer_(consumer), error_(error) {}
 
-  DiagnosticStream(DiagnosticStream&& other)
-      : stream_(other.stream_.str()),
-        position_(other.position_),
-        consumer_(other.consumer_),
-        error_(other.error_) {}
+  // Creates a DiagnosticStream from an expiring DiagnosticStream.
+  // The new object takes the contents of the other, and prevents the
+  // other from emitting anything during destruction.
+  DiagnosticStream(DiagnosticStream&& other);
 
+  // Destroys a DiagnosticStream.
+  // If its status code is something other than SPV_FAILED_MATCH
+  // then emit the accumulated message to the consumer.
   ~DiagnosticStream();
 
   // Adds the given value to the diagnostic message to be written.
@@ -54,9 +54,9 @@ class DiagnosticStream {
   operator spv_result_t() { return error_; }
 
  private:
-  std::stringstream stream_;
+  std::ostringstream stream_;
   spv_position_t position_;
-  const spvtools::MessageConsumer& consumer_;  // Message consumer callback.
+  spvtools::MessageConsumer consumer_;  // Message consumer callback.
   spv_result_t error_;
 };
 

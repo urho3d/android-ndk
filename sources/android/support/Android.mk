@@ -1,142 +1,9 @@
 LOCAL_PATH := $(call my-dir)
 
-android_support_c_includes := $(LOCAL_PATH)/include
+# libandroid_support is only needed on LP32.
+ifeq ($(filter $(NDK_KNOWN_DEVICE_ABI64S),$(TARGET_ARCH_ABI)),)
 
-ifneq ($(filter $(NDK_KNOWN_DEVICE_ABI64S),$(TARGET_ARCH_ABI)),)
-# 64-bit ABIs
-android_support_sources := \
-    src/musl-locale/catclose.c \
-    src/musl-locale/catgets.c \
-    src/musl-locale/catopen.c
-
-else
-# 32-bit ABIs
-
-android_support_sources := \
-    src/locale_support.c \
-    src/math_support.c \
-    src/stdlib_support.c \
-    src/wchar_support.c \
-    src/locale/duplocale.c \
-    src/locale/freelocale.c \
-    src/locale/localeconv.c \
-    src/locale/newlocale.c \
-    src/locale/uselocale.c \
-    src/stdio/stdio_impl.c \
-    src/stdio/strtod.c \
-    src/stdio/vfprintf.c \
-    src/stdio/vfwprintf.c \
-    src/msun/e_log2.c \
-    src/msun/e_log2f.c \
-    src/msun/s_nan.c \
-    src/musl-ctype/iswalnum.c \
-    src/musl-ctype/iswalpha.c \
-    src/musl-ctype/iswblank.c \
-    src/musl-ctype/iswcntrl.c \
-    src/musl-ctype/iswctype.c \
-    src/musl-ctype/iswdigit.c \
-    src/musl-ctype/iswgraph.c \
-    src/musl-ctype/iswlower.c \
-    src/musl-ctype/iswprint.c \
-    src/musl-ctype/iswpunct.c \
-    src/musl-ctype/iswspace.c \
-    src/musl-ctype/iswupper.c \
-    src/musl-ctype/iswxdigit.c \
-    src/musl-ctype/towctrans.c \
-    src/musl-ctype/wcswidth.c \
-    src/musl-ctype/wctrans.c \
-    src/musl-ctype/wcwidth.c \
-    src/musl-locale/catclose.c \
-    src/musl-locale/catgets.c \
-    src/musl-locale/catopen.c \
-    src/musl-locale/iconv.c \
-    src/musl-locale/intl.c \
-    src/musl-locale/isalnum_l.c \
-    src/musl-locale/isalpha_l.c \
-    src/musl-locale/isblank_l.c \
-    src/musl-locale/iscntrl_l.c \
-    src/musl-locale/isdigit_l.c \
-    src/musl-locale/isgraph_l.c \
-    src/musl-locale/islower_l.c \
-    src/musl-locale/isprint_l.c \
-    src/musl-locale/ispunct_l.c \
-    src/musl-locale/isspace_l.c \
-    src/musl-locale/isupper_l.c \
-    src/musl-locale/iswalnum_l.c \
-    src/musl-locale/iswalpha_l.c \
-    src/musl-locale/iswblank_l.c \
-    src/musl-locale/iswcntrl_l.c \
-    src/musl-locale/iswctype_l.c \
-    src/musl-locale/iswdigit_l.c \
-    src/musl-locale/iswgraph_l.c \
-    src/musl-locale/iswlower_l.c \
-    src/musl-locale/iswprint_l.c \
-    src/musl-locale/iswpunct_l.c \
-    src/musl-locale/iswspace_l.c \
-    src/musl-locale/iswupper_l.c \
-    src/musl-locale/iswxdigit_l.c \
-    src/musl-locale/isxdigit_l.c \
-    src/musl-locale/langinfo.c \
-    src/musl-locale/strcasecmp_l.c \
-    src/musl-locale/strcoll.c \
-    src/musl-locale/strerror_l.c \
-    src/musl-locale/strfmon.c \
-    src/musl-locale/strftime_l.c \
-    src/musl-locale/strncasecmp_l.c \
-    src/musl-locale/strxfrm.c \
-    src/musl-locale/tolower_l.c \
-    src/musl-locale/toupper_l.c \
-    src/musl-locale/towctrans_l.c \
-    src/musl-locale/towlower_l.c \
-    src/musl-locale/towupper_l.c \
-    src/musl-locale/wcscoll.c \
-    src/musl-locale/wcsxfrm.c \
-    src/musl-locale/wctrans_l.c \
-    src/musl-locale/wctype_l.c \
-    src/musl-math/frexp.c \
-    src/musl-math/frexpf.c \
-    src/musl-math/frexpl.c \
-    src/musl-multibyte/btowc.c \
-    src/musl-multibyte/internal.c \
-    src/musl-multibyte/mblen.c \
-    src/musl-multibyte/mbrlen.c \
-    src/musl-multibyte/mbrtowc.c \
-    src/musl-multibyte/mbsinit.c \
-    src/musl-multibyte/mbsnrtowcs.c \
-    src/musl-multibyte/mbsrtowcs.c \
-    src/musl-multibyte/mbstowcs.c \
-    src/musl-multibyte/mbtowc.c \
-    src/musl-multibyte/wcrtomb.c \
-    src/musl-multibyte/wcsnrtombs.c \
-    src/musl-multibyte/wcsrtombs.c \
-    src/musl-multibyte/wcstombs.c \
-    src/musl-multibyte/wctob.c \
-    src/musl-multibyte/wctomb.c \
-    src/musl-stdio/printf.c \
-    src/musl-stdio/snprintf.c \
-    src/musl-stdio/sprintf.c \
-    src/musl-stdio/vprintf.c \
-    src/musl-stdio/vsprintf.c \
-    src/musl-stdio/swprintf.c \
-    src/musl-stdio/vwprintf.c \
-    src/musl-stdio/wprintf.c \
-    src/wcstox/floatscan.c \
-    src/wcstox/intscan.c \
-    src/wcstox/shgetc.c \
-    src/wcstox/wcstol.c \
-    src/wcstox/wcstod.c \
-
-# Replaces broken implementations in x86 libm.so
-ifeq (x86,$(TARGET_ARCH_ABI))
-android_support_sources += \
-    src/musl-math/scalbln.c \
-    src/musl-math/scalblnf.c \
-    src/musl-math/scalblnl.c \
-    src/musl-math/scalbnl.c \
-
-endif
-
-endif  # 64-/32-bit ABIs
+android_support_export_c_includes := $(LOCAL_PATH)/include
 
 ifneq ($(LIBCXX_FORCE_REBUILD),true) # Using prebuilt
 
@@ -145,33 +12,129 @@ LIBCXX_LIBS := ../../cxx-stl/llvm-libc++/libs/$(TARGET_ARCH_ABI)
 include $(CLEAR_VARS)
 LOCAL_MODULE := android_support
 LOCAL_SRC_FILES := $(LIBCXX_LIBS)/lib$(LOCAL_MODULE)$(TARGET_LIB_EXTENSION)
+LOCAL_EXPORT_C_INCLUDES := $(android_support_export_c_includes)
 include $(PREBUILT_STATIC_LIBRARY)
 
 else # Building
 
-# This is only available as a static library for now.
+android_support_c_includes := $(android_support_export_c_includes)
+android_support_cflags := \
+    -Drestrict=__restrict__ \
+    -ffunction-sections \
+    -fdata-sections \
+    -fvisibility=hidden \
+
+# 32-bit ABIs
+
+BIONIC_PATH := ../../../../bionic
+
+android_support_c_includes += \
+    $(BIONIC_PATH)/libc \
+    $(BIONIC_PATH)/libc/upstream-openbsd/android/include \
+    $(BIONIC_PATH)/libm \
+    $(BIONIC_PATH)/libm/upstream-freebsd/android/include \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src \
+
+android_support_cflags += \
+    -include freebsd-compat.h \
+    -include openbsd-compat.h \
+    -D__BIONIC_BUILD_FOR_ANDROID_SUPPORT \
+
+android_support_sources := \
+    $(BIONIC_PATH)/libc/bionic/c32rtomb.cpp \
+    $(BIONIC_PATH)/libc/bionic/locale.cpp \
+    $(BIONIC_PATH)/libc/bionic/mbrtoc32.cpp \
+    $(BIONIC_PATH)/libc/bionic/wchar.cpp \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wcscat.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wcschr.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wcslen.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wcsncmp.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wcsncpy.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wcspbrk.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wcsrchr.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wcsspn.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wcsstr.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wcstok.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wmemchr.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wmemcmp.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wmemcpy.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wmemmove.c \
+    $(BIONIC_PATH)/libc/upstream-freebsd/lib/libc/string/wmemset.c \
+    $(BIONIC_PATH)/libc/upstream-openbsd/lib/libc/locale/mbtowc.c \
+    $(BIONIC_PATH)/libc/upstream-openbsd/lib/libc/stdlib/imaxabs.c \
+    $(BIONIC_PATH)/libc/upstream-openbsd/lib/libc/stdlib/imaxdiv.c \
+    $(BIONIC_PATH)/libm/digittoint.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_acos.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_acosh.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_asin.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_atan2.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_atanh.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_cosh.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_exp.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_hypot.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_lgamma.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_log.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_log10.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_log2.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_log2f.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_logf.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_remainder.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_sinh.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/e_sqrt.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/k_cos.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/k_exp.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/k_rem_pio2.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/k_sin.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/k_tan.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_asinh.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_atan.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_cbrt.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_cos.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_erf.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_exp2.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_expm1.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_frexp.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_frexpf.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_log1p.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_logb.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_nextafter.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_remquo.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_rint.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_sin.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_tan.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_tanh.c \
+    src/locale_support.cpp \
+    src/posix_memalign.cpp \
+    src/swprintf.cpp \
+    src/wcstox.cpp \
+
+ifeq (x86,$(TARGET_ARCH_ABI))
+# Replaces broken implementations in x86 libm.so
+android_support_sources += \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_scalbln.c \
+    $(BIONIC_PATH)/libm/upstream-freebsd/lib/msun/src/s_scalbn.c \
+
+# fake_long_double.c doesn't define this for x86.
+# TODO: seems like we don't pass .S files to the assembler?
+#android_support_c_includes += $(BIONIC_PATH)/libc/arch-x86/include
+#android_support_sources += $(BIONIC_PATH)/libm/x86/lrint.S
+endif
+
 include $(CLEAR_VARS)
 LOCAL_MODULE := android_support
 LOCAL_SRC_FILES := $(android_support_sources)
 LOCAL_C_INCLUDES := $(android_support_c_includes)
-LOCAL_CFLAGS += -Drestrict=__restrict__ -ffunction-sections -fdata-sections -fvisibility=hidden
-LOCAL_CPPFLAGS += -fvisibility-inlines-hidden
+LOCAL_CFLAGS := $(android_support_cflags)
 
-# These Clang warnings are triggered by the Musl sources. The code is fine,
-# but we don't want to modify it. TODO(digit): This is potentially dangerous,
-# see if there is a way to build the Musl sources in a separate static library
-# and have the main one depend on it, or include its object files.
-ifneq ($(TARGET_TOOLCHAIN),$(subst clang,,$(TARGET_TOOLCHAIN)))
-LOCAL_CFLAGS += \
-  -Wno-shift-op-parentheses \
-  -Wno-string-plus-int \
-  -Wno-dangling-else \
-  -Wno-bitwise-op-parentheses \
-  -Wno-shift-negative-value
-endif
+LOCAL_CPPFLAGS := \
+    -fvisibility-inlines-hidden \
+    -std=c++11 \
+    -Werror \
 
-LOCAL_CFLAGS += $(android_support_cflags)
-LOCAL_EXPORT_CFLAGS := $(android_support_cflags)
+LOCAL_EXPORT_C_INCLUDES := $(android_support_export_c_includes)
+
 include $(BUILD_STATIC_LIBRARY)
 
 endif # Prebuilt/building
+
+endif # LP32

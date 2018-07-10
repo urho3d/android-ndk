@@ -8,6 +8,7 @@
 //
 //===----------------------------------------------------------------------===//
 
+// REQUIRES: c++experimental
 // UNSUPPORTED: c++98, c++03
 
 // <experimental/unordered_set>
@@ -59,7 +60,7 @@ int main()
         static_assert(std::is_same<StdSet, PmrSet>::value, "");
     }
     {
-        pmr::unordered_set<int, int> m;
+        pmr::unordered_set<int> m;
         assert(m.get_allocator().resource() == pmr::get_default_resource());
     }
     {
@@ -78,7 +79,7 @@ int main()
         static_assert(std::is_same<StdSet, PmrSet>::value, "");
     }
     {
-        pmr::unordered_multiset<int, int> m;
+        pmr::unordered_multiset<int> m;
         assert(m.get_allocator().resource() == pmr::get_default_resource());
     }
 }

@@ -3,8 +3,8 @@
 <!-- Material used from: HTML 4.01 specs: http://www.w3.org/TR/html401/ -->
 <html>
 <head>
-  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1">
-  <title>libc++ Jacksonville Status</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  <title>libc++ Upcoming Meeting Status</title>
   <link type="text/css" rel="stylesheet" href="menu.css">
   <link type="text/css" rel="stylesheet" href="content.css">
 </head>
@@ -24,7 +24,7 @@
     <label>Quick Links</label>
     <a href="http://lists.llvm.org/mailman/listinfo/cfe-dev">cfe-dev</a>
     <a href="http://lists.llvm.org/mailman/listinfo/cfe-commits">cfe-commits</a>
-    <a href="http://llvm.org/bugs/">Bug Reports</a>
+    <a href="https://bugs.llvm.org/">Bug Reports</a>
     <a href="http://llvm.org/svn/llvm-project/libcxx/trunk/">Browse SVN</a>
     <a href="http://llvm.org/viewvc/llvm-project/libcxx/trunk/">Browse ViewVC</a>
   </div>
@@ -32,11 +32,11 @@
 
 <div id="content">
   <!--*********************************************************************-->
-  <h1>libc++ Jacksonville Status</h1>
+  <h1>libc++ Issaquah Status</h1>
   <!--*********************************************************************-->
 
   <p>This is a temporary page; please check the c++1z status <a href="http://libcxx.llvm.org/cxx1z_status.html">here</a></p>
-  <p>This page shows the status of the papers and issues that are expected to be adopted in Jacksonville.</p>
+  <p>This page shows the status of the papers and issues that are expected to be adopted in Toronto.</p>
 
   <p>The groups that have contributed papers:
   <ul>
@@ -45,7 +45,7 @@
     <li>SG1 - Study group #1 (Concurrency working group)</li>
   </ul>
   </p>
-  
+
   <h3>Paper Status</h3>
   <table id="papers" border="1">
 	<tr><th>Paper #</th><th>Group</th><th>Paper Name</th><th>Meeting</th><th>Status</th><th>First released version</th></tr>
@@ -57,73 +57,47 @@
 
   <h3>Library Working group Issues Status</h3>
   <table id="issues" border="1">
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2192">2192</a></td><td>Validity and return type of <tt>std::abs(0u)</tt> is unclear</td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2253">2253</a></td><td>[arrays.ts] <tt>dynarray</tt> should state which container requirements aren't met</td><td>Jacksonville</td><td>Nothing to do</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2255">2255</a></td><td>[arrays.ts] <tt>dynarray</tt> constructor ambiguity</td><td>Jacksonville</td><td>Nothing to do</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2276">2276</a></td><td>Missing requirement on <tt>std::promise::set_exception</tt></td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2450">2450</a></td><td><tt>(greater|less|greater_equal|less_equal)&lt;void&gt;</tt> do not yield a total order for pointers</td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2520">2520</a></td><td>N4089 broke initializing <tt>unique_ptr&lt;T[]&gt;</tt> from a <tt>nullptr</tt></td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2522">2522</a></td><td>[fund.ts.v2] Contradiction in <tt>set_default_resource</tt> specification</td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2523">2523</a></td><td><tt>std::promise</tt> synopsis shows two <tt>set_value_at_thread_exit()</tt>'s for no apparent reason</td><td>Jacksonville</td><td>Complete</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2537">2537</a></td><td>Constructors for <code>priority_queue</code> taking allocators should call <code>make_heap</code></td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2539">2539</a></td><td>[fund.ts.v2] <tt>invocation_trait</tt> definition definition doesn't work for surrogate call functions</td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2545">2545</a></td><td>Simplify wording for <tt>bind</tt> without explicitly specified return type</td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2557">2557</a></td><td>Logical operator traits are broken in the zero-argument case</td><td>Jacksonville</td><td>Complete</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2558">2558</a></td><td>[fund.ts.v2] Logical operator traits are broken in the zero-argument case</td><td>Jacksonville</td><td>Complete</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2559">2559</a></td><td>Error in LWG 2234's resolution</td><td>Jacksonville</td><td>Complete</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2560">2560</a></td><td><tt>is_constructible</tt> underspecified when applied to a function type</td><td>Jacksonville</td><td>Broken in 3.6; See r261653.</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2565">2565</a></td><td><tt>std::function</tt>'s move constructor should guarantee nothrow for <tt>reference_wrapper</tt>s and function pointers</td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2566">2566</a></td><td>Requirements on the first template parameter of container adaptors</td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2571">2571</a></td><td>&sect;[map.modifiers]/2 imposes nonsensical requirement on <tt>insert(InputIterator, InputIterator)</tt></td><td>Jacksonville</td><td>Complete</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2572">2572</a></td><td>The remarks for <tt>shared_ptr::operator*</tt> should apply to <i>cv</i>-qualified <tt>void</tt> as well</td><td>Jacksonville</td><td>Complete</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2574">2574</a></td><td>[fund.ts.v2] <tt>std::experimental::function::operator=(F&amp;&amp;)</tt> should be constrained</td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2575">2575</a></td><td>[fund.ts.v2] <tt>experimental::function::assign</tt> should be removed</td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2576">2576</a></td><td><tt>istream_iterator</tt> and <tt>ostream_iterator</tt> should use <tt>std::addressof</tt></td><td>Jacksonville</td><td>Patch done; needs tests</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2577">2577</a></td><td><tt>{shared,unique}_lock</tt> should use <tt>std::addressof</tt></td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2579">2579</a></td><td>Inconsistency wrt Allocators in <tt>basic_string</tt> assignment vs. <tt>basic_string::assign</tt></td><td>Jacksonville</td><td><i>Patch Ready</i></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2581">2581</a></td><td>Specialization of <tt>&lt;type_traits&gt;</tt> variable templates should be prohibited</td><td>Jacksonville</td><td>Complete</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2582">2582</a></td><td>&sect;[res.on.functions]/2's prohibition against incomplete types shouldn't apply to type traits</td><td>Jacksonville</td><td>In Progress</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2583">2583</a></td><td>There is no way to supply an allocator for <tt>basic_string(str, pos)</tt></td><td>Jacksonville</td><td><i>Patch Ready</i></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2585">2585</a></td><td><tt>forward_list::resize(size_type, const value_type&amp;)</tt> effects incorrect</td><td>Jacksonville</td><td>Disputed</td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2586">2586</a></td><td>Wrong value category used in <tt>scoped_allocator_adaptor::construct()</tt></td><td>Jacksonville</td><td></td></tr>
-	<tr><td><a href="http://cplusplus.github.io/LWG/lwg-defects.html#2590">2590</a></td><td>Aggregate initialization for <tt>std::array</tt></td><td>Jacksonville</td><td>Complete</td></tr>
+	<tr><th>Issue #</th><th>Issue Name</th><th>Meeting</th><th>Status</th></tr>
+
+	<tr><td><a href="http://wg21.link/LWG2444">2444</a></td><td>Inconsistent complexity for std::sort_heap</td><td>Toronto</td><td></td></tr>
+	<tr><td><a href="http://wg21.link/LWG2593">2593</a></td><td>Moved-from state of Allocators</td><td>Toronto</td><td></td></tr>
+	<tr><td><a href="http://wg21.link/LWG2597">2597</a></td><td>std::log misspecified for complex numbers</td><td>Toronto</td><td></td></tr>
+	<tr><td><a href="http://wg21.link/LWG2783">2783</a></td><td>stack::emplace() and queue::emplace() should return decltype(auto)</td><td>Toronto</td><td></td></tr>
+	<tr><td><a href="http://wg21.link/LWG2932">2932</a></td><td>Constraints on parallel algorithm implementations are underspecified</td><td>Toronto</td><td></td></tr>
+	<tr><td><a href="http://wg21.link/LWG2937">2937</a></td><td>Is equivalent("existing_thing", "not_existing_thing") an error?</td><td>Toronto</td><td>Complete</td></tr>
+	<tr><td><a href="http://wg21.link/LWG2940">2940</a></td><td>result_of specification also needs a little cleanup</td><td>Toronto</td><td></td></tr>
+	<tr><td><a href="http://wg21.link/LWG2942">2942</a></td><td>LWG 2873's resolution missed weak_ptr::owner_before</td><td>Toronto</td><td></td></tr>
+	<tr><td><a href="http://wg21.link/LWG2954">2954</a></td><td>Specialization of the convenience variable templates should be prohibited</td><td>Toronto</td><td></td></tr>
+	<tr><td><a href="http://wg21.link/LWG2961">2961</a></td><td>Bad postcondition for set_default_resource</td><td>Toronto</td><td></td></tr>
+	<tr><td><a href="http://wg21.link/LWG2966">2966</a></td><td>Incomplete resolution of US 74</td><td>Toronto</td><td></td></tr>
+	<tr><td><a href="http://wg21.link/LWG2974">2974</a></td><td>Diagnose out of bounds tuple_element/variant_alternative</td><td>Toronto</td><td></td></tr>
+
+	<tr><td></td><td><center><b>Priority 1 Bugs</b></center></td><td></td><td></td></tr>
+	<tr><td><a href="http://wg21.link/LWG2665">2665</a></td><td>remove_filename() post condition is incorrect</td><td>Toronto</td><td>We do this already</td></tr>
+
+	<tr><td></td><td><center><b>Immediate Issues in Toronto</b></center></td><td></td><td></td></tr>
+	<tr><td><a href="http://wg21.link/LWG2901">2901</a></td><td>Variants cannot properly support allocators</td><td>Toronto</td><td>We do this already</td></tr>
+	<tr><td><a href="http://wg21.link/LWG2956">2956</a></td><td><tt>filesystem::canonical()</tt> still defined in terms of <tt>absolute(p, base)</tt></td><td>Toronto</td><td></td></tr>
+
   </table>
 
 <h3>Comments about the issues</h3>
 <ul>
-<li>2192 - </li>
-<li>2253 - Arrays.ts is moribund. No action needed.</li>
-<li>2255 - Arrays.ts is moribund. No action needed.</li>
-<li>2276 - </li>
-<li>2450 - </li>
-<li>2520 - We need to implement N4089 before doing this.</li>
-<li>2522 - I don't think we have a PMR implementation yet.</li>
-<li>2523 - Cleaning up wording; no code change required.</li>
-<li>2537 - </li>
-<li>2539 - </li>
-<li>2545 - </li>
-<li>2557 - Cleaning up wording; no code change required.</li>
-<li>2558 - Cleaning up wording; no code change required.</li>
-<li>2559 - Cleaning up wording; no code change required.</li>
-<li>2560 - We already do this; added tests in r261653. <i>More: the new tests fail on green-dragon-09, so I reverted it. Will recommit after green-dragon bots are updated. Probably need to XFAIL for clang3-6 as well (arm bots)</i></li>
-<li>2565 - </li>
-<li>2566 - </li>
-<li>2571 - Cleaning up wording; no code change required.</li>
-<li>2572 - We already do this.</li>
-<li>2574 - </li>
-<li>2575 - I don't think we ever implemented this; so 'removing' it is trivial</li>
-<li>2576 - This one is simple, but testing it will be hard. I tried making a sublass of istringstream, but it got sliced.</li>
-<li>2577 - This one is simple</li>
-<li>2579 - <i>Done</i></li>
-<li>2581 - Nothing to do here.</li>
-<li>2582 - I've added tests to meta.unary.cat; no code changes needed yet.</li>
-<li>2583 - <i>Done</i></li>
-<li>2585 - This looks easy; but Alisdair wants to NAD this issue.</li>
-<li>2586 - We need to fix <a href="http:/llvm.org/PR24075">PR24075</a> when we do this.</li>
-<li>2590 - We already do this; added tests in r261648.</li>
+<li>2444 - </li>
+<li>2593 - </li>
+<li>2597 - I think we do this already; probably needs tests</li>
+<li>2783 - should be easy to change; needs tests</li>
+<li>2932 - We're not doing the parallel algorithms yet.</li>
+<li>2937 - Implemented with tests. The PR LGTM (Eric)</li>
+<li>2940 - We haven't implemented result_of yet, but I don't think that this will require any changes.</li>
+<li>2942 - all of our owner_before overloads are already noexcept; just need to update the tests.</li>
+<li>2954 - I don't think there's anything to do here.</li>
+<li>2961 - We haven't implemented the PMR stuff yet.</li>
+<li>2966 - Wording cleanup; no code or test changes needed.</li>
+<li>2974 - I did this in r305196. Tests added in 306580</li>
 </ul>
 
-<p>Last Updated: 23-Feb-2015</p>
+<p>Last Updated: 28-Jun-2017</p>
 </div>
 </body>
 </html>

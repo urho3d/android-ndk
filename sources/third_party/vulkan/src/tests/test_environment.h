@@ -31,7 +31,7 @@
 
 namespace vk_testing {
 class Environment : public ::testing::Environment {
-  public:
+   public:
     Environment();
 
     bool parse_args(int argc, char **argv);
@@ -44,12 +44,12 @@ class Environment : public ::testing::Environment {
     VkInstance get_instance() { return inst; }
     VkPhysicalDevice gpus[16];
 
-  private:
+   private:
     VkApplicationInfo app_;
     uint32_t default_dev_;
     VkInstance inst;
 
     std::vector<Device *> devs_;
 };
-}
-#endif // TEST_ENVIRONMENT_H
+}  // namespace vk_testing
+#endif  // TEST_ENVIRONMENT_H

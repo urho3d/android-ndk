@@ -35,25 +35,14 @@ TARGET_CFLAGS += -g
 
 TARGET_LDFLAGS := -no-canonical-prefixes
 
-ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
-    TARGET_CFLAGS += \
-        -march=armv7-a \
-        -mfpu=vfpv3-d16 \
-        -mfloat-abi=softfp \
+TARGET_CFLAGS += \
+    -march=armv7-a \
+    -mfpu=vfpv3-d16 \
+    -mfloat-abi=softfp \
 
-    TARGET_LDFLAGS += \
-        -march=armv7-a \
-        -Wl,--fix-cortex-a8 \
-
-else ifeq ($(TARGET_ARCH_ABI),armeabi)
-    TARGET_CFLAGS += \
-        -march=armv5te \
-        -mtune=xscale \
-        -msoft-float \
-
-else
-    $(call __ndk_error,Unsupported ABI: $(TARGET_ARCH_ABI))
-endif
+TARGET_LDFLAGS += \
+    -march=armv7-a \
+    -Wl,--fix-cortex-a8 \
 
 TARGET_CFLAGS.neon := -mfpu=neon
 

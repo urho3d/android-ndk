@@ -8,7 +8,6 @@
 //===----------------------------------------------------------------------===//
 //
 // UNSUPPORTED: c++98, c++03, c++11
-// XFAIL: libcpp-no-exceptions
 
 // <optional>
 
@@ -19,6 +18,7 @@
 #include <type_traits>
 #include <cassert>
 
+#include "test_macros.h"
 
 using std::experimental::optional;
 using std::experimental::in_place_t;
@@ -55,7 +55,7 @@ public:
 class Z
 {
 public:
-    Z(int i) {throw 6;}
+    Z(int) {TEST_THROW(6);}
 };
 
 
@@ -69,7 +69,7 @@ int main()
         struct test_constexpr_ctor
             : public optional<int>
         {
-            constexpr test_constexpr_ctor(in_place_t, int i) 
+            constexpr test_constexpr_ctor(in_place_t, int i)
                 : optional<int>(in_place, i) {}
         };
 
@@ -97,7 +97,7 @@ int main()
         struct test_constexpr_ctor
             : public optional<Y>
         {
-            constexpr test_constexpr_ctor(in_place_t) 
+            constexpr test_constexpr_ctor(in_place_t)
                 : optional<Y>(in_place) {}
         };
 
@@ -110,7 +110,7 @@ int main()
         struct test_constexpr_ctor
             : public optional<Y>
         {
-            constexpr test_constexpr_ctor(in_place_t, int i) 
+            constexpr test_constexpr_ctor(in_place_t, int i)
                 : optional<Y>(in_place, i) {}
         };
 
@@ -123,11 +123,12 @@ int main()
         struct test_constexpr_ctor
             : public optional<Y>
         {
-            constexpr test_constexpr_ctor(in_place_t, int i, int j) 
+            constexpr test_constexpr_ctor(in_place_t, int i, int j)
                 : optional<Y>(in_place, i, j) {}
         };
 
     }
+#ifndef TEST_HAS_NO_EXCEPTIONS
     {
         try
         {
@@ -139,4 +140,5 @@ int main()
             assert(i == 6);
         }
     }
+#endif
 }

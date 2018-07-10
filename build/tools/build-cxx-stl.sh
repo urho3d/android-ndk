@@ -62,8 +62,7 @@ NDK_DIR=
 register_var_option "--ndk-dir=<path>" NDK_DIR "Specify NDK root path for the build."
 
 BUILD_DIR=
-OPTION_BUILD_DIR=
-register_var_option "--build-dir=<path>" OPTION_BUILD_DIR "Specify temporary build dir."
+register_var_option "--build-dir=<path>" BUILD_DIR "Specify temporary build dir."
 
 OUT_DIR=
 register_var_option "--out-dir=<path>" OUT_DIR "Specify output directory directly."
@@ -143,11 +142,6 @@ case $CXX_STL in
     ;;
 esac
 
-if [ -z "$OPTION_BUILD_DIR" ]; then
-    BUILD_DIR=$NDK_TMPDIR/build-$CXX_STL
-else
-    BUILD_DIR=$OPTION_BUILD_DIR
-fi
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 fail_panic "Could not create build directory: $BUILD_DIR"
@@ -299,137 +293,6 @@ LIBCXXABI_UNWIND_SOURCES=\
 ../llvm-libc++abi/libcxxabi/src/Unwind/UnwindRegistersSave.S \
 "
 
-# android/support files for libc++
-SUPPORT32_SOURCES=\
-"../../android/support/src/locale_support.c \
-../../android/support/src/math_support.c \
-../../android/support/src/stdlib_support.c \
-../../android/support/src/wchar_support.c \
-../../android/support/src/locale/duplocale.c \
-../../android/support/src/locale/freelocale.c \
-../../android/support/src/locale/localeconv.c \
-../../android/support/src/locale/newlocale.c \
-../../android/support/src/locale/uselocale.c \
-../../android/support/src/stdio/stdio_impl.c \
-../../android/support/src/stdio/strtod.c \
-../../android/support/src/stdio/vfprintf.c \
-../../android/support/src/stdio/vfwprintf.c \
-../../android/support/src/msun/e_log2.c \
-../../android/support/src/msun/e_log2f.c \
-../../android/support/src/msun/s_nan.c \
-../../android/support/src/musl-multibyte/btowc.c \
-../../android/support/src/musl-multibyte/internal.c \
-../../android/support/src/musl-multibyte/mblen.c \
-../../android/support/src/musl-multibyte/mbrlen.c \
-../../android/support/src/musl-multibyte/mbrtowc.c \
-../../android/support/src/musl-multibyte/mbsinit.c \
-../../android/support/src/musl-multibyte/mbsnrtowcs.c \
-../../android/support/src/musl-multibyte/mbsrtowcs.c \
-../../android/support/src/musl-multibyte/mbstowcs.c \
-../../android/support/src/musl-multibyte/mbtowc.c \
-../../android/support/src/musl-multibyte/wcrtomb.c \
-../../android/support/src/musl-multibyte/wcsnrtombs.c \
-../../android/support/src/musl-multibyte/wcsrtombs.c \
-../../android/support/src/musl-multibyte/wcstombs.c \
-../../android/support/src/musl-multibyte/wctob.c \
-../../android/support/src/musl-multibyte/wctomb.c \
-../../android/support/src/musl-ctype/iswalnum.c \
-../../android/support/src/musl-ctype/iswalpha.c \
-../../android/support/src/musl-ctype/iswblank.c \
-../../android/support/src/musl-ctype/iswcntrl.c \
-../../android/support/src/musl-ctype/iswctype.c \
-../../android/support/src/musl-ctype/iswdigit.c \
-../../android/support/src/musl-ctype/iswgraph.c \
-../../android/support/src/musl-ctype/iswlower.c \
-../../android/support/src/musl-ctype/iswprint.c \
-../../android/support/src/musl-ctype/iswpunct.c \
-../../android/support/src/musl-ctype/iswspace.c \
-../../android/support/src/musl-ctype/iswupper.c \
-../../android/support/src/musl-ctype/iswxdigit.c \
-../../android/support/src/musl-ctype/isxdigit.c \
-../../android/support/src/musl-ctype/towctrans.c \
-../../android/support/src/musl-ctype/wcswidth.c \
-../../android/support/src/musl-ctype/wctrans.c \
-../../android/support/src/musl-ctype/wcwidth.c \
-../../android/support/src/musl-locale/catclose.c \
-../../android/support/src/musl-locale/catgets.c \
-../../android/support/src/musl-locale/catopen.c \
-../../android/support/src/musl-locale/iconv.c \
-../../android/support/src/musl-locale/intl.c \
-../../android/support/src/musl-locale/isalnum_l.c \
-../../android/support/src/musl-locale/isalpha_l.c \
-../../android/support/src/musl-locale/isblank_l.c \
-../../android/support/src/musl-locale/iscntrl_l.c \
-../../android/support/src/musl-locale/isdigit_l.c \
-../../android/support/src/musl-locale/isgraph_l.c \
-../../android/support/src/musl-locale/islower_l.c \
-../../android/support/src/musl-locale/isprint_l.c \
-../../android/support/src/musl-locale/ispunct_l.c \
-../../android/support/src/musl-locale/isspace_l.c \
-../../android/support/src/musl-locale/isupper_l.c \
-../../android/support/src/musl-locale/iswalnum_l.c \
-../../android/support/src/musl-locale/iswalpha_l.c \
-../../android/support/src/musl-locale/iswblank_l.c \
-../../android/support/src/musl-locale/iswcntrl_l.c \
-../../android/support/src/musl-locale/iswctype_l.c \
-../../android/support/src/musl-locale/iswdigit_l.c \
-../../android/support/src/musl-locale/iswgraph_l.c \
-../../android/support/src/musl-locale/iswlower_l.c \
-../../android/support/src/musl-locale/iswprint_l.c \
-../../android/support/src/musl-locale/iswpunct_l.c \
-../../android/support/src/musl-locale/iswspace_l.c \
-../../android/support/src/musl-locale/iswupper_l.c \
-../../android/support/src/musl-locale/iswxdigit_l.c \
-../../android/support/src/musl-locale/isxdigit_l.c \
-../../android/support/src/musl-locale/langinfo.c \
-../../android/support/src/musl-locale/strcasecmp_l.c \
-../../android/support/src/musl-locale/strcoll.c \
-../../android/support/src/musl-locale/strerror_l.c \
-../../android/support/src/musl-locale/strfmon.c \
-../../android/support/src/musl-locale/strftime_l.c \
-../../android/support/src/musl-locale/strncasecmp_l.c \
-../../android/support/src/musl-locale/strxfrm.c \
-../../android/support/src/musl-locale/tolower_l.c \
-../../android/support/src/musl-locale/toupper_l.c \
-../../android/support/src/musl-locale/towctrans_l.c \
-../../android/support/src/musl-locale/towlower_l.c \
-../../android/support/src/musl-locale/towupper_l.c \
-../../android/support/src/musl-locale/wcscoll.c \
-../../android/support/src/musl-locale/wcsxfrm.c \
-../../android/support/src/musl-locale/wctrans_l.c \
-../../android/support/src/musl-locale/wctype_l.c \
-../../android/support/src/musl-math/frexpf.c \
-../../android/support/src/musl-math/frexpl.c \
-../../android/support/src/musl-math/frexp.c \
-../../android/support/src/musl-stdio/swprintf.c \
-../../android/support/src/musl-stdio/vwprintf.c \
-../../android/support/src/musl-stdio/wprintf.c \
-../../android/support/src/musl-stdio/printf.c \
-../../android/support/src/musl-stdio/snprintf.c \
-../../android/support/src/musl-stdio/sprintf.c \
-../../android/support/src/musl-stdio/vprintf.c \
-../../android/support/src/musl-stdio/vsprintf.c \
-../../android/support/src/wcstox/intscan.c \
-../../android/support/src/wcstox/floatscan.c \
-../../android/support/src/wcstox/shgetc.c \
-../../android/support/src/wcstox/wcstod.c \
-../../android/support/src/wcstox/wcstol.c \
-"
-# Replaces broken implementations in x86 libm.so
-SUPPORT32_SOURCES_x86=\
-"../../android/support/src/musl-math/scalbln.c \
-../../android/support/src/musl-math/scalblnf.c \
-../../android/support/src/musl-math/scalblnl.c \
-../../android/support/src/musl-math/scalbnl.c \
-"
-
-# android/support files for libc++
-SUPPORT64_SOURCES=\
-"../../android/support/src/musl-locale/catclose.c \
-../../android/support/src/musl-locale/catgets.c \
-../../android/support/src/musl-locale/catopen.c \
-"
-
 # If the --no-makefile flag is not used, we're going to put all build
 # commands in a temporary Makefile that we will be able to invoke with
 # -j$NUM_JOBS to build stuff in parallel.
@@ -495,7 +358,6 @@ build_stl_libs_for_abi ()
     local BUILDDIR="$2"
     local TYPE="$3"
     local DSTDIR="$4"
-    local FLOAT_ABI=""
     local DEFAULT_CFLAGS DEFAULT_CXXFLAGS
     local SRC OBJ OBJECTS EXTRA_CFLAGS EXTRA_CXXFLAGS EXTRA_LDFLAGS LIB_SUFFIX GCCVER
 
@@ -515,7 +377,6 @@ build_stl_libs_for_abi ()
             EXTRA_CXXFLAGS="-mstackrealign"
             ;;
         mips)
-            # TODO: Remove this once mipsel-linux-android target is changed in clang
             EXTRA_CFLAGS="-mips32"
             EXTRA_CXXFLAGS="-mips32"
             EXTRA_LDFLAGS="-mips32"
@@ -631,7 +492,7 @@ build_stl_libs_for_abi ()
         builder_static_library ${CXX_STL_LIB}_static
     else
         log "Building $DSTDIR/${CXX_STL_LIB}_shared${LIB_SUFFIX}"
-        builder_shared_library ${CXX_STL_LIB}_shared $LIB_SUFFIX "$FLOAT_ABI"
+        builder_shared_library ${CXX_STL_LIB}_shared $LIB_SUFFIX
     fi
 
     builder_end

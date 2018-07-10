@@ -36,6 +36,7 @@
 #include "operand.h"
 #include "spirv-tools/libspirv.h"
 #include "spirv_constant.h"
+#include "spirv_target_env.h"
 #include "table.h"
 #include "text_handler.h"
 #include "util/bitutils.h"
@@ -241,13 +242,13 @@ spv_result_t spvTextEncodeOperand(const libspirv::AssemblyGrammar& grammar,
       // and emits its corresponding number.
       spv_ext_inst_desc extInst;
       if (grammar.lookupExtInst(pInst->extInstType, textValue, &extInst)) {
-        return context->diagnostic() << "Invalid extended instruction name '"
-                                     << textValue << "'.";
+        return context->diagnostic()
+               << "Invalid extended instruction name '" << textValue << "'.";
       }
       spvInstructionAddWord(pInst, extInst->ext_inst);
 
       // Prepare to parse the operands for the extended instructions.
-      spvPrependOperandTypes(extInst->operandTypes, pExpectedOperands);
+      spvPushOperandTypes(extInst->operandTypes, pExpectedOperands);
     } break;
 
     case SPV_OPERAND_TYPE_SPEC_CONSTANT_OP_NUMBER: {
@@ -271,7 +272,7 @@ spv_result_t spvTextEncodeOperand(const libspirv::AssemblyGrammar& grammar,
       assert(opcodeEntry->hasType);
       assert(opcodeEntry->hasResult);
       assert(opcodeEntry->numTypes >= 2);
-      spvPrependOperandTypes(opcodeEntry->operandTypes + 2, pExpectedOperands);
+      spvPushOperandTypes(opcodeEntry->operandTypes + 2, pExpectedOperands);
     } break;
 
     case SPV_OPERAND_TYPE_LITERAL_INTEGER:
@@ -366,13 +367,16 @@ spv_result_t spvTextEncodeOperand(const libspirv::AssemblyGrammar& grammar,
       if (context->binaryEncodeString(literal.str.c_str(), pInst))
         return SPV_ERROR_INVALID_TEXT;
     } break;
+
+    // Masks.
     case SPV_OPERAND_TYPE_FP_FAST_MATH_MODE:
     case SPV_OPERAND_TYPE_FUNCTION_CONTROL:
     case SPV_OPERAND_TYPE_LOOP_CONTROL:
     case SPV_OPERAND_TYPE_IMAGE:
     case SPV_OPERAND_TYPE_OPTIONAL_IMAGE:
     case SPV_OPERAND_TYPE_OPTIONAL_MEMORY_ACCESS:
-    case SPV_OPERAND_TYPE_SELECTION_CONTROL: {
+    case SPV_OPERAND_TYPE_SELECTION_CONTROL:
+    case SPV_OPERAND_TYPE_DEBUG_INFO_FLAGS: {
       uint32_t value;
       if (grammar.parseMaskOperand(type, textValue, &value)) {
         return context->diagnostic() << "Invalid " << spvOperandTypeStr(type)
@@ -380,7 +384,7 @@ spv_result_t spvTextEncodeOperand(const libspirv::AssemblyGrammar& grammar,
       }
       if (auto error = context->binaryEncodeU32(value, pInst)) return error;
       // Prepare to parse the operands for this logical operand.
-      grammar.prependOperandTypesForMask(type, value, pExpectedOperands);
+      grammar.pushOperandTypesForMask(type, value, pExpectedOperands);
     } break;
     case SPV_OPERAND_TYPE_OPTIONAL_CIV: {
       auto error = spvTextEncodeOperand(
@@ -420,7 +424,7 @@ spv_result_t spvTextEncodeOperand(const libspirv::AssemblyGrammar& grammar,
       }
 
       // Prepare to parse the operands for this logical operand.
-      spvPrependOperandTypes(entry->operandTypes, pExpectedOperands);
+      spvPushOperandTypes(entry->operandTypes, pExpectedOperands);
     } break;
   }
   return SPV_SUCCESS;
@@ -522,8 +526,8 @@ spv_result_t spvTextEncodeOpcode(const libspirv::AssemblyGrammar& grammar,
     error = context->getWord(&opcodeName, &nextPosition);
     if (error) return context->diagnostic(error) << "Internal Error";
     if (!context->startsWithOp()) {
-      return context->diagnostic() << "Invalid Opcode prefix '" << opcodeName
-                                   << "'.";
+      return context->diagnostic()
+             << "Invalid Opcode prefix '" << opcodeName << "'.";
     }
   }
 
@@ -533,8 +537,8 @@ spv_result_t spvTextEncodeOpcode(const libspirv::AssemblyGrammar& grammar,
   spv_opcode_desc opcodeEntry;
   error = grammar.lookupOpcode(pInstName, &opcodeEntry);
   if (error) {
-    return context->diagnostic(error) << "Invalid Opcode name '" << opcodeName
-                                      << "'";
+    return context->diagnostic(error)
+           << "Invalid Opcode name '" << opcodeName << "'";
   }
   if (opcodeEntry->hasResult && result_id.empty()) {
     return context->diagnostic()
@@ -553,13 +557,15 @@ spv_result_t spvTextEncodeOpcode(const libspirv::AssemblyGrammar& grammar,
   // has its own logical operands (such as the LocalSize operand for
   // ExecutionMode), or for extended instructions that may have their
   // own operands depending on the selected extended instruction.
-  spv_operand_pattern_t expectedOperands(
-      opcodeEntry->operandTypes,
-      opcodeEntry->operandTypes + opcodeEntry->numTypes);
+  spv_operand_pattern_t expectedOperands;
+  expectedOperands.reserve(opcodeEntry->numTypes);
+  for (auto i = 0; i < opcodeEntry->numTypes; i++)
+    expectedOperands.push_back(
+        opcodeEntry->operandTypes[opcodeEntry->numTypes - i - 1]);
 
   while (!expectedOperands.empty()) {
-    const spv_operand_type_t type = expectedOperands.front();
-    expectedOperands.pop_front();
+    const spv_operand_type_t type = expectedOperands.back();
+    expectedOperands.pop_back();
 
     // Expand optional tuples lazily.
     if (spvExpandOperandSequenceOnce(type, &expectedOperands)) continue;
@@ -659,13 +665,58 @@ spv_result_t SetHeader(spv_target_env env, const uint32_t bound,
   return SPV_SUCCESS;
 }
 
+// Collects all numeric ids in the module source into |numeric_ids|.
+// This function is essentially a dry-run of spvTextToBinary.
+spv_result_t GetNumericIds(const libspirv::AssemblyGrammar& grammar,
+                           const spvtools::MessageConsumer& consumer,
+                           const spv_text text,
+                           std::set<uint32_t>* numeric_ids) {
+  libspirv::AssemblyContext context(text, consumer);
+
+  if (!text->str) return context.diagnostic() << "Missing assembly text.";
+
+  if (!grammar.isValid()) {
+    return SPV_ERROR_INVALID_TABLE;
+  }
+
+  // Skip past whitespace and comments.
+  context.advance();
+
+  while (context.hasText()) {
+    spv_instruction_t inst;
+
+    if (spvTextEncodeOpcode(grammar, &context, &inst)) {
+      return SPV_ERROR_INVALID_TEXT;
+    }
+
+    if (context.advance()) break;
+  }
+
+  *numeric_ids = context.GetNumericIds();
+  return SPV_SUCCESS;
+}
+
 // Translates a given assembly language module into binary form.
 // If a diagnostic is generated, it is not yet marked as being
 // for a text-based input.
 spv_result_t spvTextToBinaryInternal(const libspirv::AssemblyGrammar& grammar,
                                      const spvtools::MessageConsumer& consumer,
-                                     const spv_text text, spv_binary* pBinary) {
-  libspirv::AssemblyContext context(text, consumer);
+                                     const spv_text text,
+                                     const uint32_t options,
+                                     spv_binary* pBinary) {
+  // The ids in this set will have the same values both in source and binary.
+  // All other ids will be generated by filling in the gaps.
+  std::set<uint32_t> ids_to_preserve;
+
+  if (options & SPV_TEXT_TO_BINARY_OPTION_PRESERVE_NUMERIC_IDS) {
+    // Collect all numeric ids from the source into ids_to_preserve.
+    const spv_result_t result =
+        GetNumericIds(grammar, consumer, text, &ids_to_preserve);
+    if (result != SPV_SUCCESS) return result;
+  }
+
+  libspirv::AssemblyContext context(text, consumer, std::move(ids_to_preserve));
+
   if (!text->str) return context.diagnostic() << "Missing assembly text.";
 
   if (!grammar.isValid()) {
@@ -725,6 +776,17 @@ spv_result_t spvTextToBinary(const spv_const_context context,
                              const char* input_text,
                              const size_t input_text_size, spv_binary* pBinary,
                              spv_diagnostic* pDiagnostic) {
+  return spvTextToBinaryWithOptions(context, input_text, input_text_size,
+                                    SPV_BINARY_TO_TEXT_OPTION_NONE, pBinary,
+                                    pDiagnostic);
+}
+
+spv_result_t spvTextToBinaryWithOptions(const spv_const_context context,
+                                        const char* input_text,
+                                        const size_t input_text_size,
+                                        const uint32_t options,
+                                        spv_binary* pBinary,
+                                        spv_diagnostic* pDiagnostic) {
   spv_context_t hijack_context = *context;
   if (pDiagnostic) {
     *pDiagnostic = nullptr;
@@ -734,8 +796,8 @@ spv_result_t spvTextToBinary(const spv_const_context context,
   spv_text_t text = {input_text, input_text_size};
   libspirv::AssemblyGrammar grammar(&hijack_context);
 
-  spv_result_t result =
-      spvTextToBinaryInternal(grammar, hijack_context.consumer, &text, pBinary);
+  spv_result_t result = spvTextToBinaryInternal(
+      grammar, hijack_context.consumer, &text, options, pBinary);
   if (pDiagnostic && *pDiagnostic) (*pDiagnostic)->isTextSource = true;
 
   return result;

@@ -25,7 +25,6 @@
  */
 
 #include "test_common.h"
-#include "vktestbinding.h"
 #include "test_environment.h"
 
 #if defined(NDEBUG) && defined(__GNUC__)
@@ -76,7 +75,6 @@ bool Environment::parse_args(int argc, char **argv) {
 }
 
 void Environment::SetUp() {
-
     uint32_t count;
     VkResult U_ASSERT_ONLY err;
     VkInstanceCreateInfo inst_info = {};
@@ -151,11 +149,9 @@ void Environment::SetUp() {
 
 void Environment::TearDown() {
     // destroy devices first
-    for (std::vector<Device *>::iterator it = devs_.begin(); it != devs_.end(); it++)
-        delete *it;
+    for (std::vector<Device *>::iterator it = devs_.begin(); it != devs_.end(); it++) delete *it;
     devs_.clear();
 
-    if (inst)
-        vkDestroyInstance(inst, NULL);
+    if (inst) vkDestroyInstance(inst, NULL);
 }
-} // vk_testing namespace
+}  // namespace vk_testing

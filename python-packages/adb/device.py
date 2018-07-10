@@ -260,6 +260,7 @@ class AndroidDevice(object):
     def __init__(self, serial, product=None, adb_path='adb'):
         self.serial = serial
         self.product = product
+        self.adb_path = adb_path
         self.adb_cmd = [adb_path]
 
         if self.serial is not None:
@@ -415,8 +416,23 @@ class AndroidDevice(object):
         cmd.append(filename)
         return self._simple_call(cmd)
 
-    def push(self, local, remote):
-        return self._simple_call(['push', local, remote])
+    def push(self, local, remote, sync=False):
+        """Transfer a local file or directory to the device.
+
+        Args:
+            local: The local file or directory to transfer.
+            remote: The remote path to which local should be transferred.
+            sync: If True, only transfers files that are newer on the host than
+                  those on the device. If False, transfers all files.
+
+        Returns:
+            Exit status of the push command.
+        """
+        cmd = ['push']
+        if sync:
+            cmd.append('--sync')
+        cmd.extend([local, remote])
+        return self._simple_call(cmd)
 
     def pull(self, remote, local):
         return self._simple_call(['pull', remote, local])
@@ -483,22 +499,6 @@ class AndroidDevice(object):
 
     def wait(self):
         return self._simple_call(['wait-for-device'])
-
-    def get_props(self):
-        result = {}
-        output, _ = self.shell(['getprop'])
-        output = split_lines(output)
-        pattern = re.compile(r'^\[([^]]+)\]: \[(.*)\]')
-        for line in output:
-            match = pattern.match(line)
-            if match is None:
-                raise RuntimeError('invalid getprop line: "{}"'.format(line))
-            key = match.group(1)
-            value = match.group(2)
-            if key in result:
-                raise RuntimeError('duplicate getprop key: "{}"'.format(key))
-            result[key] = value
-        return result
 
     def get_prop(self, prop_name):
         output = split_lines(self.shell(['getprop', prop_name])[0])

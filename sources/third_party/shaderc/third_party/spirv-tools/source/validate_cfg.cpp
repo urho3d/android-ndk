@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "cfa.h"
 #include "validate.h"
 
-#include <cassert>
-
 #include <algorithm>
+#include <cassert>
 #include <functional>
+#include <iostream>
 #include <map>
 #include <string>
 #include <tuple>
@@ -26,10 +27,11 @@
 #include <utility>
 #include <vector>
 
-#include "val/BasicBlock.h"
-#include "val/Construct.h"
-#include "val/Function.h"
-#include "val/ValidationState.h"
+#include "spirv_validator_options.h"
+#include "val/basic_block.h"
+#include "val/construct.h"
+#include "val/function.h"
+#include "val/validation_state.h"
 
 using std::find;
 using std::function;
@@ -57,131 +59,7 @@ using bb_ptr = BasicBlock*;
 using cbb_ptr = const BasicBlock*;
 using bb_iter = vector<BasicBlock*>::const_iterator;
 
-struct block_info {
-  cbb_ptr block;  ///< pointer to the block
-  bb_iter iter;   ///< Iterator to the current child node being processed
-};
-
-/// Returns true if a block with @p id is found in the @p work_list vector
-///
-/// @param[in] work_list  Set of blocks visited in the the depth first traversal
-///                       of the CFG
-/// @param[in] id         The ID of the block being checked
-///
-/// @return true if the edge work_list.back().block->id() => id is a back-edge
-bool FindInWorkList(const vector<block_info>& work_list, uint32_t id) {
-  for (const auto b : work_list) {
-    if (b.block->id() == id) return true;
-  }
-  return false;
-}
-
 }  // namespace
-
-void DepthFirstTraversal(const BasicBlock* entry,
-                         get_blocks_func successor_func,
-                         function<void(cbb_ptr)> preorder,
-                         function<void(cbb_ptr)> postorder,
-                         function<void(cbb_ptr, cbb_ptr)> backedge) {
-  unordered_set<uint32_t> processed;
-
-  /// NOTE: work_list is the sequence of nodes from the root node to the node
-  /// being processed in the traversal
-  vector<block_info> work_list;
-  work_list.reserve(10);
-
-  work_list.push_back({entry, begin(*successor_func(entry))});
-  preorder(entry);
-  processed.insert(entry->id());
-
-  while (!work_list.empty()) {
-    block_info& top = work_list.back();
-    if (top.iter == end(*successor_func(top.block))) {
-      postorder(top.block);
-      work_list.pop_back();
-    } else {
-      BasicBlock* child = *top.iter;
-      top.iter++;
-      if (FindInWorkList(work_list, child->id())) {
-        backedge(top.block, child);
-      }
-      if (processed.count(child->id()) == 0) {
-        preorder(child);
-        work_list.emplace_back(
-            block_info{child, begin(*successor_func(child))});
-        processed.insert(child->id());
-      }
-    }
-  }
-}
-
-vector<pair<BasicBlock*, BasicBlock*>> CalculateDominators(
-    const vector<cbb_ptr>& postorder, get_blocks_func predecessor_func) {
-  struct block_detail {
-    size_t dominator;  ///< The index of blocks's dominator in post order array
-    size_t postorder_index;  ///< The index of the block in the post order array
-  };
-  const size_t undefined_dom = postorder.size();
-
-  unordered_map<cbb_ptr, block_detail> idoms;
-  for (size_t i = 0; i < postorder.size(); i++) {
-    idoms[postorder[i]] = {undefined_dom, i};
-  }
-  idoms[postorder.back()].dominator = idoms[postorder.back()].postorder_index;
-
-  bool changed = true;
-  while (changed) {
-    changed = false;
-    for (auto b = postorder.rbegin() + 1; b != postorder.rend(); ++b) {
-      const vector<BasicBlock*>& predecessors = *predecessor_func(*b);
-      // Find the first processed/reachable predecessor that is reachable
-      // in the forward traversal.
-      auto res = find_if(begin(predecessors), end(predecessors),
-                         [&idoms, undefined_dom](BasicBlock* pred) {
-                           return idoms.count(pred) &&
-                                  idoms[pred].dominator != undefined_dom;
-                         });
-      if (res == end(predecessors)) continue;
-      const BasicBlock* idom = *res;
-      size_t idom_idx = idoms[idom].postorder_index;
-
-      // all other predecessors
-      for (const auto* p : predecessors) {
-        if (idom == p) continue;
-        // Only consider nodes reachable in the forward traversal.
-        // Otherwise the intersection doesn't make sense and will never
-        // terminate.
-        if (!idoms.count(p)) continue;
-        if (idoms[p].dominator != undefined_dom) {
-          size_t finger1 = idoms[p].postorder_index;
-          size_t finger2 = idom_idx;
-          while (finger1 != finger2) {
-            while (finger1 < finger2) {
-              finger1 = idoms[postorder[finger1]].dominator;
-            }
-            while (finger2 < finger1) {
-              finger2 = idoms[postorder[finger2]].dominator;
-            }
-          }
-          idom_idx = finger1;
-        }
-      }
-      if (idoms[*b].dominator != idom_idx) {
-        idoms[*b].dominator = idom_idx;
-        changed = true;
-      }
-    }
-  }
-
-  vector<pair<bb_ptr, bb_ptr>> out;
-  for (auto idom : idoms) {
-    // NOTE: performing a const cast for convenient usage with
-    // UpdateImmediateDominators
-    out.push_back({const_cast<BasicBlock*>(get<0>(idom)),
-                   const_cast<BasicBlock*>(postorder[get<1>(idom).dominator])});
-  }
-  return out;
-}
 
 void printDominatorList(const BasicBlock& b) {
   std::cout << b.id() << " is dominated by: ";
@@ -198,7 +76,7 @@ void printDominatorList(const BasicBlock& b) {
 spv_result_t FirstBlockAssert(ValidationState_t& _, uint32_t target) {
   if (_.current_function().IsFirstBlock(target)) {
     return _.diag(SPV_ERROR_INVALID_CFG)
-           << "First block " << _.getIdName(target) << " of funciton "
+           << "First block " << _.getIdName(target) << " of function "
            << _.getIdName(_.current_function().id()) << " is targeted by block "
            << _.getIdName(_.current_function().current_block()->id());
   }
@@ -278,14 +156,8 @@ tuple<string, string, string> ConstructNames(ConstructType type) {
 string ConstructErrorString(const Construct& construct,
                             const string& header_string,
                             const string& exit_string,
-                            bool post_dominate = false) {
-  string construct_name, header_name, exit_name, dominate_text;
-  if (post_dominate) {
-    dominate_text = "is not post dominated by";
-  } else {
-    dominate_text = "does not dominate";
-  }
-
+                            const string& dominate_text) {
+  string construct_name, header_name, exit_name;
   tie(construct_name, header_name, exit_name) =
       ConstructNames(construct.type());
 
@@ -345,22 +217,29 @@ spv_result_t StructuredControlFlowChecks(
                     exit_name + ". This may be a bug in the validator.";
     }
 
-    // If the merge block is reachable then it's dominated by the header.
-    if (merge && merge->reachable() &&
-        find(merge->dom_begin(), merge->dom_end(), header) ==
-            merge->dom_end()) {
-      return _.diag(SPV_ERROR_INVALID_CFG)
-             << ConstructErrorString(construct, _.getIdName(header->id()),
-                                     _.getIdName(merge->id()));
+    // If the exit block is reachable then it's dominated by the
+    // header.
+    if (merge && merge->reachable()) {
+      if (!header->dominates(*merge)) {
+        return _.diag(SPV_ERROR_INVALID_CFG) << ConstructErrorString(
+                   construct, _.getIdName(header->id()),
+                   _.getIdName(merge->id()), "does not dominate");
+      }
+      // If it's really a merge block for a selection or loop, then it must be
+      // *strictly* dominated by the header.
+      if (construct.ExitBlockIsMergeBlock() && (header == merge)) {
+        return _.diag(SPV_ERROR_INVALID_CFG) << ConstructErrorString(
+                   construct, _.getIdName(header->id()),
+                   _.getIdName(merge->id()), "does not strictly dominate");
+      }
     }
     // Check post-dominance for continue constructs.  But dominance and
     // post-dominance only make sense when the construct is reachable.
     if (header->reachable() && construct.type() == ConstructType::kContinue) {
-      if (find(header->pdom_begin(), header->pdom_end(), merge) ==
-          merge->pdom_end()) {
-        return _.diag(SPV_ERROR_INVALID_CFG)
-               << ConstructErrorString(construct, _.getIdName(header->id()),
-                                       _.getIdName(merge->id()), true);
+      if (!merge->postdominates(*header)) {
+        return _.diag(SPV_ERROR_INVALID_CFG) << ConstructErrorString(
+                   construct, _.getIdName(header->id()),
+                   _.getIdName(merge->id()), "is not post dominated by");
       }
     }
     // TODO(umar):  an OpSwitch block dominates all its defined case
@@ -382,11 +261,16 @@ spv_result_t PerformCfgChecks(ValidationState_t& _) {
     // Check all referenced blocks are defined within a function
     if (function.undefined_block_count() != 0) {
       string undef_blocks("{");
+      bool first = true;
       for (auto undefined_block : function.undefined_blocks()) {
-        undef_blocks += _.getIdName(undefined_block) + " ";
+        undef_blocks += _.getIdName(undefined_block);
+        if (!first) {
+          undef_blocks += " ";
+        }
+        first = false;
       }
       return _.diag(SPV_ERROR_INVALID_CFG)
-             << "Block(s) " << undef_blocks << "\b}"
+             << "Block(s) " << undef_blocks << "}"
              << " are referenced but not defined in function "
              << _.getIdName(function.id());
     }
@@ -404,28 +288,29 @@ spv_result_t PerformCfgChecks(ValidationState_t& _) {
     auto ignore_edge = [](cbb_ptr, cbb_ptr) {};
     if (!function.ordered_blocks().empty()) {
       /// calculate dominators
-      DepthFirstTraversal(
+      spvtools::CFA<libspirv::BasicBlock>::DepthFirstTraversal(
           function.first_block(), function.AugmentedCFGSuccessorsFunction(),
           ignore_block, [&](cbb_ptr b) { postorder.push_back(b); },
           ignore_edge);
-      auto edges = libspirv::CalculateDominators(
+      auto edges = spvtools::CFA<libspirv::BasicBlock>::CalculateDominators(
           postorder, function.AugmentedCFGPredecessorsFunction());
       for (auto edge : edges) {
         edge.first->SetImmediateDominator(edge.second);
       }
 
       /// calculate post dominators
-      DepthFirstTraversal(
+      spvtools::CFA<libspirv::BasicBlock>::DepthFirstTraversal(
           function.pseudo_exit_block(),
           function.AugmentedCFGPredecessorsFunction(), ignore_block,
           [&](cbb_ptr b) { postdom_postorder.push_back(b); }, ignore_edge);
-      auto postdom_edges = libspirv::CalculateDominators(
-          postdom_postorder, function.AugmentedCFGSuccessorsFunction());
+      auto postdom_edges =
+          spvtools::CFA<libspirv::BasicBlock>::CalculateDominators(
+              postdom_postorder, function.AugmentedCFGSuccessorsFunction());
       for (auto edge : postdom_edges) {
         edge.first->SetImmediatePostDominator(edge.second);
       }
       /// calculate back edges.
-      DepthFirstTraversal(
+      spvtools::CFA<libspirv::BasicBlock>::DepthFirstTraversal(
           function.pseudo_entry_block(),
           function
               .AugmentedCFGSuccessorsFunctionIncludingHeaderToContinueEdge(),
@@ -435,10 +320,10 @@ spv_result_t PerformCfgChecks(ValidationState_t& _) {
     }
     UpdateContinueConstructExitBlocks(function, back_edges);
 
-    // Check if the order of blocks in the binary appear before the blocks they
-    // dominate
     auto& blocks = function.ordered_blocks();
-    if (blocks.empty() == false) {
+    if (!blocks.empty()) {
+      // Check if the order of blocks in the binary appear before the blocks
+      // they dominate
       for (auto block = begin(blocks) + 1; block != end(blocks); ++block) {
         if (auto idom = (*block)->immediate_dominator()) {
           if (idom != function.pseudo_entry_block() &&
@@ -447,6 +332,19 @@ spv_result_t PerformCfgChecks(ValidationState_t& _) {
                    << "Block " << _.getIdName((*block)->id())
                    << " appears in the binary before its dominator "
                    << _.getIdName(idom->id());
+          }
+        }
+      }
+      // If we have structed control flow, check that no block has a control
+      // flow nesting depth larger than the limit.
+      if (_.HasCapability(SpvCapabilityShader)) {
+        const int control_flow_nesting_depth_limit =
+            _.options()->universal_limits_.max_control_flow_nesting_depth;
+        for (auto block = begin(blocks); block != end(blocks); ++block) {
+          if (function.GetBlockDepth(*block) >
+              control_flow_nesting_depth_limit) {
+            return _.diag(SPV_ERROR_INVALID_CFG)
+                   << "Maximum Control Flow nesting depth exceeded.";
           }
         }
       }
@@ -509,11 +407,25 @@ spv_result_t CfgPass(ValidationState_t& _,
       }
       _.current_function().RegisterBlockEnd({cases}, opcode);
     } break;
+    case SpvOpReturn: {
+      const uint32_t return_type = _.current_function().GetResultTypeId();
+      const Instruction* return_type_inst = _.FindDef(return_type);
+      assert(return_type_inst);
+      if (return_type_inst->opcode() != SpvOpTypeVoid)
+        return _.diag(SPV_ERROR_INVALID_CFG)
+               << "OpReturn can only be called from a function with void "
+               << "return type.";
+    }
+    // Fallthrough.
     case SpvOpKill:
-    case SpvOpReturn:
     case SpvOpReturnValue:
     case SpvOpUnreachable:
-      _.current_function().RegisterBlockEnd({}, opcode);
+      _.current_function().RegisterBlockEnd(vector<uint32_t>(), opcode);
+      if (opcode == SpvOpKill) {
+        _.current_function().RegisterExecutionModelLimitation(
+            SpvExecutionModelFragment,
+            "OpKill requires Fragment execution model");
+      }
       break;
     default:
       break;

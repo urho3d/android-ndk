@@ -47,12 +47,12 @@ int main()
 
     static_assert((std::is_signed<typename C::difference_type>::value), "");
     static_assert((std::is_unsigned<typename C::size_type>::value), "");
-    static_assert((std::is_same<typename C::difference_type, 
+    static_assert((std::is_same<typename C::difference_type,
         typename std::iterator_traits<typename C::iterator>::difference_type>::value), "");
-    static_assert((std::is_same<typename C::difference_type, 
+    static_assert((std::is_same<typename C::difference_type,
         typename std::iterator_traits<typename C::const_iterator>::difference_type>::value), "");
     }
-#if __cplusplus >= 201103L
+#if TEST_STD_VER >= 11
     {
     typedef std::forward_list<char, min_allocator<char>> C;
     static_assert((std::is_same<C::value_type, char>::value), "");
@@ -67,9 +67,9 @@ int main()
 
     static_assert((std::is_signed<typename C::difference_type>::value), "");
     static_assert((std::is_unsigned<typename C::size_type>::value), "");
-    static_assert((std::is_same<typename C::difference_type, 
+    static_assert((std::is_same<typename C::difference_type,
         typename std::iterator_traits<typename C::iterator>::difference_type>::value), "");
-    static_assert((std::is_same<typename C::difference_type, 
+    static_assert((std::is_same<typename C::difference_type,
         typename std::iterator_traits<typename C::const_iterator>::difference_type>::value), "");
     }
 #endif

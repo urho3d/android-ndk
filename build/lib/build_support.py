@@ -14,154 +14,55 @@
 # limitations under the License.
 #
 import argparse
-import datetime
 import multiprocessing
 import os
 import shutil
+import site
 import subprocess
 import sys
 import tempfile
-import timeit
 import zipfile
 
 
+# "build" is not a valid package name for setuptools. This package will be
+# silently removed from the source distribution because setuptools thinks it's
+# the build directory rather than a python package named build. Pieces of this
+# package are being moved into the ndk package where they belong, but will
+# continue to be exported from here until we can chase down all the other
+# users.
 THIS_DIR = os.path.realpath(os.path.dirname(__file__))
+site.addsitedir(os.path.join(THIS_DIR, '../..'))
 
-
-# TODO: Make the x86 toolchain names just be the triple.
-ALL_TOOLCHAINS = (
-    'arm-linux-androideabi',
-    'aarch64-linux-android',
-    'mipsel-linux-android',
-    'mips64el-linux-android',
-    'x86',
-    'x86_64',
+# pylint: disable=wrong-import-position,unused-import
+from ndk.abis import (
+    ALL_ABIS,
+    ALL_ARCHITECTURES,
+    ALL_TOOLCHAINS,
+    ALL_TRIPLES,
+    LP32_ABIS,
+    LP64_ABIS,
+    arch_to_abis,
+    arch_to_toolchain,
+    arch_to_triple,
+    toolchain_to_arch,
 )
 
-
-ALL_TRIPLES = (
-    'arm-linux-androideabi',
-    'aarch64-linux-android',
-    'mipsel-linux-android',
-    'mips64el-linux-android',
-    'i686-linux-android',
-    'x86_64-linux-android',
+from ndk.builds import make_repo_prop
+from ndk.hosts import get_default_host, host_to_tag
+from ndk.paths import (
+    android_path,
+    get_dist_dir,
+    get_out_dir,
+    ndk_path,
+    sysroot_path,
+    toolchain_path,
 )
-
-
-ALL_ARCHITECTURES = (
-    'arm',
-    'arm64',
-    'mips',
-    'mips64',
-    'x86',
-    'x86_64',
-)
-
-
-ALL_ABIS = (
-    'armeabi',
-    'armeabi-v7a',
-    'arm64-v8a',
-    'mips',
-    'mips64',
-    'x86',
-    'x86_64',
-)
-
-
-LP32_ABIS = ('armeabi', 'armeabi-v7a', 'mips', 'x86')
-LP64_ABIS = ('arm64-v8a', 'mips64', 'x86_64')
+# pylint: enable=wrong-import-position,unused-import
 
 
 def minimum_platform_level(abi):
-    if abi in LP64_ABIS:
-        return 21
-    else:
-        return 9
-
-
-class Timer(object):
-    def __init__(self):
-        self.start_time = None
-        self.end_time = None
-        self.duration = None
-
-    def start(self):
-        self.start_time = timeit.default_timer()
-
-    def finish(self):
-        self.end_time = timeit.default_timer()
-
-        # Not interested in partial seconds at this scale.
-        seconds = int(self.end_time - self.start_time)
-        self.duration = datetime.timedelta(seconds=seconds)
-
-    def __enter__(self):
-        self.start()
-
-    def __exit__(self, _exc_type, _exc_value, _traceback):
-        self.finish()
-
-
-def arch_to_toolchain(arch):
-    return dict(zip(ALL_ARCHITECTURES, ALL_TOOLCHAINS))[arch]
-
-
-def arch_to_triple(arch):
-    return dict(zip(ALL_ARCHITECTURES, ALL_TRIPLES))[arch]
-
-
-def toolchain_to_arch(toolchain):
-    return dict(zip(ALL_TOOLCHAINS, ALL_ARCHITECTURES))[toolchain]
-
-
-def arch_to_abis(arch):
-    return {
-        'arm': ['armeabi', 'armeabi-v7a'],
-        'arm64': ['arm64-v8a'],
-        'mips': ['mips'],
-        'mips64': ['mips64'],
-        'x86': ['x86'],
-        'x86_64': ['x86_64'],
-    }[arch]
-
-
-def abi_to_arch(arch):
-    return {
-        'armeabi': 'arm',
-        'armeabi-v7a': 'arm',
-        'arm64-v8a': 'arm64',
-        'mips': 'mips',
-        'mips64': 'mips64',
-        'x86': 'x86',
-        'x86_64': 'x86_64',
-    }[arch]
-
-
-def android_path(*args):
-    top = os.path.realpath(os.path.join(THIS_DIR, '../../..'))
-    return os.path.normpath(os.path.join(top, *args))
-
-
-def sysroot_path(toolchain):
-    arch = toolchain_to_arch(toolchain)
-    # Only ARM has more than one ABI, and they both have the same minimum
-    # platform level.
-    abi = arch_to_abis(arch)[0]
-    version = minimum_platform_level(abi)
-
-    prebuilt_ndk = 'prebuilts/ndk/current'
-    sysroot_subpath = 'platforms/android-{}/arch-{}'.format(version, arch)
-    return android_path(prebuilt_ndk, sysroot_subpath)
-
-
-def ndk_path(*args):
-    return android_path('ndk', *args)
-
-
-def toolchain_path(*args):
-    return android_path('toolchain', *args)
+    import ndk.abis
+    return ndk.abis.min_api_for_abi(abi)
 
 
 def jobs_arg():
@@ -179,60 +80,6 @@ def build(cmd, args, intermediate_package=False):
     build_env['NDK_BUILDTOOLS_PATH'] = android_path('ndk/build/tools')
     build_env['ANDROID_NDK_ROOT'] = ndk_path()
     subprocess.check_call(cmd + common_args, env=build_env)
-
-
-def _get_dir_from_env(default, env_var):
-    path = os.path.realpath(os.getenv(env_var, default))
-    if not os.path.isdir(path):
-        os.makedirs(path)
-    return path
-
-
-def get_out_dir():
-    return _get_dir_from_env(android_path('out'), 'OUT_DIR')
-
-
-def get_dist_dir(out_dir):
-    return _get_dir_from_env(os.path.join(out_dir, 'dist'), 'DIST_DIR')
-
-
-def get_default_host():
-    if sys.platform in ('linux', 'linux2'):
-        return 'linux'
-    elif sys.platform == 'darwin':
-        return 'darwin'
-    elif sys.platform == 'win32':
-        return 'windows'
-    else:
-        raise RuntimeError('Unsupported host: {}'.format(sys.platform))
-
-
-def host_to_tag(host):
-    if host in ['darwin', 'linux']:
-        return host + '-x86_64'
-    elif host == 'windows':
-        return 'windows'
-    elif host == 'windows64':
-        return 'windows-x86_64'
-    else:
-        raise RuntimeError('Unsupported host: {}'.format(host))
-
-
-def make_repo_prop(out_dir):
-    file_name = 'repo.prop'
-
-    dist_dir = os.environ.get('DIST_DIR')
-    if dist_dir is not None:
-        dist_repo_prop = os.path.join(dist_dir, file_name)
-        shutil.copy(dist_repo_prop, out_dir)
-    else:
-        out_file = os.path.join(out_dir, file_name)
-        with open(out_file, 'w') as prop_file:
-            cmd = [
-                'repo', 'forall', '-c',
-                'echo $REPO_PROJECT $(git rev-parse HEAD)',
-            ]
-            subprocess.check_call(cmd, stdout=prop_file)
 
 
 def make_package(name, directory, out_dir):
@@ -258,9 +105,18 @@ def make_package(name, directory, out_dir):
     os.chdir(os.path.dirname(directory))
     basename = os.path.basename(directory)
     try:
+        # repo.prop files are excluded because in the event that we have a
+        # repo.prop in the root of the directory we're packaging, the repo.prop
+        # file we add later in this function will create a second entry (the
+        # zip format allows multiple files with the same path).
+        #
+        # The one we create here will point back to the tree that was used to
+        # build the package, and the original repo.prop can be reached from
+        # there, so no information is lost.
         subprocess.check_call(
             ['zip', '-x', '*.pyc', '-x', '*.pyo', '-x', '*.swp',
-             '-x', '*.git*', '-0qr', path, basename])
+             '-x', '*.git*', '-x', os.path.join(basename, 'repo.prop'), '-0qr',
+             path, basename])
     finally:
         os.chdir(cwd)
 

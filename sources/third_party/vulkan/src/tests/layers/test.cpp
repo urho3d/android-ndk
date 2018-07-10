@@ -35,6 +35,8 @@ struct layer_data {
     layer_data() : instance(VK_NULL_HANDLE), instance_dispatch_table(nullptr) {};
 };
 
+static uint32_t loader_layer_if_version = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
+
 static std::unordered_map<void *, layer_data *> layer_data_map;
 
 VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo* pCreateInfo, const VkAllocationCallbacks* pAllocator,
@@ -60,11 +62,10 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo* pCreat
         return result;
     }
 
-    layer_data *instance_data = get_my_data_ptr(get_dispatch_key(*pInstance), layer_data_map);
+    layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(*pInstance), layer_data_map);
     instance_data->instance = *pInstance;
     instance_data->instance_dispatch_table = new VkLayerInstanceDispatchTable;
     layer_init_instance_dispatch_table(*pInstance, instance_data->instance_dispatch_table, fpGetInstanceProcAddr);
-
     // Marker for testing.
     std::cout << "VK_LAYER_LUNARG_test: CreateInstance" << '\n';
 
@@ -74,7 +75,7 @@ VKAPI_ATTR VkResult VKAPI_CALL CreateInstance(const VkInstanceCreateInfo* pCreat
 VKAPI_ATTR void VKAPI_CALL DestroyInstance(VkInstance instance, const VkAllocationCallbacks *pAllocator)
 {
     dispatch_key key = get_dispatch_key(instance);
-    layer_data *instance_data = get_my_data_ptr(key, layer_data_map);
+    layer_data *instance_data = GetLayerDataPtr(key, layer_data_map);
     instance_data->instance_dispatch_table->DestroyInstance(instance, pAllocator);
 
     delete instance_data->instance_dispatch_table;
@@ -107,7 +108,7 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     }
 
     // Only call down the chain for Vulkan commands that this layer does not intercept.
-    layer_data *instance_data = get_my_data_ptr(get_dispatch_key(instance), layer_data_map);
+    layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
     VkLayerInstanceDispatchTable *pTable = instance_data->instance_dispatch_table;
     if (pTable->GetInstanceProcAddr == nullptr)
     {
@@ -115,6 +116,19 @@ VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetInstanceProcAddr(VkInstance instance
     }
 
     return pTable->GetInstanceProcAddr(instance, funcName);
+}
+
+VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL GetPhysicalDeviceProcAddr(VkInstance instance, const char *funcName) {
+    assert(instance);
+
+    layer_data *instance_data = GetLayerDataPtr(get_dispatch_key(instance), layer_data_map);
+    VkLayerInstanceDispatchTable *pTable = instance_data->instance_dispatch_table;
+    if (pTable->GetPhysicalDeviceProcAddr == nullptr)
+    {
+        return nullptr;
+    }
+
+    return pTable->GetPhysicalDeviceProcAddr(instance, funcName);
 }
 
 }
@@ -137,4 +151,28 @@ VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceExtensionPrope
 VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkEnumerateInstanceLayerProperties(uint32_t *pCount, VkLayerProperties *pProperties)
 {
     return VK_ERROR_LAYER_NOT_PRESENT;
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vk_layerGetPhysicalDeviceProcAddr(VkInstance instance, const char *funcName) {
+    return test::GetPhysicalDeviceProcAddr(instance, funcName);
+}
+
+VK_LAYER_EXPORT VKAPI_ATTR VkResult VKAPI_CALL vkNegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface *pVersionStruct) {
+    assert(pVersionStruct != NULL);
+    assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
+
+    // Fill in the function pointers if our version is at least capable of having the structure contain them.
+    if (pVersionStruct->loaderLayerInterfaceVersion >= 2) {
+        pVersionStruct->pfnGetInstanceProcAddr = vkGetInstanceProcAddr;
+        pVersionStruct->pfnGetDeviceProcAddr = vkGetDeviceProcAddr;
+        pVersionStruct->pfnGetPhysicalDeviceProcAddr = vk_layerGetPhysicalDeviceProcAddr;
+    }
+
+    if (pVersionStruct->loaderLayerInterfaceVersion < CURRENT_LOADER_LAYER_INTERFACE_VERSION) {
+        test::loader_layer_if_version = pVersionStruct->loaderLayerInterfaceVersion;
+    } else if (pVersionStruct->loaderLayerInterfaceVersion > CURRENT_LOADER_LAYER_INTERFACE_VERSION) {
+        pVersionStruct->loaderLayerInterfaceVersion = CURRENT_LOADER_LAYER_INTERFACE_VERSION;
+    }
+
+    return VK_SUCCESS;
 }

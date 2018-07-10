@@ -18,7 +18,10 @@
 // limitations under the License.
 ///////////////////////////////////////////////////////////////////////////////
 
+#ifndef VK_PROTOTYPES
 #define VK_PROTOTYPES
+#endif
+
 #include "vkjson.h"
 
 #include <assert.h>
@@ -54,7 +57,7 @@ bool ParseOptions(int argc, char* argv[], Options* options) {
       if (arg == "--device-index" || arg == "-d") {
         int result = sscanf(arg2.c_str(), "%u", &options->device_index);
         if (result != 1) {
-          options->device_index = -1;
+          options->device_index = static_cast<uint32_t>(-1);
           std::cerr << "Unable to parse index: " << arg2 << std::endl;
           return false;
         }
@@ -121,7 +124,11 @@ bool Dump(const VkJsonInstance& instance, const Options& options) {
   std::string output_file;
   if (options.output_file.empty()) {
     assert(out_device);
+#if defined(ANDROID)
+    output_file.assign("/sdcard/Android/" + std::string(out_device->properties.deviceName));
+#else
     output_file.assign(out_device->properties.deviceName);
+#endif
     output_file.append(".json");
   } else {
     output_file = options.output_file;
@@ -153,6 +160,11 @@ bool Dump(const VkJsonInstance& instance, const Options& options) {
 }
 
 int main(int argc, char* argv[]) {
+#if defined(ANDROID)
+  int vulkanSupport = InitVulkan();
+  if (vulkanSupport == 0)
+    return 1;
+#endif
   Options options;
   if (!ParseOptions(argc, argv, &options))
     return 1;

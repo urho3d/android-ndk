@@ -16,8 +16,6 @@
 # this file is included repeatedly from Android.mk files in order to clean
 # the module-specific variables from the environment,
 
-$(call clear-src-tags)
-
 # Note: As a special exception, we don't want to clear LOCAL_PATH
 $(call clear-vars, $(filter-out LOCAL_PATH,$(modules-LOCALS:%=LOCAL_%)))
 

@@ -21,13 +21,12 @@ REM
 setlocal EnableDelayedExpansion
 set errorCode=0
 set ANDROID_BUILD_DIR=%~dp0
-set BUILD_DIR=%ANDROID_BUILD_DIR%\..
+set BUILD_DIR=%ANDROID_BUILD_DIR%
 set BASE_DIR=%BUILD_DIR%\third_party
+set GLSLANG_DIR=%BASE_DIR%\shaderc\third_party\glslang
+set SPIRV_TOOLS_DIR=%BASE_DIR%\shaderc\third_party\spirv-tools
+set SPIRV_HEADERS_DIR=%BASE_DIR%\shaderc\third_party\spirv-tools\external\spirv-headers
 set SHADERC_DIR=%BASE_DIR%\shaderc
-set SHADERC_THIRD_PARTY=%BASE_DIR%\shaderc\third_party
-set GLSLANG_DIR=%SHADERC_THIRD_PARTH%\glslang
-set SPIRV_TOOLS_DIR=%SHADERC_THIRD_PARTH%\spirv-tools
-set SPIRV_HEADERS_DIR=%SHADERC_THIRD_PARTH%\spirv-tools\external\spirv-headers
 
 for %%X in (where.exe) do (set FOUND=%%~$PATH:X)
 if not defined FOUND (
@@ -112,12 +111,7 @@ set sync-spirv-headers=1
 set sync-shaderc=1
 set build-shaderc=1
 
-REM Must be first as we create directories used by glslang and spriv-tools
-
 if %sync-shaderc% equ 1 (
-   if exist %SHADERC_DIR% (
-      rd /S /Q %SHADERC_DIR%
-   )
    if not exist %SHADERC_DIR% (
       call:create_shaderc
    )
@@ -127,9 +121,6 @@ if %sync-shaderc% equ 1 (
 )
 
 if %sync-glslang% equ 1 (
-   if exist %GLSLANG_DIR% (
-      rd /S /Q %GLSLANG_DIR%
-   )
    if not exist %GLSLANG_DIR% (
       call:create_glslang
    )
@@ -139,9 +130,6 @@ if %sync-glslang% equ 1 (
 )
 
 if %sync-spirv-tools% equ 1 (
-   if exist %SPIRV_TOOLS_DIR% (
-      rd /S /Q %SPIRV_TOOLS_DIR%
-   )
    if %ERRORLEVEL% neq 0 (goto:error)
    if not exist %SPIRV_TOOLS_DIR% (
       call:create_spirv-tools
@@ -152,9 +140,6 @@ if %sync-spirv-tools% equ 1 (
 )
 
 if %sync-spirv-headers% equ 1 (
-   if exist %SPIRV_HEADERS_DIR% (
-      rd /S /Q %SPIRV_HEADERS_DIR%
-   )
    if %ERRORLEVEL% neq 0 (goto:error)
    if not exist %SPIRV_HEADERS_DIR% (
       call:create_spirv-headers
@@ -192,7 +177,7 @@ REM // ======== Functions ======== //
 :create_glslang
    echo.
    echo Creating local glslang repository %GLSLANG_DIR%
-   mkdir %GLSLANG_DIR%
+   if not exist "%GLSLANG_DIR%\" mkdir %GLSLANG_DIR%
    cd %GLSLANG_DIR%
    git clone https://github.com/KhronosGroup/glslang.git .
    git checkout %GLSLANG_REVISION%
@@ -217,7 +202,7 @@ goto:eof
 :create_spirv-tools
    echo.
    echo Creating local spirv-tools repository %SPIRV_TOOLS_DIR%
-   mkdir %SPIRV_TOOLS_DIR%
+   if not exist "%SPIRV_TOOLS_DIR%\" mkdir %SPIRV_TOOLS_DIR%
    cd %SPIRV_TOOLS_DIR%
    git clone https://github.com/KhronosGroup/SPIRV-Tools.git .
    git checkout %SPIRV_TOOLS_REVISION%
@@ -242,7 +227,7 @@ goto:eof
 :create_spirv-headers
    echo.
    echo Creating local spirv-headers repository %SPIRV_HEADERS_DIR%
-   mkdir %SPIRV_HEADERS_DIR%
+   if not exist "%SPIRV_HEADERS_DIR%\" mkdir %SPIRV_HEADERS_DIR%
    cd %SPIRV_HEADERS_DIR%
    git clone https://github.com/KhronosGroup/SPIRV-Headers.git .
    git checkout %SPIRV_HEADERS_REVISION%
@@ -267,7 +252,7 @@ goto:eof
 :create_shaderc
    echo.
    echo Creating local shaderc repository %SHADERC_DIR%
-   mkdir %SHADERC_DIR%
+   if not exist "%SHADERC_DIR%\" mkdir %SHADERC_DIR%
    cd %SHADERC_DIR%
    git clone https://github.com/google/shaderc.git .
    git checkout %SHADERC_REVISION%
@@ -294,7 +279,7 @@ goto:eof
    echo Building %SHADERC_DIR%
    cd %SHADERC_DIR%\android_test
    echo Building shaderc with Android NDK
-   call ndk-build THIRD_PARTY_PATH=../.. -j 4
+   call ndk-build NDK_APPLICATION_MK=../../../jni/shaderc/Application.mk THIRD_PARTY_PATH=../third_party -j 4
    REM Check for existence of one lib, even though we should check for all results
    if not exist %SHADERC_DIR%\android_test\obj\local\x86\libshaderc.a (
       echo.

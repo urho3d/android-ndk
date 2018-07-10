@@ -14,12 +14,11 @@
 
 #include "diagnostic.h"
 
-#include <assert.h>
-#include <string.h>
-
+#include <cassert>
+#include <cstring>
 #include <iostream>
+#include <sstream>
 
-#include "spirv-tools/libspirv.h"
 #include "table.h"
 
 // Diagnostic API
@@ -68,25 +67,37 @@ spv_result_t spvDiagnosticPrint(const spv_diagnostic diagnostic) {
 
 namespace libspirv {
 
+DiagnosticStream::DiagnosticStream(DiagnosticStream&& other)
+    : stream_(),
+      position_(other.position_),
+      consumer_(other.consumer_),
+      error_(other.error_) {
+  // Prevent the other object from emitting output during destruction.
+  other.error_ = SPV_FAILED_MATCH;
+  // Some platforms are missing support for std::ostringstream functionality,
+  // including:  move constructor, swap method.  Either would have been a
+  // better choice than copying the string.
+  stream_ << other.stream_.str();
+}
+
 DiagnosticStream::~DiagnosticStream() {
-  using spvtools::MessageLevel;
   if (error_ != SPV_FAILED_MATCH && consumer_ != nullptr) {
-    auto level = MessageLevel::Error;
+    auto level = SPV_MSG_ERROR;
     switch (error_) {
       case SPV_SUCCESS:
       case SPV_REQUESTED_TERMINATION:  // Essentially success.
-        level = MessageLevel::Info;
+        level = SPV_MSG_INFO;
         break;
       case SPV_WARNING:
-        level = MessageLevel::Warning;
+        level = SPV_MSG_WARNING;
         break;
       case SPV_UNSUPPORTED:
       case SPV_ERROR_INTERNAL:
       case SPV_ERROR_INVALID_TABLE:
-        level = MessageLevel::InternalError;
+        level = SPV_MSG_INTERNAL_ERROR;
         break;
       case SPV_ERROR_OUT_OF_MEMORY:
-        level = MessageLevel::Fatal;
+        level = SPV_MSG_FATAL;
         break;
       default:
         break;
@@ -99,14 +110,14 @@ void UseDiagnosticAsMessageConsumer(spv_context context,
                                     spv_diagnostic* diagnostic) {
   assert(diagnostic && *diagnostic == nullptr);
 
-  auto create_diagnostic = [diagnostic](spvtools::MessageLevel, const char*,
+  auto create_diagnostic = [diagnostic](spv_message_level_t, const char*,
                                         const spv_position_t& position,
                                         const char* message) {
     auto p = position;
     spvDiagnosticDestroy(*diagnostic);  // Avoid memory leak.
     *diagnostic = spvDiagnosticCreate(&p, message);
   };
-  SetContextMessageConsumer(context, std::move(create_diagnostic));
+  libspirv::SetContextMessageConsumer(context, std::move(create_diagnostic));
 }
 
 std::string spvResultToString(spv_result_t res) {

@@ -17,4 +17,4 @@
 # the setup.mk file adjacent to this one
 #
 TOOLCHAIN_ARCH := arm
-TOOLCHAIN_ABIS := armeabi armeabi-v7a
+TOOLCHAIN_ABIS := armeabi-v7a

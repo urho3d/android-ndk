@@ -32,3 +32,11 @@ $(call __ndk_error,Aborting)\
 )
 
 $(call module-add,$(LOCAL_MODULE))
+
+# Eval sucks. It's not possible to preserve even properly escaped # characters
+# as far as I can tell, and we need that for -Werror=#warnings. Manually stash
+# all the cflags variations so we can preserve these.
+__ndk_modules.$(LOCAL_MODULE).CFLAGS := $(LOCAL_CFLAGS)
+__ndk_modules.$(LOCAL_MODULE).CONLYFLAGS := $(LOCAL_CONLYFLAGS)
+__ndk_modules.$(LOCAL_MODULE).CPPFLAGS := $(LOCAL_CPPFLAGS)
+__ndk_modules.$(LOCAL_MODULE).CXXFLAGS := $(LOCAL_CXXFLAGS)

@@ -26,6 +26,7 @@
 // SUCH DAMAGE.
 
 #include <limits.h>
+#include <string.h>
 #include <sys/mman.h>
 
 #include <cassert>

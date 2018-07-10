@@ -118,11 +118,9 @@ using ::fscanf;
 using ::snprintf;
 using ::sprintf;
 using ::sscanf;
-#ifndef _LIBCPP_MSVCRT
 using ::vfprintf;
 using ::vfscanf;
 using ::vsscanf;
-#endif // _LIBCPP_MSVCRT
 using ::vsnprintf;
 using ::vsprintf;
 using ::fgetc;
@@ -134,9 +132,15 @@ using ::putc;
 using ::ungetc;
 using ::fread;
 using ::fwrite;
+#if !defined(__ANDROID__) || !defined(__USE_FILE_OFFSET64) ||                  \
+    (__ANDROID_API__ >= __ANDROID_API_N__)
 using ::fgetpos;
+#endif
 using ::fseek;
+#if !defined(__ANDROID__) || !defined(__USE_FILE_OFFSET64) ||                  \
+    (__ANDROID_API__ >= __ANDROID_API_N__)
 using ::fsetpos;
+#endif
 using ::ftell;
 using ::rewind;
 using ::clearerr;
@@ -155,7 +159,7 @@ using ::tmpnam;
 
 #ifndef _LIBCPP_HAS_NO_STDIN
 using ::getchar;
-#if _LIBCPP_STD_VER <= 11
+#if _LIBCPP_STD_VER <= 11 && !defined(_LIBCPP_MSVCRT)
 using ::gets;
 #endif
 using ::scanf;

@@ -7,7 +7,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-// XFAIL: libcpp-no-exceptions
+// UNSUPPORTED: c++98, c++03, c++11
 // <optional>
 
 // optional(const optional<T>& rhs);
@@ -16,7 +16,7 @@
 #include <type_traits>
 #include <cassert>
 
-#if _LIBCPP_STD_VER > 11
+#include "test_macros.h"
 
 using std::experimental::optional;
 
@@ -25,7 +25,12 @@ void
 test(const optional<T>& rhs, bool is_going_to_throw = false)
 {
     bool rhs_engaged = static_cast<bool>(rhs);
+#ifdef TEST_HAS_NO_EXCEPTIONS
+    if (is_going_to_throw)
+        return;
+#else
     try
+#endif
     {
         optional<T> lhs = rhs;
         assert(is_going_to_throw == false);
@@ -33,10 +38,13 @@ test(const optional<T>& rhs, bool is_going_to_throw = false)
         if (rhs_engaged)
             assert(*lhs == *rhs);
     }
+#ifndef TEST_HAS_NO_EXCEPTIONS
     catch (int i)
     {
         assert(i == 6);
+        assert(is_going_to_throw);
     }
+#endif
 }
 
 class X
@@ -69,18 +77,15 @@ public:
     Z(const Z&)
     {
         if (++count == 2)
-            throw 6;
+            TEST_THROW(6);
     }
 
     friend constexpr bool operator==(const Z& x, const Z& y) {return x.i_ == y.i_;}
 };
 
 
-#endif  // _LIBCPP_STD_VER > 11
-
 int main()
 {
-#if _LIBCPP_STD_VER > 11
     {
         typedef int T;
         optional<T> rhs;
@@ -92,12 +97,22 @@ int main()
         test(rhs);
     }
     {
+        typedef const int T;
+        optional<T> rhs(3);
+        test(rhs);
+    }
+    {
         typedef X T;
         optional<T> rhs;
         test(rhs);
     }
     {
         typedef X T;
+        optional<T> rhs(X(3));
+        test(rhs);
+    }
+    {
+        typedef const X T;
         optional<T> rhs(X(3));
         test(rhs);
     }
@@ -121,5 +136,4 @@ int main()
         optional<T> rhs(Z(3));
         test(rhs, true);
     }
-#endif  // _LIBCPP_STD_VER > 11
 }

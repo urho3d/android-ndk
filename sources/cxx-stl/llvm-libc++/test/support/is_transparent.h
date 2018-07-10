@@ -10,8 +10,10 @@
 #ifndef TRANSPARENT_H
 #define TRANSPARENT_H
 
-// testing transparent 
-#if _LIBCPP_STD_VER > 11
+#include "test_macros.h"
+
+// testing transparent
+#if TEST_STD_VER > 11
 
 struct transparent_less
 {
@@ -20,7 +22,17 @@ struct transparent_less
     noexcept(noexcept(std::forward<T>(t) < std::forward<U>(u)))
     -> decltype      (std::forward<T>(t) < std::forward<U>(u))
         { return      std::forward<T>(t) < std::forward<U>(u); }
-    typedef void is_transparent;  // correct
+    using is_transparent = void;  // correct
+};
+
+struct transparent_less_not_referenceable
+{
+    template <class T, class U>
+    constexpr auto operator()(T&& t, U&& u) const
+    noexcept(noexcept(std::forward<T>(t) < std::forward<U>(u)))
+    -> decltype      (std::forward<T>(t) < std::forward<U>(u))
+        { return      std::forward<T>(t) < std::forward<U>(u); }
+    using is_transparent = void () const &;  // it's a type; a weird one, but a type
 };
 
 struct transparent_less_no_type
@@ -31,7 +43,7 @@ struct transparent_less_no_type
     -> decltype      (std::forward<T>(t) < std::forward<U>(u))
         { return      std::forward<T>(t) < std::forward<U>(u); }
 private:
-//    typedef void is_transparent;  // error - should exist
+//    using is_transparent = void;  // error - should exist
 };
 
 struct transparent_less_private
@@ -42,7 +54,7 @@ struct transparent_less_private
     -> decltype      (std::forward<T>(t) < std::forward<U>(u))
         { return      std::forward<T>(t) < std::forward<U>(u); }
 private:
-    typedef void is_transparent;  // error - should be accessible
+    using is_transparent = void;  // error - should be accessible
 };
 
 struct transparent_less_not_a_type
@@ -63,7 +75,7 @@ struct C2Int { // comparable to int
 private:
     int i_;
     };
-    
+
 bool operator <(int          rhs,   const C2Int& lhs) { return rhs       < lhs.get(); }
 bool operator <(const C2Int& rhs,   const C2Int& lhs) { return rhs.get() < lhs.get(); }
 bool operator <(const C2Int& rhs,            int lhs) { return rhs.get() < lhs; }

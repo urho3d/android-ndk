@@ -12,6 +12,8 @@
 #include <cstdio>
 #include <type_traits>
 
+#include "test_macros.h"
+
 #ifndef BUFSIZ
 #error BUFSIZ not defined
 #endif
@@ -87,7 +89,7 @@
 int main()
 {
     std::FILE* fp = 0;
-    std::fpos_t fpos = {0};
+    std::fpos_t fpos = std::fpos_t();
     std::size_t s = 0;
     char* cp = 0;
     std::va_list va;
@@ -140,7 +142,7 @@ int main()
 
 #ifndef _LIBCPP_HAS_NO_STDIN
     static_assert((std::is_same<decltype(std::getchar()), int>::value), "");
-#if _LIBCPP_STD_VER <= 11
+#if TEST_STD_VER <= 11
     static_assert((std::is_same<decltype(std::gets(cp)), char*>::value), "");
 #endif
     static_assert((std::is_same<decltype(std::scanf(" ")), int>::value), "");

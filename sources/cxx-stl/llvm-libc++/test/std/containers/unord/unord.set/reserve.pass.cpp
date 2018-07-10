@@ -18,6 +18,7 @@
 #include <unordered_set>
 #include <cassert>
 
+#include "test_macros.h"
 #include "min_allocator.h"
 
 template <class C>
@@ -63,7 +64,7 @@ int main()
         test(c);
         assert(c.bucket_count() >= 5);
         c.reserve(3);
-        assert(c.bucket_count() == 5);
+        LIBCPP_ASSERT(c.bucket_count() == 5);
         test(c);
         c.max_load_factor(2);
         c.reserve(3);
@@ -73,7 +74,7 @@ int main()
         assert(c.bucket_count() >= 16);
         test(c);
     }
-#if __cplusplus >= 201103L
+#if TEST_STD_VER >= 11
     {
         typedef std::unordered_set<int, std::hash<int>,
                                       std::equal_to<int>, min_allocator<int>> C;
@@ -91,7 +92,7 @@ int main()
         test(c);
         assert(c.bucket_count() >= 5);
         c.reserve(3);
-        assert(c.bucket_count() == 5);
+        LIBCPP_ASSERT(c.bucket_count() == 5);
         test(c);
         c.max_load_factor(2);
         c.reserve(3);

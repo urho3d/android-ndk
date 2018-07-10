@@ -56,7 +56,7 @@ DRYRUN=
 register_var_option "--dryrun" DRYRUN "Unsupported."
 
 PLATFORM=
-register_option "--platform=<name>" do_platform "Specify target Android platform/API level." "android-9"
+register_option "--platform=<name>" do_platform "Specify target Android platform/API level." "android-14"
 do_platform () {
     PLATFORM=$1;
     if [ "$PLATFORM" = "android-L" ]; then
@@ -147,10 +147,15 @@ else
 fi
 
 PLATFORM_NUMBER=${PLATFORM#android-}
-#dump "COMMAND: python `dirname $0`/make_standalone_toolchain.py \
-    #--arch $ARCH --api $PLATFORM_NUMBER --stl $STL $INSTALL_ARG"
+if [ -n "$PLATFORM_NUMBER" ]; then
+  PLATFORM_ARG="--api $PLATFORM_NUMBER"
+else
+  PLATFORM_ARG=""
+fi
+
 run python `dirname $0`/make_standalone_toolchain.py \
-    --arch $ARCH --api $PLATFORM_NUMBER --stl $STL $INSTALL_ARG $FORCE_ARG
+    --arch $ARCH $PLATFORM_ARG --stl $STL $INSTALL_ARG $FORCE_ARG
+fail_panic "Failed to create toolchain."
 
 if [ -n "$INSTALL_DIR" ]; then
     dump "Toolchain installed to $INSTALL_DIR."

@@ -6,6 +6,9 @@
 // Source Licenses. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
+//
+// PR11871
+// XFAIL: with_system_cxx_lib=macosx10.7
 
 // <locale>
 
@@ -22,6 +25,8 @@
 #include "test_iterators.h"
 #include "hexfloat.h"
 
+#include "float_comparison.h"
+
 typedef std::num_get<char, input_iterator<const char*> > F;
 
 class my_facet
@@ -31,6 +36,7 @@ public:
     explicit my_facet(std::size_t refs = 0)
         : F(refs) {}
 };
+
 
 int main()
 {
@@ -224,8 +230,45 @@ int main()
             f.get(input_iterator<const char*>(str),
                   input_iterator<const char*>(str+sizeof(str)),
                   ios, err, v);
+
+        FloatingPoint<long double> actual(v);
+        FloatingPoint<long double> expected(304888344611713860501504000000.0L);
+        assert(actual.AlmostEquals(expected));
+    }
+    {
+        v = -1;
+        const char str[] = "1.19973e+4933"; // unrepresentable
+        std::ios_base::iostate err = ios.goodbit;
+        input_iterator<const char*> iter =
+            f.get(input_iterator<const char*>(str),
+                  input_iterator<const char*>(str+sizeof(str)),
+                  ios, err, v);
         assert(iter.base() == str+sizeof(str)-1);
-        assert(err != ios.failbit);
-        assert(v == 304888344611713860501504000000.0L);
+        assert(err == ios.failbit);
+        assert(v == HUGE_VALL);
+    }
+    {
+        v = -1;
+        const char str[] = "-1.18974e+4932"; // unrepresentable
+        std::ios_base::iostate err = ios.goodbit;
+        input_iterator<const char*> iter =
+            f.get(input_iterator<const char*>(str),
+                  input_iterator<const char*>(str+sizeof(str)),
+                  ios, err, v);
+        assert(iter.base() == str+sizeof(str)-1);
+        assert(err == ios.failbit);
+        assert(v == -HUGE_VALL);
+    }
+    {
+        v = -1;
+        const char str[] = "2-";
+        std::ios_base::iostate err = ios.goodbit;
+        input_iterator<const char*> iter =
+            f.get(input_iterator<const char*>(str),
+                  input_iterator<const char*>(str+sizeof(str)),
+                  ios, err, v);
+        assert(iter.base() == str+1);
+        assert(err == ios.goodbit);
+        assert(v == 2);
     }
 }

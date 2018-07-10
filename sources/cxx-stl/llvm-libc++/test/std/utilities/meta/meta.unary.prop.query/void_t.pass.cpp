@@ -13,7 +13,7 @@
 
 // UNSUPPORTED: c++98, c++03, c++11, c++14
 
-// XFAIL: gcc-5.1 gcc-5.2
+// XFAIL: gcc-5.1, gcc-5.2
 
 #include <type_traits>
 
@@ -57,7 +57,7 @@ int main()
     test1<Class>();
     test1<Class[]>();
     test1<Class[5]>();
-    
+
     test2<void, int>();
     test2<double, int>();
     test2<int&, int>();

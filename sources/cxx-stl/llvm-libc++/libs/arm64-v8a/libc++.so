@@ -1,1 +1,1 @@
-INPUT(-landroid_support -lc++_shared)
+INPUT(-lc++_shared)

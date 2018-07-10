@@ -33,15 +33,21 @@ from __future__ import print_function
 
 import datetime
 import errno
+import os
 import os.path
 import re
 import subprocess
 import sys
+import time
 
 
 def mkdir_p(directory):
     """Make the directory, and all its ancestors as required.  Any of the
     directories are allowed to already exist."""
+
+    if directory == "":
+        # We're being asked to make the current directory.
+        return
 
     try:
         os.makedirs(directory)
@@ -76,9 +82,13 @@ def deduce_software_version(directory):
     The CHANGES file describes most recent versions first.
     """
 
-    pattern = re.compile(r'(v\d+\.\d+(-dev)?) \d\d\d\d-\d\d-\d\d$')
+    # Match the first well-formed version-and-date line.
+    # Allow trailing whitespace in the checked-out source code has
+    # unexpected carriage returns on a linefeed-only system such as
+    # Linux.
+    pattern = re.compile(r'^(v\d+\.\d+(-dev)?) \d\d\d\d-\d\d-\d\d\s*$')
     changes_file = os.path.join(directory, 'CHANGES')
-    with open(changes_file) as f:
+    with open(changes_file, mode='rU') as f:
         for line in f.readlines():
             match = pattern.match(line)
             if match:
@@ -104,7 +114,15 @@ def describe(directory):
             return command_output(
                 ['git', 'rev-parse', 'HEAD'], directory).rstrip().decode()
         except:
-            return 'unknown hash, {}'.format(datetime.date.today().isoformat())
+            # This is the fallback case where git gives us no information,
+            # e.g. because the source tree might not be in a git tree.
+            # In this case, usually use a timestamp.  However, to ensure
+            # reproducible builds, allow the builder to override the wall
+            # clock time with enviornment variable SOURCE_DATE_EPOCH
+            # containing a (presumably) fixed timestamp.
+            timestamp = int(os.environ.get('SOURCE_DATE_EPOCH', time.time()))
+            formatted = datetime.date.fromtimestamp(timestamp).isoformat()
+            return 'unknown hash, {}'.format(formatted)
 
 
 def main():

@@ -355,17 +355,12 @@ builder_host_static_library ()
 
 builder_shared_library ()
 {
-    local lib libname suffix libm
+    local lib libname suffix
     libname=$1
     suffix=$2
-    armeabi_v7a_float_abi=$3
 
     if [ -z "$suffix" ]; then
         suffix=".so"
-    fi
-    libm="-lm"
-    if [ "$armeabi_v7a_float_abi" = "hard" ]; then
-        libm="-lm_hard"
     fi
     lib=$_BUILD_DSTDIR/$libname
     lib=${lib%%${suffix}}${suffix}
@@ -388,7 +383,7 @@ builder_shared_library ()
         $_BUILD_STATIC_LIBRARIES \
         $_BUILD_COMPILER_RUNTIME_LDFLAGS \
         $_BUILD_SHARED_LIBRARIES \
-        $libm -lc \
+        -lm -lc \
         $_BUILD_LDFLAGS \
         $_BUILD_LDFLAGS_END_SO \
         -o $lib
@@ -596,12 +591,6 @@ builder_begin_android ()
         esac
         SCRATCH_FLAGS="-target $LLVM_TRIPLE $FLAGS"
         builder_ldflags "$SCRATCH_FLAGS"
-        if [ "$LLVM_VERSION" \> "3.4" ]; then
-            # Turn off integrated-as for clang >= 3.5 due to ill-formed object it produces
-            # involving inline-assembly .pushsection/.popsection which crashes ld.gold
-            # BUG=18589643
-            SCRATCH_FLAGS="$SCRATCH_FLAGS -fno-integrated-as"
-        fi
         builder_cflags  "$SCRATCH_FLAGS"
         builder_cxxflags "$SCRATCH_FLAGS"
         if [ ! -z $GCC_TOOLCHAIN ]; then
@@ -609,6 +598,11 @@ builder_begin_android ()
             builder_cflags "$SCRATCH_FLAGS"
             builder_cxxflags "$SCRATCH_FLAGS"
             builder_ldflags "$SCRATCH_FLAGS"
+            if [ "$ABI" = "mips" ]; then
+              # Help clang use mips64el multilib GCC
+              SCRATCH_FLAGS="-L${GCC_TOOLCHAIN}/lib/gcc/mips64el-linux-android/4.9.x/32/mips-r1 "
+              builder_ldflags "$SCRATCH_FLAGS"
+            fi
         fi
     fi
 
@@ -641,6 +635,12 @@ builder_begin_android ()
             builder_cflags "$SCRATCH_FLAGS"
             builder_cxxflags "$SCRATCH_FLAGS"
             builder_ldflags "-march=armv7-a -Wl,--fix-cortex-a8"
+            ;;
+        mips)
+            SCRATCH_FLAGS="-mips32"
+            builder_cflags "$SCRATCH_FLAGS"
+            builder_cxxflags "$SCRATCH_FLAGS"
+            builder_ldflags "-mips32"
             ;;
     esac
 }

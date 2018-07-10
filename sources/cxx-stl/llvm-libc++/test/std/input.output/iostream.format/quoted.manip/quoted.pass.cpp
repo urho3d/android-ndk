@@ -32,6 +32,7 @@ void both_ways ( const CharT *p ) {
 
     std::basic_stringstream<CharT, Traits> ss;
     bool skippingws = is_skipws ( ss );
+    ((void)skippingws); // Prevent unused warning
     ss << q;
     ss >> q;
     }
@@ -65,7 +66,7 @@ void round_trip_ws ( const CharT *p ) {
 template <class CharT, class Traits = std::char_traits<CharT>>
 void round_trip_d ( const CharT *p, char delim ) {
     std::basic_stringstream<CharT, Traits> ss;
-    CharT d{delim};
+    CharT d(delim);
 
     ss << std::quoted(p, d);
     std::basic_string<CharT, Traits> s;
@@ -76,7 +77,7 @@ void round_trip_d ( const CharT *p, char delim ) {
 template <class CharT, class Traits = std::char_traits<CharT>>
 void round_trip_e ( const CharT *p, char escape ) {
     std::basic_stringstream<CharT, Traits> ss;
-    CharT e{escape};
+    CharT e(escape);
 
     ss << std::quoted(p, CharT('"'), e );
     std::basic_string<CharT, Traits> s;
@@ -88,8 +89,8 @@ void round_trip_e ( const CharT *p, char escape ) {
 template <class CharT, class Traits = std::char_traits<CharT>>
 std::basic_string<CharT, Traits> quote ( const CharT *p, char delim='"', char escape='\\' ) {
     std::basic_stringstream<CharT, Traits> ss;
-    CharT d{delim};
-    CharT e{escape};
+    CharT d(delim);
+    CharT e(escape);
     ss << std::quoted(p, d, e);
     std::basic_string<CharT, Traits> s;
     ss >> s;    // no quote
@@ -101,8 +102,8 @@ std::basic_string<CharT, Traits> unquote ( const CharT *p, char delim='"', char 
     std::basic_stringstream<CharT, Traits> ss;
     ss << p;
 
-    CharT d{delim};
-    CharT e{escape};
+    CharT d(delim);
+    CharT e(escape);
     std::basic_string<CharT, Traits> s;
     ss >> std::quoted(s, d, e);
     return s;
@@ -114,7 +115,7 @@ void test_padding () {
     ss << std::left << std::setw(10) << std::setfill('!') << std::quoted("abc", '`');
     assert ( ss.str() == "`abc`!!!!!" );
     }
-    
+
     {
     std::stringstream ss;
     ss << std::right << std::setw(10) << std::setfill('!') << std::quoted("abc", '`');
@@ -131,31 +132,31 @@ int main()
     round_trip_ws (  "" );
     round_trip_d  (  "", 'q' );
     round_trip_e  (  "", 'q' );
-    
+
     round_trip    ( L"" );
     round_trip_ws ( L"" );
     round_trip_d  ( L"", 'q' );
     round_trip_e  ( L"", 'q' );
-    
+
     round_trip    (  "Hi" );
     round_trip_ws (  "Hi" );
     round_trip_d  (  "Hi", '!' );
     round_trip_e  (  "Hi", '!' );
     assert ( quote ( "Hi", '!' ) == "!Hi!" );
     assert ( quote ( "Hi!", '!' ) == R"(!Hi\!!)" );
-    
+
     round_trip    ( L"Hi" );
     round_trip_ws ( L"Hi" );
     round_trip_d  ( L"Hi", '!' );
     round_trip_e  ( L"Hi", '!' );
     assert ( quote ( L"Hi", '!' )  == L"!Hi!" );
     assert ( quote ( L"Hi!", '!' ) == LR"(!Hi\!!)" );
-    
+
     round_trip    (  "Hi Mom" );
     round_trip_ws (  "Hi Mom" );
     round_trip    ( L"Hi Mom" );
     round_trip_ws ( L"Hi Mom" );
-    
+
     assert ( quote (  "" )  ==  "\"\"" );
     assert ( quote ( L"" )  == L"\"\"" );
     assert ( quote (  "a" ) ==  "\"a\"" );
@@ -164,7 +165,7 @@ int main()
 //  missing end quote - must not hang
     assert ( unquote (  "\"abc" ) ==  "abc" );
     assert ( unquote ( L"\"abc" ) == L"abc" );
-    
+
     assert ( unquote (  "abc" ) == "abc" ); // no delimiter
     assert ( unquote ( L"abc" ) == L"abc" ); // no delimiter
     assert ( unquote (  "abc def" ) ==  "abc" ); // no delimiter

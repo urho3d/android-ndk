@@ -19,7 +19,6 @@ from __future__ import print_function
 
 import argparse
 import contextlib
-import multiprocessing
 import os
 import operator
 import posixpath
@@ -35,12 +34,25 @@ import logging
 # ndk-gdb is installed to $NDK/prebuilt/<platform>/bin
 NDK_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
 sys.path.append(os.path.join(NDK_PATH, "python-packages"))
+import adb
 import gdbrunner
 
 
 def log(msg):
     logger = logging.getLogger(__name__)
     logger.info(msg)
+
+
+def enable_verbose_logging():
+    logger = logging.getLogger(__name__)
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter()
+
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.propagate = False
+
+    logger.setLevel(logging.INFO)
 
 
 def error(msg):
@@ -198,15 +210,7 @@ def handle_args():
         args.nowait = True
 
     if args.verbose:
-        logger = logging.getLogger(__name__)
-        handler = logging.StreamHandler(sys.stdout)
-        formatter = logging.Formatter()
-
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        logger.propagate = False
-
-        logger.setLevel(logging.INFO)
+        enable_verbose_logging()
 
     return args
 
@@ -306,15 +310,16 @@ def dump_var(args, variable, abi=None):
             make_output = subprocess.check_output(make_args, cwd=args.project)
         except subprocess.CalledProcessError:
             error("Failed to retrieve application ABI from Android.mk.")
-    return make_output.splitlines()[0]
+    return make_output.splitlines()[-1]
 
 
-def get_api_level(device_props):
+def get_api_level(device):
     # Check the device API level
-    if "ro.build.version.sdk" not in device_props:
+    try:
+        api_level = int(device.get_prop("ro.build.version.sdk"))
+    except (TypeError, ValueError):
         error("Failed to find target device's supported API level.\n"
               "ndk-gdb only supports devices running Android 2.2 or higher.")
-    api_level = int(device_props["ro.build.version.sdk"])
     if api_level < 8:
         error("ndk-gdb only supports devices running Android 2.2 or higher.\n"
               "(expected API level 8, actual: {})".format(api_level))
@@ -335,18 +340,17 @@ def fetch_abi(args):
     app_abis_msg = "Application ABIs: {}".format(", ".join(app_abis))
     log(app_abis_msg)
 
-    device_props = args.device.get_props()
-
     new_abi_props = ["ro.product.cpu.abilist"]
     old_abi_props = ["ro.product.cpu.abi", "ro.product.cpu.abi2"]
     abi_props = new_abi_props
-    if len(set(new_abi_props).intersection(device_props.keys())) == 0:
+    if args.device.get_prop("ro.product.cpu.abilist") is None:
         abi_props = old_abi_props
 
     device_abis = []
     for key in abi_props:
-        if key in device_props:
-            device_abis.extend(device_props[key].split(","))
+        value = args.device.get_prop(key)
+        if value is not None:
+            device_abis.extend(value.split(","))
 
     device_abis_msg = "Device ABIs: {}".format(", ".join(device_abis))
     log(device_abis_msg)
@@ -366,14 +370,30 @@ def fetch_abi(args):
     error(msg)
 
 
+def get_run_as_cmd(user, cmd):
+    return ["run-as", user] + cmd
+
+
 def get_app_data_dir(args, package_name):
     cmd = ["/system/bin/sh", "-c", "pwd", "2>/dev/null"]
-    cmd = gdbrunner.get_run_as_cmd(package_name, cmd)
+    cmd = get_run_as_cmd(package_name, cmd)
     (rc, stdout, _) = args.device.shell_nocheck(cmd)
     if rc != 0:
         error("Could not find application's data directory. Are you sure that "
               "the application is installed and debuggable?")
     data_dir = stdout.strip()
+
+    # Applications with minSdkVersion >= 24 will have their data directories
+    # created with rwx------ permissions, preventing adbd from forwarding to
+    # the gdbserver socket. To be safe, if we're on a device >= 24, always
+    # chmod the directory.
+    if get_api_level(args.device) >= 24:
+        chmod_cmd = ["/system/bin/chmod", "a+x", data_dir]
+        chmod_cmd = get_run_as_cmd(package_name, chmod_cmd)
+        (rc, _, _) = args.device.shell_nocheck(chmod_cmd)
+        if rc != 0:
+            error("Failed to make application data directory world executable")
+
     log("Found application data directory: {}".format(data_dir))
     return data_dir
 
@@ -390,7 +410,7 @@ def abi_to_arch(abi):
 def get_gdbserver_path(args, package_name, app_data_dir, arch):
     app_gdbserver_path = "{}/lib/gdbserver".format(app_data_dir)
     cmd = ["ls", app_gdbserver_path, "2>/dev/null"]
-    cmd = gdbrunner.get_run_as_cmd(package_name, cmd)
+    cmd = get_run_as_cmd(package_name, cmd)
     (rc, _, _) = args.device.shell_nocheck(cmd)
     if rc == 0:
         log("Found app gdbserver: {}".format(app_gdbserver_path))
@@ -405,7 +425,7 @@ def get_gdbserver_path(args, package_name, app_data_dir, arch):
 
     # Copy gdbserver into the data directory on M+, because selinux prevents
     # execution of binaries directly from /data/local/tmp.
-    if get_api_level(args.props) >= 23:
+    if get_api_level(args.device) >= 23:
         destination = "{}/{}-gdbserver".format(app_data_dir, arch)
         log("Copying gdbserver to {}.".format(destination))
         cmd = ["cat", remote_path, "|", "run-as", package_name,
@@ -457,7 +477,7 @@ def pull_binaries(device, out_dir, app_64bit):
         except:
             device.pull("/system/bin/app_process", destination)
 
-def generate_gdb_script(args, sysroot, binary_path, app_64bit, connect_timeout=5):
+def generate_gdb_script(args, sysroot, binary_path, app_64bit, jdb_pid, connect_timeout=5):
     if sys.platform.startswith("win"):
         # GDB expects paths to use forward slashes.
         sysroot = sysroot.replace("\\", "/")
@@ -499,6 +519,28 @@ target_remote_with_retry(':{}', {})
 
 end
 """.format(args.port, connect_timeout)
+
+    if jdb_pid is not None:
+        # After we've interrupted the app, reinvoke ndk-gdb.py to start jdb and
+        # wake up the app.
+        gdb_commands += """
+python
+def start_jdb_to_unblock_app():
+  import subprocess
+  subprocess.Popen({})
+start_jdb_to_unblock_app()
+end
+    """.format(repr(
+            [
+                sys.executable,
+                os.path.realpath(__file__),
+                "--internal-wakeup-pid-with-jdb",
+                args.device.adb_path,
+                args.device.serial,
+                args.jdb_cmd,
+                str(jdb_pid),
+                str(bool(args.verbose)),
+            ]))
 
     # Set up the pretty printer if needed
     if args.pypr_dir is not None and args.pypr_fn is not None:
@@ -556,11 +598,13 @@ def find_pretty_printer(pretty_printer):
     return pp_path, function
 
 
-def start_jdb(args, pid):
-    log("Starting jdb to unblock application.")
+def start_jdb(adb_path, serial, jdb_cmd, pid, verbose):
+    pid = int(pid)
+    device = adb.get_device(serial, adb_path=adb_path)
+    if verbose == "True":
+        enable_verbose_logging()
 
-    # Give gdbserver some time to attach.
-    time.sleep(0.5)
+    log("Starting jdb to unblock application.")
 
     # Do setup stuff to keep ^C in the parent from killing us.
     signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -569,8 +613,8 @@ def start_jdb(args, pid):
         os.setpgrp()
 
     jdb_port = 65534
-    args.device.forward("tcp:{}".format(jdb_port), "jdwp:{}".format(pid))
-    jdb_cmd = [args.jdb_cmd, "-connect",
+    device.forward("tcp:{}".format(jdb_port), "jdwp:{}".format(pid))
+    jdb_cmd = [jdb_cmd, "-connect",
                "com.sun.jdi.SocketAttach:hostname=localhost,port={}".format(jdb_port)]
 
     flags = subprocess.CREATE_NEW_PROCESS_GROUP if windows else 0
@@ -579,23 +623,52 @@ def start_jdb(args, pid):
                            stdout=subprocess.PIPE,
                            stderr=subprocess.STDOUT,
                            creationflags=flags)
-    jdb.stdin.write("exit\n")
+
+    # Wait until jdb can communicate with the app. Once it can, the app will
+    # start polling for a Java debugger (e.g. every 200ms). We need to wait
+    # a while longer then so that the app notices jdb.
+    jdb_magic = "__verify_jdb_has_started__"
+    jdb.stdin.write('print "{}"\n'.format(jdb_magic))
+    saw_magic_str = False
+    while True:
+        line = jdb.stdout.readline()
+        if line == "":
+            break
+        log("jdb output: " + line.rstrip())
+        if jdb_magic in line and not saw_magic_str:
+            saw_magic_str = True
+            time.sleep(0.3)
+            jdb.stdin.write("exit\n")
     jdb.wait()
-    log("JDB finished unblocking application.")
+    if saw_magic_str:
+        log("JDB finished unblocking application.")
+    else:
+        log("error: did not find magic string in JDB output.")
 
 
 def main():
+    if sys.argv[1:2] == ["--internal-wakeup-pid-with-jdb"]:
+        return start_jdb(*sys.argv[2:])
+
     args = handle_args()
     device = args.device
 
     if device is None:
         error("Could not find a unique connected device/emulator.")
 
+    # Warn on old Pixel C firmware (b/29381985). Newer devices may have Yama
+    # enabled but still work with ndk-gdb (b/19277529).
+    yama_check = device.shell_nocheck(["cat", "/proc/sys/kernel/yama/ptrace_scope", "2>/dev/null"])
+    if (yama_check[0] == 0 and yama_check[1].rstrip() not in ["", "0"] and
+            (device.get_prop("ro.build.product"), device.get_prop("ro.product.name")) == ("dragon", "ryu")):
+        print("WARNING: The device uses Yama ptrace_scope to restrict debugging. ndk-gdb will")
+        print("    likely be unable to attach to a process. With root access, the restriction")
+        print("    can be lifted by writing 0 to /proc/sys/kernel/yama/ptrace_scope. Consider")
+        print("    upgrading your Pixel C to MXC89L or newer, where Yama is disabled.")
+
     adb_version = subprocess.check_output(device.adb_cmd + ["version"])
     log("ADB command used: '{}'".format(" ".join(device.adb_cmd)))
     log("ADB version: {}".format(" ".join(adb_version.splitlines())))
-
-    args.props = device.get_props()
 
     project = find_project(args)
     if args.package_name:
@@ -673,19 +746,15 @@ def main():
     gdbrunner.start_gdbserver(
         device, None, gdbserver_path,
         target_pid=pid, run_cmd=None, debug_socket=debug_socket,
-        port=args.port, user=pkg_name)
+        port=args.port, run_as_cmd=["run-as", pkg_name])
 
     gdb_path = os.path.join(ndk_bin_path(), "gdb")
 
     # Start jdb to unblock the application if necessary.
-    if args.launch and not args.nowait:
-        # Do this in a separate process before starting gdb, since jdb won't
-        # connect until gdb connects and continues.
-        jdb_process = multiprocessing.Process(target=start_jdb, args=(args, pid))
-        jdb_process.start()
+    jdb_pid = pid if (args.launch and not args.nowait) else None
 
     # Start gdb.
-    gdb_commands = generate_gdb_script(args, out_dir, zygote_path, app_64bit)
+    gdb_commands = generate_gdb_script(args, out_dir, zygote_path, app_64bit, jdb_pid)
     gdb_flags = []
     if args.tui:
         gdb_flags.append("--tui")

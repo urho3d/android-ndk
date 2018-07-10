@@ -14,11 +14,13 @@
 #define _LIBCPP_HAS_NO_VARIADICS
 #include <type_traits>
 
+#include "test_macros.h"
+
 template <class T>
 void test_member_function_pointer_imp()
 {
     static_assert(!std::is_void<T>::value, "");
-#if _LIBCPP_STD_VER > 11
+#if TEST_STD_VER > 11
     static_assert(!std::is_null_pointer<T>::value, "");
 #endif
     static_assert(!std::is_integral<T>::value, "");
@@ -76,6 +78,6 @@ int main()
     test_member_function_pointer<void (Class::*)(int, ...) volatile>();
     test_member_function_pointer<void (Class::*)(int, char, ...) volatile>();
 
-//  LWG#2581
+//  LWG#2582
     static_assert(!std::is_member_function_pointer<incomplete_type>::value, "");
 }

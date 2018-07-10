@@ -22,6 +22,7 @@
 #include <iterator>
 #include <numeric>
 #include <cassert>
+#include <cstddef>
 
 template <class T>
 inline
@@ -53,10 +54,10 @@ int main()
         }
         std::vector<double> prob(std::begin(p), std::end(p));
         double s = std::accumulate(prob.begin(), prob.end(), 0.0);
-        for (int i = 0; i < prob.size(); ++i)
+        for (std::size_t i = 0; i < prob.size(); ++i)
             prob[i] /= s;
         std::sort(u.begin(), u.end());
-        for (int i = 0; i < Np; ++i)
+        for (std::size_t i = 0; i < Np; ++i)
         {
             typedef std::vector<D::result_type>::iterator I;
             I lb = std::lower_bound(u.begin(), u.end(), b[i]);
@@ -73,10 +74,10 @@ int main()
                 double kurtosis = 0;
                 for (I j = lb; j != ub; ++j)
                 {
-                    double d = (*j - mean);
-                    double d2 = sqr(d);
+                    double dbl = (*j - mean);
+                    double d2 = sqr(dbl);
                     var += d2;
-                    skew += d * d2;
+                    skew += dbl * d2;
                     kurtosis += d2 * d2;
                 }
                 var /= Ni;

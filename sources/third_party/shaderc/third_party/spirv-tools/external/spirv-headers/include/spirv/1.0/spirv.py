@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2016 The Khronos Group Inc.
+# Copyright (c) 2014-2018 The Khronos Group Inc.
 # 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and/or associated documentation files (the "Materials"),
@@ -42,7 +42,7 @@
 spv = {
     'MagicNumber' : 0x07230203,
     'Version' : 0x00010000,
-    'Revision' : 7,
+    'Revision' : 12,
     'OpCodeMask' : 0xffff,
     'WordCountShift' : 16,
 
@@ -52,6 +52,7 @@ spv = {
         'GLSL' : 2,
         'OpenCL_C' : 3,
         'OpenCL_CPP' : 4,
+        'HLSL' : 5,
     },
 
     'ExecutionModel' : {
@@ -108,6 +109,8 @@ spv = {
         'OutputTriangleStrip' : 29,
         'VecTypeHint' : 30,
         'ContractionOff' : 31,
+        'PostDepthCoverage' : 4446,
+        'StencilRefReplacingEXT' : 5027,
     },
 
     'StorageClass' : {
@@ -123,6 +126,7 @@ spv = {
         'PushConstant' : 9,
         'AtomicCounter' : 10,
         'Image' : 11,
+        'StorageBuffer' : 12,
     },
 
     'Dim' : {
@@ -347,6 +351,13 @@ spv = {
         'NoContraction' : 42,
         'InputAttachmentIndex' : 43,
         'Alignment' : 44,
+        'ExplicitInterpAMD' : 4999,
+        'OverrideCoverageNV' : 5248,
+        'PassthroughNV' : 5250,
+        'ViewportRelativeNV' : 5252,
+        'SecondaryViewportRelativeNV' : 5256,
+        'HlslCounterBufferGOOGLE' : 5634,
+        'HlslSemanticGOOGLE' : 5635,
     },
 
     'BuiltIn' : {
@@ -396,6 +407,24 @@ spv = {
         'SubgroupGtMaskKHR' : 4418,
         'SubgroupLeMaskKHR' : 4419,
         'SubgroupLtMaskKHR' : 4420,
+        'BaseVertex' : 4424,
+        'BaseInstance' : 4425,
+        'DrawIndex' : 4426,
+        'DeviceIndex' : 4438,
+        'ViewIndex' : 4440,
+        'BaryCoordNoPerspAMD' : 4992,
+        'BaryCoordNoPerspCentroidAMD' : 4993,
+        'BaryCoordNoPerspSampleAMD' : 4994,
+        'BaryCoordSmoothAMD' : 4995,
+        'BaryCoordSmoothCentroidAMD' : 4996,
+        'BaryCoordSmoothSampleAMD' : 4997,
+        'BaryCoordPullModelAMD' : 4998,
+        'FragStencilRefEXT' : 5014,
+        'ViewportMaskNV' : 5253,
+        'SecondaryPositionNV' : 5257,
+        'SecondaryViewportMaskNV' : 5258,
+        'PositionPerViewNV' : 5261,
+        'ViewportMaskPerViewNV' : 5262,
     },
 
     'SelectionControlShift' : {
@@ -562,6 +591,34 @@ spv = {
         'StorageImageWriteWithoutFormat' : 56,
         'MultiViewport' : 57,
         'SubgroupBallotKHR' : 4423,
+        'DrawParameters' : 4427,
+        'SubgroupVoteKHR' : 4431,
+        'StorageBuffer16BitAccess' : 4433,
+        'StorageUniformBufferBlock16' : 4433,
+        'StorageUniform16' : 4434,
+        'UniformAndStorageBuffer16BitAccess' : 4434,
+        'StoragePushConstant16' : 4435,
+        'StorageInputOutput16' : 4436,
+        'DeviceGroup' : 4437,
+        'MultiView' : 4439,
+        'VariablePointersStorageBuffer' : 4441,
+        'VariablePointers' : 4442,
+        'AtomicStorageOps' : 4445,
+        'SampleMaskPostDepthCoverage' : 4447,
+        'ImageGatherBiasLodAMD' : 5009,
+        'FragmentMaskAMD' : 5010,
+        'StencilExportEXT' : 5013,
+        'ImageReadWriteLodAMD' : 5015,
+        'SampleMaskOverrideCoverageNV' : 5249,
+        'GeometryShaderPassthroughNV' : 5251,
+        'ShaderViewportIndexLayerEXT' : 5254,
+        'ShaderViewportIndexLayerNV' : 5254,
+        'ShaderViewportMaskNV' : 5255,
+        'ShaderStereoViewNV' : 5259,
+        'PerViewAttributesNV' : 5260,
+        'SubgroupShuffleINTEL' : 5568,
+        'SubgroupBufferBlockIOINTEL' : 5569,
+        'SubgroupImageBlockIOINTEL' : 5570,
     },
 
     'Op' : {
@@ -859,8 +916,33 @@ spv = {
         'OpAtomicFlagTestAndSet' : 318,
         'OpAtomicFlagClear' : 319,
         'OpImageSparseRead' : 320,
+        'OpDecorateId' : 332,
         'OpSubgroupBallotKHR' : 4421,
         'OpSubgroupFirstInvocationKHR' : 4422,
+        'OpSubgroupAllKHR' : 4428,
+        'OpSubgroupAnyKHR' : 4429,
+        'OpSubgroupAllEqualKHR' : 4430,
+        'OpSubgroupReadInvocationKHR' : 4432,
+        'OpGroupIAddNonUniformAMD' : 5000,
+        'OpGroupFAddNonUniformAMD' : 5001,
+        'OpGroupFMinNonUniformAMD' : 5002,
+        'OpGroupUMinNonUniformAMD' : 5003,
+        'OpGroupSMinNonUniformAMD' : 5004,
+        'OpGroupFMaxNonUniformAMD' : 5005,
+        'OpGroupUMaxNonUniformAMD' : 5006,
+        'OpGroupSMaxNonUniformAMD' : 5007,
+        'OpFragmentMaskFetchAMD' : 5011,
+        'OpFragmentFetchAMD' : 5012,
+        'OpSubgroupShuffleINTEL' : 5571,
+        'OpSubgroupShuffleDownINTEL' : 5572,
+        'OpSubgroupShuffleUpINTEL' : 5573,
+        'OpSubgroupShuffleXorINTEL' : 5574,
+        'OpSubgroupBlockReadINTEL' : 5575,
+        'OpSubgroupBlockWriteINTEL' : 5576,
+        'OpSubgroupImageBlockReadINTEL' : 5577,
+        'OpSubgroupImageBlockWriteINTEL' : 5578,
+        'OpDecorateStringGOOGLE' : 5632,
+        'OpMemberDecorateStringGOOGLE' : 5633,
     },
 
 }

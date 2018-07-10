@@ -41,8 +41,8 @@ struct M {
 void swap(M&&, M&&) noexcept {}
 
 struct ThrowingMove {
-    ThrowingMove(ThrowingMove&&){}
-    ThrowingMove& operator=(ThrowingMove&&) {}
+    ThrowingMove(ThrowingMove&&) {}
+    ThrowingMove& operator=(ThrowingMove&&) { return *this; }
 };
 
 } // namespace MyNS
@@ -63,7 +63,7 @@ int main()
         static_assert(!std::is_nothrow_swappable<B>::value
                       && std::is_swappable<B>::value, "");
         static_assert(!std::is_nothrow_swappable<ThrowingMove>::value
-                      && std::is_swappable<ThrowingMove>::value);
+                      && std::is_swappable<ThrowingMove>::value, "");
     }
     {
         // Test that it doesn't drop the qualifiers
@@ -77,7 +77,7 @@ int main()
     }
     {
         // test for presence of is_nothrow_swappable_v
-        static_assert(std::is_nothrow_swappable_v<int>);
-        static_assert(!std::is_nothrow_swappable_v<void>);
+        static_assert(std::is_nothrow_swappable_v<int>, "");
+        static_assert(!std::is_nothrow_swappable_v<void>, "");
     }
 }
