@@ -1,3 +1,7 @@
+> ## DEPRECATED WARNING
+> This repository will be removed in the near future.
+> Please use `echo y |sdkmanager "ndk-bundle"` instead.
+
 Android NDK
 ===========
 
